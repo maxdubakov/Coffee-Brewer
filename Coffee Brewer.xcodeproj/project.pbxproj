@@ -8,12 +8,22 @@
 
 /* Begin PBXBuildFile section */
 		500273A72D5C895600BB903F /* Coffee_BrewerApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 500273A62D5C895600BB903F /* Coffee_BrewerApp.swift */; };
-		500273A92D5C895600BB903F /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 500273A82D5C895600BB903F /* ContentView.swift */; };
 		500273AB2D5C895800BB903F /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 500273AA2D5C895800BB903F /* Assets.xcassets */; };
 		500273AE2D5C895800BB903F /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 500273AD2D5C895800BB903F /* Preview Assets.xcassets */; };
 		500273B82D5C895800BB903F /* Coffee_BrewerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 500273B72D5C895800BB903F /* Coffee_BrewerTests.swift */; };
 		500273C22D5C895800BB903F /* Coffee_BrewerUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 500273C12D5C895800BB903F /* Coffee_BrewerUITests.swift */; };
 		500273C42D5C895800BB903F /* Coffee_BrewerUITestsLaunchTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 500273C32D5C895800BB903F /* Coffee_BrewerUITestsLaunchTests.swift */; };
+		503F13482D609BAA00B9C47F /* CoffeeAmountPicker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 503F13472D609BAA00B9C47F /* CoffeeAmountPicker.swift */; };
+		503F134A2D609C2500B9C47F /* CoffeeColors.swift in Sources */ = {isa = PBXBuildFile; fileRef = 503F13492D609C2500B9C47F /* CoffeeColors.swift */; };
+		503F134C2D609C4A00B9C47F /* CoffeePrompts.swift in Sources */ = {isa = PBXBuildFile; fileRef = 503F134B2D609C4A00B9C47F /* CoffeePrompts.swift */; };
+		503F134E2D609C8100B9C47F /* CoffeeStrength.swift in Sources */ = {isa = PBXBuildFile; fileRef = 503F134D2D609C8100B9C47F /* CoffeeStrength.swift */; };
+		503F13512D609D1700B9C47F /* StrengthSelector.swift in Sources */ = {isa = PBXBuildFile; fileRef = 503F13502D609D1700B9C47F /* StrengthSelector.swift */; };
+		503F13532D609D3F00B9C47F /* BrewingTimer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 503F13522D609D3F00B9C47F /* BrewingTimer.swift */; };
+		503F13552D609D5500B9C47F /* WaveShape.swift in Sources */ = {isa = PBXBuildFile; fileRef = 503F13542D609D5500B9C47F /* WaveShape.swift */; };
+		503F13572D609D6A00B9C47F /* CoffeeProgressCircle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 503F13562D609D6A00B9C47F /* CoffeeProgressCircle.swift */; };
+		503F13592D609D8400B9C47F /* StageRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 503F13582D609D8400B9C47F /* StageRow.swift */; };
+		503F135B2D609D9000B9C47F /* WaterToRatioTable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 503F135A2D609D9000B9C47F /* WaterToRatioTable.swift */; };
+		503F135E2D60A8FE00B9C47F /* CoffeeBrewing.swift in Sources */ = {isa = PBXBuildFile; fileRef = 503F135D2D60A8FE00B9C47F /* CoffeeBrewing.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -35,8 +45,7 @@
 
 /* Begin PBXFileReference section */
 		500273A32D5C895600BB903F /* Coffee Brewer.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Coffee Brewer.app"; sourceTree = BUILT_PRODUCTS_DIR; };
-		500273A62D5C895600BB903F /* Coffee_BrewerApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Coffee_BrewerApp.swift; sourceTree = "<group>"; };
-		500273A82D5C895600BB903F /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
+		500273A62D5C895600BB903F /* Coffee_BrewerApp.swift */ = {isa = PBXFileReference; indentWidth = 2; lastKnownFileType = sourcecode.swift; path = Coffee_BrewerApp.swift; sourceTree = "<group>"; tabWidth = 2; };
 		500273AA2D5C895800BB903F /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		500273AD2D5C895800BB903F /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
 		500273B32D5C895800BB903F /* Coffee BrewerTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "Coffee BrewerTests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -44,6 +53,17 @@
 		500273BD2D5C895800BB903F /* Coffee BrewerUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "Coffee BrewerUITests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
 		500273C12D5C895800BB903F /* Coffee_BrewerUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Coffee_BrewerUITests.swift; sourceTree = "<group>"; };
 		500273C32D5C895800BB903F /* Coffee_BrewerUITestsLaunchTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Coffee_BrewerUITestsLaunchTests.swift; sourceTree = "<group>"; };
+		503F13472D609BAA00B9C47F /* CoffeeAmountPicker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoffeeAmountPicker.swift; sourceTree = "<group>"; };
+		503F13492D609C2500B9C47F /* CoffeeColors.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoffeeColors.swift; sourceTree = "<group>"; };
+		503F134B2D609C4A00B9C47F /* CoffeePrompts.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoffeePrompts.swift; sourceTree = "<group>"; };
+		503F134D2D609C8100B9C47F /* CoffeeStrength.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoffeeStrength.swift; sourceTree = "<group>"; };
+		503F13502D609D1700B9C47F /* StrengthSelector.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StrengthSelector.swift; sourceTree = "<group>"; };
+		503F13522D609D3F00B9C47F /* BrewingTimer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BrewingTimer.swift; sourceTree = "<group>"; };
+		503F13542D609D5500B9C47F /* WaveShape.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WaveShape.swift; sourceTree = "<group>"; };
+		503F13562D609D6A00B9C47F /* CoffeeProgressCircle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoffeeProgressCircle.swift; sourceTree = "<group>"; };
+		503F13582D609D8400B9C47F /* StageRow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StageRow.swift; sourceTree = "<group>"; };
+		503F135A2D609D9000B9C47F /* WaterToRatioTable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WaterToRatioTable.swift; sourceTree = "<group>"; };
+		503F135D2D60A8FE00B9C47F /* CoffeeBrewing.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoffeeBrewing.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -94,8 +114,10 @@
 		500273A52D5C895600BB903F /* Coffee Brewer */ = {
 			isa = PBXGroup;
 			children = (
+				503F13442D609B6200B9C47F /* Util */,
+				503F13432D609B3A00B9C47F /* Views */,
+				503F13422D609A8300B9C47F /* Models */,
 				500273A62D5C895600BB903F /* Coffee_BrewerApp.swift */,
-				500273A82D5C895600BB903F /* ContentView.swift */,
 				500273AA2D5C895800BB903F /* Assets.xcassets */,
 				500273AC2D5C895800BB903F /* Preview Content */,
 			);
@@ -125,6 +147,54 @@
 				500273C32D5C895800BB903F /* Coffee_BrewerUITestsLaunchTests.swift */,
 			);
 			path = "Coffee BrewerUITests";
+			sourceTree = "<group>";
+		};
+		503F13422D609A8300B9C47F /* Models */ = {
+			isa = PBXGroup;
+			children = (
+				503F13492D609C2500B9C47F /* CoffeeColors.swift */,
+				503F134B2D609C4A00B9C47F /* CoffeePrompts.swift */,
+				503F134D2D609C8100B9C47F /* CoffeeStrength.swift */,
+			);
+			path = Models;
+			sourceTree = "<group>";
+		};
+		503F13432D609B3A00B9C47F /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				503F134F2D609CF600B9C47F /* Components */,
+			);
+			path = Views;
+			sourceTree = "<group>";
+		};
+		503F13442D609B6200B9C47F /* Util */ = {
+			isa = PBXGroup;
+			children = (
+				503F13542D609D5500B9C47F /* WaveShape.swift */,
+			);
+			path = Util;
+			sourceTree = "<group>";
+		};
+		503F134F2D609CF600B9C47F /* Components */ = {
+			isa = PBXGroup;
+			children = (
+				503F135C2D609E0200B9C47F /* PourTable */,
+				503F13472D609BAA00B9C47F /* CoffeeAmountPicker.swift */,
+				503F13502D609D1700B9C47F /* StrengthSelector.swift */,
+				503F13522D609D3F00B9C47F /* BrewingTimer.swift */,
+				503F135D2D60A8FE00B9C47F /* CoffeeBrewing.swift */,
+			);
+			path = Components;
+			sourceTree = "<group>";
+		};
+		503F135C2D609E0200B9C47F /* PourTable */ = {
+			isa = PBXGroup;
+			children = (
+				503F13562D609D6A00B9C47F /* CoffeeProgressCircle.swift */,
+				503F13582D609D8400B9C47F /* StageRow.swift */,
+				503F135A2D609D9000B9C47F /* WaterToRatioTable.swift */,
+			);
+			path = PourTable;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -257,8 +327,18 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				500273A92D5C895600BB903F /* ContentView.swift in Sources */,
+				503F13592D609D8400B9C47F /* StageRow.swift in Sources */,
+				503F13572D609D6A00B9C47F /* CoffeeProgressCircle.swift in Sources */,
+				503F134C2D609C4A00B9C47F /* CoffeePrompts.swift in Sources */,
+				503F135E2D60A8FE00B9C47F /* CoffeeBrewing.swift in Sources */,
+				503F13482D609BAA00B9C47F /* CoffeeAmountPicker.swift in Sources */,
+				503F134E2D609C8100B9C47F /* CoffeeStrength.swift in Sources */,
+				503F13552D609D5500B9C47F /* WaveShape.swift in Sources */,
+				503F135B2D609D9000B9C47F /* WaterToRatioTable.swift in Sources */,
+				503F13532D609D3F00B9C47F /* BrewingTimer.swift in Sources */,
 				500273A72D5C895600BB903F /* Coffee_BrewerApp.swift in Sources */,
+				503F134A2D609C2500B9C47F /* CoffeeColors.swift in Sources */,
+				503F13512D609D1700B9C47F /* StrengthSelector.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -422,6 +502,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = "\"Coffee Brewer/Preview Content\"";
+				DEVELOPMENT_TEAM = T6M74LLJJ4;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
@@ -450,6 +531,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = "\"Coffee Brewer/Preview Content\"";
+				DEVELOPMENT_TEAM = T6M74LLJJ4;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
