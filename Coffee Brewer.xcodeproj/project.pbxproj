@@ -64,6 +64,7 @@
 		503F13582D609D8400B9C47F /* StageRow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StageRow.swift; sourceTree = "<group>"; };
 		503F135A2D609D9000B9C47F /* WaterToRatioTable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WaterToRatioTable.swift; sourceTree = "<group>"; };
 		503F135D2D60A8FE00B9C47F /* CoffeeBrewing.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoffeeBrewing.swift; sourceTree = "<group>"; };
+		50FDA7322D632F1A003E3DB4 /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -94,6 +95,7 @@
 		5002739A2D5C895600BB903F = {
 			isa = PBXGroup;
 			children = (
+				50FDA7322D632F1A003E3DB4 /* README.md */,
 				500273A52D5C895600BB903F /* Coffee Brewer */,
 				500273B62D5C895800BB903F /* Coffee BrewerTests */,
 				500273C02D5C895800BB903F /* Coffee BrewerUITests */,
