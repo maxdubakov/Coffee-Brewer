@@ -12,19 +12,19 @@ struct RecipeCard: View {
                 Rectangle()
                     .foregroundColor(.clear)
                     .frame(width: 169, height: 169)
-                    .background(CoffeeColors.primary.opacity(0.5))
+                    .background(BrewerColors.textPrimary.opacity(0.5))
 
                 // Recipe Info
                 VStack(alignment: .leading, spacing: 6) {
                     Text(title)
                         .font(.subheadline)
                         .fontWeight(.semibold)
-                        .foregroundColor(CoffeeColors.accent)
+                        .foregroundColor(BrewerColors.textPrimary)
                         .frame(minWidth: 99, alignment: .leading)
 
                     Text(timeAgo)
                         .font(.caption)
-                        .foregroundColor(CoffeeColors.accent.opacity(0.7))
+                        .foregroundColor(BrewerColors.textPrimary.opacity(0.7))
                         .frame(minWidth: 99, alignment: .leading)
                 }
                 .padding(14)

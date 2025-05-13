@@ -18,13 +18,11 @@ struct MainView: View {
                     Recipes()
                         .padding(.top, 10)
                 case .add:
-                    Text("Add Recipe")
-                        .font(.largeTitle)
-                        .foregroundColor(CoffeeColors.accent)
+                    AddRecipe()
                 case .history:
                     Text("History Screen")
                         .font(.largeTitle)
-                        .foregroundColor(CoffeeColors.accent)
+                        .foregroundColor(BrewerColors.textPrimary)
                 }
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -33,7 +31,7 @@ struct MainView: View {
             BottomBar(selectedTab: $selectedTab)
         }
         .edgesIgnoringSafeArea(.bottom)
-        .background(Color(red: 0.03, green: 0.03, blue: 0.03))
+        .background(BrewerColors.background)
     }
 }
 

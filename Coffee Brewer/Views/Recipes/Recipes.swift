@@ -14,7 +14,7 @@ struct Recipes: View {
                     Text("Recipes")
                         .font(.title)
                         .fontWeight(.bold)
-                        .foregroundColor(CoffeeColors.accent)
+                        .foregroundColor(BrewerColors.textPrimary)
                         .padding(.horizontal, 18)
                         .padding(.vertical, 28)
                 }

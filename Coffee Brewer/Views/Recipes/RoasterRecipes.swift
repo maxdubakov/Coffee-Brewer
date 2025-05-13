@@ -25,13 +25,13 @@ struct RoasterRecipes: View {
                 Text(roaster.name ?? "Unknown Roaster")
                     .font(.headline)
                     .fontWeight(.semibold)
-                    .foregroundColor(CoffeeColors.accent)
+                    .foregroundColor(BrewerColors.textPrimary)
                 
                 Spacer()
                 
                 Button(action: addRecipe) {
                     Image(systemName: "plus.circle")
-                        .foregroundColor(CoffeeColors.accent)
+                        .foregroundColor(BrewerColors.textPrimary)
                 }
             }
             .padding(.top, 34)

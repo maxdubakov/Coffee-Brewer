@@ -44,9 +44,9 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
+		502E59F32DD3B7BA00A99A4F /* Utils */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (); path = Utils; sourceTree = "<group>"; };
 		50952C4C2DD31CCD00D95540 /* Views */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (); path = Views; sourceTree = "<group>"; };
 		50952C5F2DD31CD300D95540 /* Models */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (); path = Models; sourceTree = "<group>"; };
-		50952C692DD31CDE00D95540 /* LegacyTmp */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (); path = LegacyTmp; sourceTree = "<group>"; };
 		50952C6A2DD31D6100D95540 /* Resources */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (); path = Resources; sourceTree = "<group>"; };
 /* End PBXFileSystemSynchronizedRootGroup section */
 
@@ -99,8 +99,8 @@
 		500273A52D5C895600BB903F /* Coffee Brewer */ = {
 			isa = PBXGroup;
 			children = (
+				502E59F32DD3B7BA00A99A4F /* Utils */,
 				50952C6A2DD31D6100D95540 /* Resources */,
-				50952C692DD31CDE00D95540 /* LegacyTmp */,
 				50952C4C2DD31CCD00D95540 /* Views */,
 				50952C5F2DD31CD300D95540 /* Models */,
 				500273A62D5C895600BB903F /* Coffee_BrewerApp.swift */,
@@ -150,9 +150,9 @@
 			dependencies = (
 			);
 			fileSystemSynchronizedGroups = (
+				502E59F32DD3B7BA00A99A4F /* Utils */,
 				50952C4C2DD31CCD00D95540 /* Views */,
 				50952C5F2DD31CD300D95540 /* Models */,
-				50952C692DD31CDE00D95540 /* LegacyTmp */,
 				50952C6A2DD31D6100D95540 /* Resources */,
 			);
 			name = "Coffee Brewer";
