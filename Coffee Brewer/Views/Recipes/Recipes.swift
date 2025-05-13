@@ -1,9 +1,7 @@
 import SwiftUI
 import CoreData
 
-struct Recipes: View {
-    @Environment(\.managedObjectContext) private var viewContext
-    
+struct Recipes: View {    
     @FetchRequest(sortDescriptors: [NSSortDescriptor(keyPath: \Roaster.name, ascending: true)],
             animation: .default)
         private var roasters: FetchedResults<Roaster>
