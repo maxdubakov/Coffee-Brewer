@@ -16,6 +16,8 @@ struct MainView: View {
                 switch selectedTab {
                 case .home:
                     Recipes()
+                        .environment(\.managedObjectContext, PersistenceController.preview.container.viewContext)
+                        .padding(.top, 10)
                 case .add:
                     Text("Add Recipe")
                         .font(.largeTitle)

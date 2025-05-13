@@ -36,3 +36,13 @@ struct RecipeCard: View {
         .buttonStyle(PlainButtonStyle())
     }
 }
+
+#Preview {
+    RecipeCard(
+        title: "Sample Recipe",
+        timeAgo: "2 days ago",
+        onTap: {}
+    )
+    .frame(width: 200, height: 250)
+    .background(Color(red: 0.05, green: 0.03, blue: 0.01))
+}

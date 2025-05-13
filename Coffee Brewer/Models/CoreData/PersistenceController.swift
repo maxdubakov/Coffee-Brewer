@@ -22,6 +22,11 @@ struct PersistenceController {
         container.viewContext.mergePolicy = NSMergeByPropertyObjectTrumpMergePolicy
     }
     
+    static var sampleRoaster: Roaster {
+        let roaster = preview.container.viewContext.registeredObjects.compactMap { $0 as? Roaster }.first!
+        return roaster
+    }
+    
     // For SwiftUI previews
     static var preview: PersistenceController = {
         let controller = PersistenceController(inMemory: true)

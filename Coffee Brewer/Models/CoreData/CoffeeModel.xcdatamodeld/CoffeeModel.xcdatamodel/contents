@@ -8,6 +8,6 @@
     </entity>
     <entity name="Roaster" representedClassName="Roaster" syncable="YES" codeGenerationType="class">
         <attribute name="name" optional="YES" attributeType="String"/>
-        <relationship name="recipes" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="Recipe" inverseName="roaster" inverseEntity="Recipe"/>
+        <relationship name="recipes" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="Recipe" inverseName="roaster" inverseEntity="Recipe"/>
     </entity>
 </model>

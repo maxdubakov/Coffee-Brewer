@@ -90,3 +90,10 @@ struct RoasterRecipes: View {
         }
     }
 }
+
+
+#Preview {
+    RoasterRecipes(roaster: PersistenceController.sampleRoaster)
+        .environment(\.managedObjectContext, PersistenceController.preview.container.viewContext)
+        .background(Color(red: 0.05, green: 0.03, blue: 0.01))
+}
