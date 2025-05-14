@@ -8,13 +8,15 @@ struct RecipeCard: View {
     var body: some View {
         Button(action: onTap) {
             VStack(alignment: .leading, spacing: 0) {
-                // Recipe Image Placeholder
                 Rectangle()
-                    .foregroundColor(.clear)
+                    .fill(BrewerColors.textPrimary.opacity(0.5))
                     .frame(width: 169, height: 169)
-                    .background(BrewerColors.textPrimary.opacity(0.5))
+                    .overlay(
+                        Text("⾖")
+                            .font(.largeTitle)
+                            .foregroundColor(.white)
+                    )
 
-                // Recipe Info
                 VStack(alignment: .leading, spacing: 6) {
                     Text(title)
                         .font(.subheadline)
@@ -24,16 +26,16 @@ struct RecipeCard: View {
 
                     Text(timeAgo)
                         .font(.caption)
-                        .foregroundColor(BrewerColors.textPrimary.opacity(0.7))
+                        .foregroundColor(BrewerColors.textSecondary)
                         .frame(minWidth: 99, alignment: .leading)
                 }
                 .padding(14)
             }
-            .background(Color(red: 0.12, green: 0.12, blue: 0.12))
+            .background(BrewerColors.surface)
             .cornerRadius(12)
             .shadow(color: Color.black.opacity(0.12), radius: 10, y: 2)
         }
-        .buttonStyle(PlainButtonStyle())
+        .buttonStyle(.plain)
     }
 }
 

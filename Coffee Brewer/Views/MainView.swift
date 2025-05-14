@@ -51,6 +51,6 @@ struct MainView: View {
 #Preview {
     GlobalBackground {
         MainView()
-//            .environment(\.managedObjectContext, PersistenceController.preview.container.viewContext)
+            .environment(\.managedObjectContext, PersistenceController.preview.container.viewContext)
     }
 }
