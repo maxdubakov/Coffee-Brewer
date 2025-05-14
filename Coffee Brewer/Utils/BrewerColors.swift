@@ -8,10 +8,11 @@ struct BrewerColors {
     // Text colors
     static let textPrimary = Color(red: 0.93, green: 0.91, blue: 0.90)
     static let textSecondary = Color(red: 0.93, green: 0.91, blue: 0.90).opacity(0.7)
+    static let textLight = Color(red: 0.92, green: 0.86, blue: 0.81).opacity(1.0)
     static let placeholder = Color(red: 0.93, green: 0.91, blue: 0.90).opacity(0.4)
     
     // Accent colors
-    static let coffee = Color(red: 0.55, green: 0.27, blue: 0.07)
+    static let coffee = Color(red: 0.55, green: 0.27, blue: 0.07).opacity(0.50)
     static let cream = Color(red: 0.93, green: 0.87, blue: 0.80)
     
     // UI elements

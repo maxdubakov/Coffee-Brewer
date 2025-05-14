@@ -1,11 +1,12 @@
 import SwiftUI
 
 struct MainView: View {
+    @Environment(\.managedObjectContext) private var viewContext
+    @State private var selectedTab: Tab = .home
+    
     enum Tab {
         case home, add, history
     }
-
-    @State private var selectedTab: Tab = .home
 
     var body: some View {
             TabView(selection: $selectedTab) {
@@ -16,7 +17,7 @@ struct MainView: View {
                     }
                     .tag(Tab.home)
 
-                AddRecipe()
+                AddRecipe(context: viewContext)
                     .background(BrewerColors.background)
                     .tabItem {
                         TabIcon(imageName: "add.recipe", label: "Add")
@@ -30,6 +31,7 @@ struct MainView: View {
                     }
                     .tag(Tab.history)
             }
+            .background(BrewerColors.background)
             .accentColor(BrewerColors.cream)
     }
 

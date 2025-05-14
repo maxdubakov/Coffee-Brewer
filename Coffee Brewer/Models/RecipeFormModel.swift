@@ -1,8 +1,9 @@
-//
-//  RecipeFormModel.swift
-//  Coffee Brewer
-//
-//  Created by Maxim on 14/05/2025.
-//
-
-import Foundation
+struct RecipeFormModel {
+    var roasterName = ""
+    var recipeName = ""
+    var coffeeGrams: Int = 18
+    var ratio: Int = 16
+    var waterTemperature: Int = 95
+    var grinderName = ""
+    var grindSize: Int = 50
+}

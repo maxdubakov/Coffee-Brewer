@@ -9,15 +9,15 @@ struct Recipes: View {
     private var roasters: FetchedResults<Roaster>
     
     var body: some View {
-        ScrollView {
-            VStack(alignment: .leading, spacing: 0) {
-                SectionHeader(title: "Recipes")
+        VStack(alignment: .leading, spacing: 0) {
+            SectionHeader(title: "Recipes")
+            ScrollView {
                 ForEach(roasters) { roaster in
                     RoasterRecipes(roaster: roaster)
                 }
             }
+            .edgesIgnoringSafeArea(.all)
         }
-        .edgesIgnoringSafeArea(.all)
     }
 }
 
