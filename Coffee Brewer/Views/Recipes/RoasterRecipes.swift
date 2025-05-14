@@ -54,7 +54,6 @@ struct RoasterRecipes: View {
                 .padding(20)
             }
         }
-        .background(Color(red: 0.05, green: 0.03, blue: 0.01))
     }
     
     private func addRecipe() {
@@ -93,7 +92,8 @@ struct RoasterRecipes: View {
 
 
 #Preview {
-    RoasterRecipes(roaster: PersistenceController.sampleRoaster)
-        .environment(\.managedObjectContext, PersistenceController.preview.container.viewContext)
-        .background(Color(red: 0.05, green: 0.03, blue: 0.01))
+    GlobalBackground {
+        RoasterRecipes(roaster: PersistenceController.sampleRoaster)
+            .environment(\.managedObjectContext, PersistenceController.preview.container.viewContext)
+    }
 }

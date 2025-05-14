@@ -12,8 +12,10 @@ struct Coffee_BrewerApp: App {
   let persistenceController = PersistenceController.shared
   var body: some Scene {
     WindowGroup {
-      MainView()
-        .environment(\.managedObjectContext, persistenceController.container.viewContext)
+      GlobalBackground {
+        MainView()
+          .environment(\.managedObjectContext, persistenceController.container.viewContext)
+      }
     }
   }
 }
