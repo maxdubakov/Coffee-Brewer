@@ -9,14 +9,14 @@ struct AddRecipe: View {
     @State private var roasterName: String = ""
     @State private var recipeName: String = ""
     @State private var coffeeGrams: String = "18"
-    @State private var ratio: String = "15.5"
+    @State private var ratio: String = "15"
     @State private var waterTemperature: String = "93"
     @State private var grinderName: String = ""
     @State private var grindSize: String = ""
     
     // Reference to an existing roaster if editing an existing recipe
     var existingRoaster: Roaster?
-    
+
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
             // Header
@@ -162,34 +162,6 @@ struct AddRecipe: View {
             } catch {
                 print("Error saving recipe: \(error)")
             }
-        }
-    }
-}
-
-struct FormTextField: View {
-    let title: String
-    @Binding var text: String
-    var keyboardType: UIKeyboardType = .default
-    
-    var body: some View {
-        VStack(alignment: .leading, spacing: 0) {
-            ZStack(alignment: .leading) {
-                if text.isEmpty {
-                    Text(title)
-                        .font(.custom("Outfit", size: 17, relativeTo: .body).weight(.light))
-                        .foregroundColor(BrewerColors.placeholder)
-                }
-                
-                TextField("", text: $text)
-                    .font(.custom("Outfit", size: 17, relativeTo: .body).weight(.medium))
-                    .foregroundColor(BrewerColors.textPrimary)
-                    .keyboardType(keyboardType)
-            }
-            .padding(EdgeInsets(top: 13.5, leading: 0, bottom: 13.5, trailing: 0))
-            
-            Rectangle()
-                .frame(height: 0.5)
-                .foregroundColor(BrewerColors.divider)
         }
     }
 }

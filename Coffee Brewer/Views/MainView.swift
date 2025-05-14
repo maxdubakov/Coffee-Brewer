@@ -1,39 +1,51 @@
 import SwiftUI
 
 struct MainView: View {
-    @State private var selectedTab: Tab = .home
-    
     enum Tab {
-        case home
-        case add
-        case history
+        case home, add, history
+    }
+
+    @State private var selectedTab: Tab = .home
+
+    var body: some View {
+        TabView(selection: $selectedTab) {
+            Recipes()
+                .tabItem {
+                    TabIcon(imageName: "home", label: "Home")
+                }
+                .tag(Tab.home)
+
+            AddRecipe()
+                .tabItem {
+                    TabIcon(imageName: "add.recipe", label: "Add")
+                }
+                .tag(Tab.add)
+
+            History()
+                .tabItem {
+                    TabIcon(imageName: "history", label: "History")
+                }
+                .tag(Tab.history)
+        }
+        .background(BrewerColors.background)
+        .accentColor(BrewerColors.cream)
     }
     
-    var body: some View {
-        VStack(spacing: 0) {
-            // Content area
-            ZStack {
-                switch selectedTab {
-                case .home:
-                    Recipes()
-                        .padding(.top, 10)
-                case .add:
-                    AddRecipe()
-                case .history:
-                    Text("History Screen")
-                        .font(.largeTitle)
-                        .foregroundColor(BrewerColors.textPrimary)
-                }
+    struct TabIcon: View {
+        let imageName: String
+        let label: String
+        
+        var body: some View {
+            VStack(spacing: 4) {
+                Image(imageName)
+                    .renderingMode(.template)
+                Text(label)
+                    .font(.caption)
             }
-            .frame(maxWidth: .infinity, maxHeight: .infinity)
-            
-            // Bottom navigation bar
-            BottomBar(selectedTab: $selectedTab)
         }
-        .edgesIgnoringSafeArea(.bottom)
-        .background(BrewerColors.background)
     }
 }
+
 
 #Preview {
     MainView().environment(\.managedObjectContext, PersistenceController.preview.container.viewContext)
