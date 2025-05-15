@@ -7,6 +7,13 @@ struct MainView: View {
     enum Tab {
         case home, add, history
     }
+    
+    init() {
+        let appearance = UITabBarAppearance()
+        appearance.configureWithOpaqueBackground()
+        appearance.backgroundColor = UIColor(BrewerColors.background)
+        UITabBar.appearance().standardAppearance = appearance
+    }
 
     var body: some View {
             TabView(selection: $selectedTab) {
@@ -31,7 +38,6 @@ struct MainView: View {
                     }
                     .tag(Tab.history)
             }
-            .background(BrewerColors.background)
             .accentColor(BrewerColors.cream)
     }
 
