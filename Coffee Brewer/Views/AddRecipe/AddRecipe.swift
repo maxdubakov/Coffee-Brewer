@@ -2,51 +2,32 @@ import SwiftUI
 import CoreData
 
 struct AddRecipe: View {
+    enum FocusedField: Hashable {
+        case roaster, name, grams, ratio, temperature, grindSize
+    }
+
     @Environment(\.managedObjectContext) private var viewContext
     @Binding var selectedTab: MainView.Tab
-        
     @ObservedObject private var recipe: Recipe
     @State private var searchText: String = ""
-    @FetchRequest(
-        sortDescriptors: [NSSortDescriptor(keyPath: \Roaster.name, ascending: true)],
-        animation: .default
-    ) private var allRoasters: FetchedResults<Roaster>
-    
-    enum FocusedField: Hashable {
-        case roaster, name, grams, ratio, temperature
-    }
     @State private var focusedField: FocusedField? = nil
-
-    private let roaster: Roaster
+    private let roaster: Roaster?
+    private let grinder: Grinder? = nil
     
     init(existingRoaster: Roaster? = nil, context: NSManagedObjectContext, selectedTab: Binding<MainView.Tab>) {
         _selectedTab = selectedTab
 
-        self.roaster = existingRoaster ?? Roaster(context: context)
-
-        // Create draft Recipe in memory
+        self.roaster = existingRoaster
         let draft = Recipe(context: context)
         draft.roaster = roaster
         draft.name = ""
         draft.grams = 18
         draft.ratio = 16
         draft.temperature = 95.0
+        draft.grindSize = 40
         draft.lastBrewedAt = Date()
 
         _recipe = ObservedObject(wrappedValue: draft)
-    }
-    
-    var filteredRoasters: [Roaster] {
-        let result = allRoasters.filter {
-            searchText.isEmpty || ($0.name?.localizedCaseInsensitiveContains(searchText) ?? false)
-        }
-        print("Search Text: \(searchText)")
-        print("All Roasters:")
-        allRoasters.forEach { print("- \($0.name ?? "Unnamed")") }
-        print("Filtered Roasters:")
-        result.forEach { print("- \($0.name ?? "Unnamed")") }
-
-        return result
     }
 
     var body: some View {
@@ -63,6 +44,7 @@ struct AddRecipe: View {
                                 get: { recipe.roaster },
                                 set: { recipe.roaster = $0 }
                             ),
+                            focusedField: $focusedField,
                         )
                         
                         FormTextField(
@@ -116,13 +98,26 @@ struct AddRecipe: View {
                     VStack(alignment: .leading, spacing: 0) {
                         SecondaryHeader(title: "Grinder")
                             .padding(.bottom, 10)
+                        
+                        SearchGrinderPicker(
+                            selectedGrinder: Binding(
+                                get: { recipe.grinder },
+                                set: { recipe.grinder = $0 }
+                            ),
+                            focusedField: $focusedField,
+                        )
 
-//                        ExpandableNumberField(
-//                            title: "Grind Size",
-//                            value: $viewModel.form.grindSize,
-//                            range: Array(0...100),
-//                            formatter: { "\($0)" }
-//                        )
+                        ExpandableNumberField(
+                            title: "Grind Size",
+                            value: Binding(
+                                get: {recipe.grindSize},
+                                set: {recipe.grindSize = $0}
+                            ),
+                            range: Array(0...100),
+                            formatter: { "\($0)" },
+                            focusedField: $focusedField,
+                            field: .grindSize,
+                        )
                     }
                 }
                 .padding(EdgeInsets(top: 0, leading: 18, bottom: 28, trailing: 18))

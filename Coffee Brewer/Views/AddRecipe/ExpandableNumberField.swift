@@ -8,7 +8,7 @@ struct ExpandableNumberField<T: Hashable & CustomStringConvertible>: View {
     @Binding var focusedField: AddRecipe.FocusedField?
     let field: AddRecipe.FocusedField
 
-    var isExpanded: Bool {
+    var isActive: Bool {
         focusedField == field
     }
 
@@ -28,12 +28,12 @@ struct ExpandableNumberField<T: Hashable & CustomStringConvertible>: View {
             .contentShape(Rectangle())
             .onTapGesture {
                 withAnimation(.spring()) {
-                    focusedField = isExpanded ? nil : field
+                    focusedField = isActive ? nil : field
                 }
             }
             .padding(.vertical, 13.5)
 
-            if isExpanded {
+            if isActive {
                 VStack {
                     Picker("", selection: $value) {
                         ForEach(range, id: \.self) { item in
@@ -44,19 +44,6 @@ struct ExpandableNumberField<T: Hashable & CustomStringConvertible>: View {
                     .pickerStyle(.wheel)
                     .frame(height: 120)
                     .clipped()
-
-//                    Button("Confirm") {
-//                        withAnimation(.spring()) {
-//                            focusedField = nil
-//                        }
-//                    }
-//                    .font(.system(size: 14, weight: .medium))
-//                    .foregroundColor(.white)
-//                    .padding(.horizontal, 20)
-//                    .padding(.vertical, 8)
-//                    .background(BrewerColors.coffee)
-//                    .cornerRadius(20)
-//                    .padding(.bottom, 30)
                 }
             }
 

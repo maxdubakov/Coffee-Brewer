@@ -8,56 +8,41 @@ struct FormTextField: View {
     var keyboardType: UIKeyboardType = .default
 
     @FocusState private var isFocused: Bool
-    @State private var isEditing: Bool = false
 
-    var isActive: Bool {
-        focusedField == field
-    }
+    private var isActive: Bool { focusedField == field }
 
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
             HStack {
-                // LEFT side placeholder or text
                 if isActive {
                     ZStack(alignment: .leading) {
                         if text.isEmpty {
                             Text(title)
-                                .font(.system(size: 17, weight: .light))
                                 .foregroundColor(BrewerColors.placeholder)
+                                .font(.system(size: 17, weight: .light))
                         }
 
-                        TextField("", text: $text, onEditingChanged: { editing in
-                            isEditing = editing
-                            if editing {
-                                focusedField = field
-                            }
-                        }, onCommit: {
-                            isEditing = false
-                            focusedField = nil
-                        })
-                        .focused($isFocused)
-                        .font(.system(size: 17, weight: .medium))
-                        .foregroundColor(BrewerColors.textPrimary)
-                        .keyboardType(keyboardType)
-                        .multilineTextAlignment(.leading)
+                        TextField("", text: $text)
+                            .focused($isFocused)
+                            .keyboardType(keyboardType)
+                            .font(.system(size: 17, weight: .medium))
+                            .foregroundColor(BrewerColors.textPrimary)
+                            .multilineTextAlignment(.leading)
                     }
-                    .frame(maxWidth: .infinity, alignment: .leading)
                 } else {
                     Text(title)
-                        .font(.system(size: 17, weight: .light))
                         .foregroundColor(BrewerColors.placeholder)
+                        .font(.system(size: 17, weight: .light))
                 }
 
                 Spacer()
 
-                // RIGHT side final text (shown only when not editing and text isn't empty)
                 if !isActive && !text.isEmpty {
                     Text(text)
-                        .font(.system(size: 17, weight: .medium))
                         .foregroundColor(BrewerColors.textPrimary)
+                        .font(.system(size: 17, weight: .medium))
                         .onTapGesture {
                             focusedField = field
-                            isFocused = true
                         }
                 }
             }
@@ -67,14 +52,17 @@ struct FormTextField: View {
                 .frame(height: 0.5)
                 .foregroundColor(BrewerColors.divider)
         }
-        .onChange(of: focusedField) { newFocus in
-            let shouldBeFocused = newFocus == field
-            isFocused = shouldBeFocused
-            isEditing = shouldBeFocused
-        }
+        .contentShape(Rectangle())
         .onTapGesture {
             focusedField = field
-            isFocused = true
+        }
+        .onChange(of: focusedField) { oldValue, newValue in
+            isFocused = newValue == field
+        }
+        .onChange(of: isFocused) { oldValue, newValue in
+            if !newValue {
+                focusedField = nil
+            }
         }
     }
 }

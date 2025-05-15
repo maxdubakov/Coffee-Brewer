@@ -55,6 +55,9 @@ struct PersistenceController {
         recipe3.lastBrewedAt = Calendar.current.date(byAdding: .day, value: -7, to: Date())!
         recipe3.roaster = madHeads
         
+        let niche = Grinder(context: viewContext)
+        niche.name = "Niche"
+        
         do {
             try viewContext.save()
         } catch {

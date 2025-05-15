@@ -32,7 +32,7 @@ struct RoasterRecipes: View {
         HStack {
             SecondaryHeader(title: roaster.name ?? "Unknown Roaster")
             Spacer()
-            Button(action: {print("Add clicked")}) {
+            Button(action: {print("do nothing yet")}) {
                 Image(systemName: "plus.circle")
                     .foregroundColor(BrewerColors.textPrimary)
             }
