@@ -33,7 +33,7 @@ struct PersistenceController {
         
         // Create sample data
         let viewContext = controller.container.viewContext
-        
+
         let madHeads = Roaster(context: viewContext)
         madHeads.name = "Mad Heads"
         
@@ -42,19 +42,7 @@ struct PersistenceController {
         recipe1.grams = 18
         recipe1.lastBrewedAt = Calendar.current.date(byAdding: .day, value: -2, to: Date())!
         recipe1.roaster = madHeads
-        
-        let recipe2 = Recipe(context: viewContext)
-        recipe2.name = "Default + longer"
-        recipe2.grams = 20
-        recipe2.lastBrewedAt = Calendar.current.date(byAdding: .day, value: -4, to: Date())!
-        recipe2.roaster = madHeads
-        
-        let recipe3 = Recipe(context: viewContext)
-        recipe3.name = "2S2R"
-        recipe3.grams = 22
-        recipe3.lastBrewedAt = Calendar.current.date(byAdding: .day, value: -7, to: Date())!
-        recipe3.roaster = madHeads
-        
+
         let niche = Grinder(context: viewContext)
         niche.name = "Niche"
         

@@ -13,6 +13,7 @@ struct SearchPickerView<T: NSManagedObject>: View {
     @State private var searchText: String = ""
     @State private var isEditing: Bool = false
     @Binding var focusedField: AddRecipe.FocusedField?
+    @FocusState private var isFocused: Bool
 
     private var filteredItems: [T] {
         items.filter { searchText.isEmpty || displayName($0).localizedCaseInsensitiveContains(searchText) }
@@ -36,6 +37,7 @@ struct SearchPickerView<T: NSManagedObject>: View {
                         .font(.system(size: 17, weight: .medium))
                         .foregroundColor(BrewerColors.textPrimary)
                         .keyboardType(.default)
+                        .focused($isFocused)
                     }
                     .frame(maxWidth: .infinity, alignment: .trailing)
                     .contentShape(Rectangle())
@@ -67,6 +69,8 @@ struct SearchPickerView<T: NSManagedObject>: View {
                                 selectedItem = item
                                 searchText = ""
                                 isEditing = false
+                                isFocused = false
+                                focusedField = nil
                             } label: {
                                 Text(displayName(item))
                                     .padding()
@@ -85,6 +89,8 @@ struct SearchPickerView<T: NSManagedObject>: View {
                             }
                             searchText = ""
                             isEditing = false
+                            isFocused = false
+                            focusedField = nil
                         } label: {
                             Text("Create '\(searchText)'")
                                 .foregroundColor(BrewerColors.textPrimary)

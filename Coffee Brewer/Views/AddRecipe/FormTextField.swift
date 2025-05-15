@@ -60,7 +60,7 @@ struct FormTextField: View {
             isFocused = newValue == field
         }
         .onChange(of: isFocused) { oldValue, newValue in
-            if !newValue {
+            if !newValue, focusedField == field {
                 focusedField = nil
             }
         }
