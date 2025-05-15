@@ -5,8 +5,12 @@ struct ExpandableNumberField<T: Hashable & CustomStringConvertible>: View {
     @Binding var value: T
     let range: [T]
     let formatter: (T) -> String
+    @Binding var focusedField: AddRecipe.FocusedField?
+    let field: AddRecipe.FocusedField
 
-    @State private var isExpanded = false
+    var isExpanded: Bool {
+        focusedField == field
+    }
 
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
@@ -24,7 +28,7 @@ struct ExpandableNumberField<T: Hashable & CustomStringConvertible>: View {
             .contentShape(Rectangle())
             .onTapGesture {
                 withAnimation(.spring()) {
-                    isExpanded.toggle()
+                    focusedField = isExpanded ? nil : field
                 }
             }
             .padding(.vertical, 13.5)
@@ -41,18 +45,18 @@ struct ExpandableNumberField<T: Hashable & CustomStringConvertible>: View {
                     .frame(height: 120)
                     .clipped()
 
-                    Button("Confirm") {
-                        withAnimation(.spring()) {
-                            isExpanded = false
-                        }
-                    }
-                    .font(.system(size: 14, weight: .medium))
-                    .foregroundColor(.white)
-                    .padding(.horizontal, 20)
-                    .padding(.vertical, 8)
-                    .background(BrewerColors.coffee)
-                    .cornerRadius(20)
-                    .padding(.bottom, 30)
+//                    Button("Confirm") {
+//                        withAnimation(.spring()) {
+//                            focusedField = nil
+//                        }
+//                    }
+//                    .font(.system(size: 14, weight: .medium))
+//                    .foregroundColor(.white)
+//                    .padding(.horizontal, 20)
+//                    .padding(.vertical, 8)
+//                    .background(BrewerColors.coffee)
+//                    .cornerRadius(20)
+//                    .padding(.bottom, 30)
                 }
             }
 

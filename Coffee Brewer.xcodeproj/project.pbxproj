@@ -48,7 +48,6 @@
 		50952C4C2DD31CCD00D95540 /* Views */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (); path = Views; sourceTree = "<group>"; };
 		50952C5F2DD31CD300D95540 /* Models */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (); path = Models; sourceTree = "<group>"; };
 		50952C6A2DD31D6100D95540 /* Resources */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (); path = Resources; sourceTree = "<group>"; };
-		50FF09EF2DD52C1C0057AD93 /* ViewModels */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (); path = ViewModels; sourceTree = "<group>"; };
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -105,7 +104,6 @@
 				500273AC2D5C895800BB903F /* Preview Content */,
 				50952C6A2DD31D6100D95540 /* Resources */,
 				502E59F32DD3B7BA00A99A4F /* Utils */,
-				50FF09EF2DD52C1C0057AD93 /* ViewModels */,
 				50952C4C2DD31CCD00D95540 /* Views */,
 			);
 			path = "Coffee Brewer";
@@ -156,7 +154,6 @@
 				50952C4C2DD31CCD00D95540 /* Views */,
 				50952C5F2DD31CD300D95540 /* Models */,
 				50952C6A2DD31D6100D95540 /* Resources */,
-				50FF09EF2DD52C1C0057AD93 /* ViewModels */,
 			);
 			name = "Coffee Brewer";
 			productName = "Coffee Brewer";

@@ -17,7 +17,7 @@ struct MainView: View {
                     }
                     .tag(Tab.home)
 
-                AddRecipe(context: viewContext)
+                AddRecipe(context: viewContext, selectedTab: $selectedTab)
                     .background(BrewerColors.background)
                     .tabItem {
                         TabIcon(imageName: "add.recipe", label: "Add")
