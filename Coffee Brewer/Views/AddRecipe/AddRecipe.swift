@@ -40,6 +40,7 @@ struct AddRecipe: View {
         draft.grindSize = 40
 
         _recipe = ObservedObject(wrappedValue: draft)
+        draft.createDefaultStage(context: context)
     }
 
     var body: some View {
@@ -138,36 +139,38 @@ struct AddRecipe: View {
                             ),
                             focusedField: $focusedField,
                         )
+                    }.padding(.bottom, 20)
+
+                    VStack(alignment: .leading, spacing: 0) {
+                        SecondaryHeader(title: "Stages")
+                            .padding(.bottom, 10)
+                        
+                        StagesList(recipe: recipe)
+                            .padding(.bottom, 20)
+                    }
+                    
+                    HStack {
+                        StandardButton(
+                            title: "Save",
+                            action: {
+                                recipe.lastBrewedAt = Date()
+                                do {
+                                    recipe.grams = brewMath.grams
+                                    recipe.ratio = brewMath.ratio
+                                    recipe.waterAmount = brewMath.water
+                                    
+                                    try viewContext.save()
+                                    selectedTab = .home
+                                } catch {
+                                    print("Failed to save recipe: \(error)")
+                                }
+                            },
+                            style: .primary
+                        )
                     }
                 }
                 .padding(EdgeInsets(top: 0, leading: 18, bottom: 28, trailing: 18))
             }
-            
-            Spacer()
-            
-            HStack {
-                Button(action: {
-                    recipe.lastBrewedAt = Date()
-                    do {
-                        recipe.grams = brewMath.grams
-                        recipe.ratio = brewMath.ratio
-                        recipe.waterAmount = brewMath.water
-                        try viewContext.save()
-                        selectedTab = .home
-                    } catch {
-                        print("Failed to save recipe: \(error)")
-                    }
-                }) {
-                    Text("Save")
-                        .font(.system(size: 18, weight: .semibold))
-                        .foregroundColor(.white)
-                        .frame(maxWidth: .infinity)
-                        .padding(EdgeInsets(top: 14.5, leading: 16, bottom: 14.5, trailing: 16))
-                        .background(BrewerColors.coffee)
-                        .cornerRadius(48)
-                }
-            }
-            .padding(18)
         }
     }
 }
@@ -177,6 +180,6 @@ struct AddRecipe: View {
         AddRecipe(
             context: PersistenceController.preview.container.viewContext,
             selectedTab: .constant(.add)
-        )
+        ).environment(\.managedObjectContext, PersistenceController.preview.container.viewContext)
     }
 }

@@ -18,4 +18,13 @@ struct BrewerColors {
     // UI elements
     static let divider = Color(red: 0.71, green: 0.63, blue: 0.57).opacity(0.2)
     static let inputBackground = Color(red: 0.88, green: 0.79, blue: 0.72).opacity(0.12)
+    
+    static let espresso = Color(red: 0.28, green: 0.16, blue: 0.08)
+    static let caramel = Color(red: 0.76, green: 0.55, blue: 0.32)
+    static let mocha = Color(red: 0.45, green: 0.30, blue: 0.20)
+    static let amber = Color(red: 0.85, green: 0.65, blue: 0.30)
+    
+    // Button states
+    static let buttonShadow = Color.black.opacity(0.3)
+    static let buttonHighlight = Color.white.opacity(0.1)
 }

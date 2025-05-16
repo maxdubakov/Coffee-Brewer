@@ -14,9 +14,17 @@
         <attribute name="waterAmount" optional="YES" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES"/>
         <relationship name="grinder" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="Grinder" inverseName="recipes" inverseEntity="Grinder"/>
         <relationship name="roaster" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="Roaster" inverseName="recipes" inverseEntity="Roaster"/>
+        <relationship name="stages" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="Stage" inverseName="recipe" inverseEntity="Stage"/>
     </entity>
     <entity name="Roaster" representedClassName="Roaster" syncable="YES" codeGenerationType="class">
         <attribute name="name" optional="YES" attributeType="String"/>
-        <relationship name="recipes" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="Recipe" inverseName="roaster" inverseEntity="Recipe"/>
+        <relationship name="recipes" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="Recipe" inverseName="roaster" inverseEntity="Recipe"/>
+    </entity>
+    <entity name="Stage" representedClassName="Stage" syncable="YES" codeGenerationType="class">
+        <attribute name="orderIndex" optional="YES" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="seconds" optional="YES" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="type" optional="YES" attributeType="String"/>
+        <attribute name="waterAmount" optional="YES" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES"/>
+        <relationship name="recipe" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="Recipe" inverseName="stages" inverseEntity="Recipe"/>
     </entity>
 </model>
