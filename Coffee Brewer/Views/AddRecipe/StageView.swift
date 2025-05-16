@@ -2,11 +2,12 @@ import SwiftUI
 
 struct StageView: View {
     // MARK: - Properties
-    let stage: Stage
+    @ObservedObject var stage: Stage
     let stageNumber: Int
     let progressValue: Int16
+    let onDelete: () -> Void
     
-    // Computed properties for visual styling
+    // MARK: - Computed Properties
     private var pourType: String {
         return stage.type ?? "fast"
     }
@@ -65,7 +66,6 @@ struct StageView: View {
     
     var body: some View {
         HStack(spacing: 16) {
-            // Stage number circle
             ZStack {
                 Circle()
                     .fill(LinearGradient(
@@ -128,6 +128,9 @@ struct StageView: View {
                 .foregroundColor(BrewerColors.textSecondary)
                 .frame(width: 40, height: 40)
                 .contentShape(Rectangle())
+                .onTapGesture {
+                    onDelete()
+                }
         }
         .padding(.vertical, 12)
         .padding(.horizontal, 14)

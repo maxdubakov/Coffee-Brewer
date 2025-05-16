@@ -12,6 +12,7 @@ extension Recipe {
         let stage = Stage(context: context)
         stage.type = type
         stage.waterAmount = waterAmount
+        stage.seconds = 0
         stage.orderIndex = Int16((stages?.count ?? 0))
         stage.recipe = self
     }

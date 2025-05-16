@@ -4,7 +4,7 @@ import CoreData
 struct AddRecipe: View {
     // MARK: - Nested Types
     enum FocusedField: Hashable {
-        case roaster, name, grams, ratio, waterml, temperature, grindSize
+        case roaster, name, grams, ratio, waterml, temperature, grindSize, seconds, stageWaterAmount, stageType
     }
 
     // MARK: - Environment
@@ -145,7 +145,7 @@ struct AddRecipe: View {
                         SecondaryHeader(title: "Stages")
                             .padding(.bottom, 10)
                         
-                        StagesList(recipe: recipe)
+                        StagesList(focusedField: $focusedField, recipe: recipe, brewMath: brewMath)
                             .padding(.bottom, 20)
                     }
                     
