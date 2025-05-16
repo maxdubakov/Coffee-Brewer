@@ -1,7 +1,7 @@
 import SwiftUI
 import CoreData
 
-struct AddStageView: View {
+struct AddStage: View {
     // MARK: - Environment
     @Environment(\.managedObjectContext) private var viewContext
     @Environment(\.dismiss) private var dismiss
@@ -49,11 +49,15 @@ struct AddStageView: View {
    }
     
     private var totalWaterUsed: Int16 {
-        recipe.stagesArray.reduce(0) { $0 + $1.waterAmount }
+        var amount = recipe.stagesArray.reduce(0) { $0 + $1.waterAmount }
+        if isEditMode {
+            amount -= existingStage?.waterAmount ?? 0;
+        }
+        return amount
     }
     
     private var remainingWater: Int16 {
-        brewMath.water - totalWaterUsed
+        brewMath.water - totalWaterUsed - waterAmount
     }
     
     private var isWaterInputDisabled: Bool {
@@ -234,7 +238,7 @@ struct AddStageView: View {
     stage.recipe = recipe
     
     return GlobalBackground {
-        AddStageView(recipe: recipe, brewMath: brewMath, focusedField: .constant(nil))
+        AddStage(recipe: recipe, brewMath: brewMath, focusedField: .constant(nil))
             .environment(\.managedObjectContext, context)
     }
 }

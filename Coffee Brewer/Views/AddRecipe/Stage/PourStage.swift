@@ -1,6 +1,6 @@
 import SwiftUI
 
-struct StageView: View {
+struct PourStage: View {
     // MARK: - Properties
     @ObservedObject var stage: Stage
     let stageNumber: Int

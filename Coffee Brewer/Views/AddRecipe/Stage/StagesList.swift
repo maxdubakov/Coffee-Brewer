@@ -23,7 +23,7 @@ struct StagesList: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
             ForEach(Array(recipe.stagesArray.enumerated()), id: \.element.objectID) { index, stage in
-                StageView(
+                PourStage(
                     stage: stage,
                     stageNumber: index + 1,
                     progressValue: recipe.totalStageWaterToStep(stepIndex: index),
@@ -42,7 +42,7 @@ struct StagesList: View {
                 ))
                 .fullScreenCover(isPresented: $isModifyingStage) {
                     GlobalBackground {
-                        AddStageView(
+                        AddStage(
                             recipe: recipe,
                             brewMath: brewMath,
                             focusedField: $focusedField,
@@ -65,7 +65,7 @@ struct StagesList: View {
         }
         .fullScreenCover(isPresented: $isAddingStage) {
             GlobalBackground {
-                AddStageView(recipe: recipe, brewMath: brewMath, focusedField: $focusedField)
+                AddStage(recipe: recipe, brewMath: brewMath, focusedField: $focusedField)
             }
         }
         .onAppear {
