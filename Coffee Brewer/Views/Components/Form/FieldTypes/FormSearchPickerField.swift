@@ -26,11 +26,14 @@ struct FormSearchPickerField<T: NSManagedObject>: View {
                         if searchText.isEmpty {
                             FormPlaceholderText(value: label)
                         }
-                        FormValueText(placeholder: "", textBinding: Binding(
-                            get: {searchText},
-                            set: {searchText = $0}
-                        ),
-                                      isFocused: $isFocused)
+                        FormValueText(
+                            placeholder: "",
+                            textBinding: Binding(
+                                get: {searchText},
+                                set: {searchText = $0}
+                            ),
+                            isFocused: $isFocused
+                        )
                         .keyboardType(.default)
                         .onChange(of: isFocused) { oldValue, newValue in
                             if newValue, let selected = selectedItem {
@@ -50,6 +53,12 @@ struct FormSearchPickerField<T: NSManagedObject>: View {
                 }
 
                 Divider()
+            }
+            .onChange(of: isFocused) {oldValue, newValue in
+                if !newValue {
+                    searchText = ""
+                    isFocused = false
+                }
             }
 
             if isFocused && !searchText.isEmpty {
