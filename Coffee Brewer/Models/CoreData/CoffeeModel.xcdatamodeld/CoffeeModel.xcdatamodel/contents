@@ -11,6 +11,7 @@
         <attribute name="name" optional="YES" attributeType="String"/>
         <attribute name="ratio" optional="YES" attributeType="Double" defaultValueString="0" usesScalarValueType="YES"/>
         <attribute name="temperature" optional="YES" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES"/>
+        <attribute name="waterAmount" optional="YES" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES"/>
         <relationship name="grinder" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="Grinder" inverseName="recipes" inverseEntity="Grinder"/>
         <relationship name="roaster" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="Roaster" inverseName="recipes" inverseEntity="Roaster"/>
     </entity>

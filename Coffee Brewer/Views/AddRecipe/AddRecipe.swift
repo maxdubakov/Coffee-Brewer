@@ -4,7 +4,7 @@ import CoreData
 struct AddRecipe: View {
     // MARK: - Nested Types
     enum FocusedField: Hashable {
-        case roaster, name, grams, ratio, temperature, grindSize
+        case roaster, name, grams, ratio, waterml, temperature, grindSize
     }
 
     // MARK: - Environment
@@ -57,14 +57,17 @@ struct AddRecipe: View {
                             focusedField: $focusedField,
                         )
                         
-                        FormTextField(
+                        FormKeyboardInputField(
                             title: "Recipe Name",
                             field: .name,
-                            text: Binding(
+                            keyboardType: .default,
+                            valueToString: { $0 },
+                            stringToValue: { $0 },
+                            value: Binding(
                                 get: { recipe.name ?? "" },
                                 set: { recipe.name = $0 }
                             ),
-                            focusedField: $focusedField,
+                            focusedField: $focusedField
                         )
                         
                         FormExpandableNumberField(
@@ -90,6 +93,20 @@ struct AddRecipe: View {
                             ),
                             focusedField: $focusedField,
                         )
+                        
+                        FormKeyboardInputField(
+                            title: "Water (ml)",
+                            field: .waterml,
+                            keyboardType: .numberPad,
+                            valueToString: { String($0) },
+                            stringToValue: { Int16($0) },
+                            value: Binding(
+                                get: { recipe.waterAmount },
+                                set: { recipe.waterAmount = $0 }
+                            ),
+                            focusedField: $focusedField
+                        )
+
                         
                         FormExpandableNumberField(
                             title: "Water Temperature",
