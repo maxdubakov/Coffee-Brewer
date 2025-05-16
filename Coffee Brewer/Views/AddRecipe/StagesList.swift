@@ -15,8 +15,7 @@ struct StagesList: View {
     // MARK: - State
     @State private var isAddingStage = false
     @State private var isModifyingStage = false
-    @State private var stageToModify: Stage? = nil
-    
+
     // Animation state
     @State private var stageOpacity: [NSManagedObjectID: Double] = [:]
     @State private var stageHeight: [NSManagedObjectID: CGFloat] = [:]
@@ -35,13 +34,23 @@ struct StagesList: View {
                 .opacity(stageOpacity[stage.objectID] ?? 1.0)
                 .frame(height: stageHeight[stage.objectID] ?? nil)
                 .onTapGesture {
-                    stageToModify = stage
                     isModifyingStage = true
                 }
                 .transition(.asymmetric(
                     insertion: .scale.combined(with: .opacity),
                     removal: .scale.combined(with: .opacity)
                 ))
+                .fullScreenCover(isPresented: $isModifyingStage) {
+                    GlobalBackground {
+                        AddStageView(
+                            recipe: recipe,
+                            brewMath: brewMath,
+                            focusedField: $focusedField,
+                            existingStage: stage
+                        )
+                        
+                    }
+                }
             }
             .animation(.spring(response: 0.4, dampingFraction: 0.75), value: recipe.stagesArray.count)
             
@@ -57,20 +66,6 @@ struct StagesList: View {
         .fullScreenCover(isPresented: $isAddingStage) {
             GlobalBackground {
                 AddStageView(recipe: recipe, brewMath: brewMath, focusedField: $focusedField)
-            }
-        }
-        .fullScreenCover(isPresented: $isModifyingStage, onDismiss: {
-            stageToModify = nil
-        }) {
-            GlobalBackground {
-                if let stage = stageToModify {
-                    AddStageView(
-                        recipe: recipe,
-                        brewMath: brewMath,
-                        focusedField: $focusedField,
-                        existingStage: stage
-                    )
-                }
             }
         }
         .onAppear {
