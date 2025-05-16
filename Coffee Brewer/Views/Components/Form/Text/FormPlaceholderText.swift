@@ -1,6 +1,6 @@
 import SwiftUI
 
-struct PlaceholderText: View {
+struct FormPlaceholderText: View {
     var value: String
     var body: some View {
         Text(value)

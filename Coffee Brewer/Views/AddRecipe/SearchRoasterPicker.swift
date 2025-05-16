@@ -11,11 +11,11 @@ struct SearchRoasterPicker: View {
     @Binding var focusedField: AddRecipe.FocusedField?
 
     var body: some View {
-        SearchPickerView<Roaster>(
+        FormSearchPickerField<Roaster>(
             label: "Roaster",
             selectedItem: $selectedRoaster,
             items: Array(roasters),
-            displayName: { $0.name ?? "Unnamed" },
+            displayName: { $0.name ?? "" },
             createNewItem: { name in
                 let roaster = Roaster(context: viewContext)
                 roaster.name = name

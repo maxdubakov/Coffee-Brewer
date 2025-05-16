@@ -1,7 +1,7 @@
 import SwiftUI
 import CoreData
 
-struct SearchPickerView<T: NSManagedObject>: View {
+struct FormSearchPickerField<T: NSManagedObject>: View {
     @Environment(\.managedObjectContext) private var viewContext
 
     var label: String

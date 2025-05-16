@@ -22,7 +22,7 @@ struct AddRecipe: View {
         draft.roaster = roaster
         draft.name = ""
         draft.grams = 18
-        draft.ratio = 16
+        draft.ratio = 16.0
         draft.temperature = 95.0
         draft.grindSize = 40
         draft.lastBrewedAt = Date()
@@ -57,7 +57,7 @@ struct AddRecipe: View {
                             field: .name
                         )
                         
-                        ExpandableNumberField(
+                        FormExpandableNumberField(
                             title: "Coffee (grams)",
                             value: Binding(
                                 get: {recipe.grams},
@@ -69,19 +69,19 @@ struct AddRecipe: View {
                             field: .grams,
                         )
                         
-                        ExpandableNumberField(
+                        FormExpandableNumberField(
                             title: "Ratio",
                             value: Binding(
                                 get: {recipe.ratio},
                                 set: {recipe.ratio = $0}
                             ),
-                            range: Array(10...20),
+                            range: Array(stride(from: 10.0, through: 20.0, by: 1.0)),
                             formatter: { "1:\($0)" },
                             focusedField: $focusedField,
                             field: .ratio,
                         )
                         
-                        ExpandableNumberField(
+                        FormExpandableNumberField(
                             title: "Water Temperature",
                             value: Binding(
                                 get: {recipe.temperature},
@@ -107,7 +107,7 @@ struct AddRecipe: View {
                             focusedField: $focusedField,
                         )
 
-                        ExpandableNumberField(
+                        FormExpandableNumberField(
                             title: "Grind Size",
                             value: Binding(
                                 get: {recipe.grindSize},

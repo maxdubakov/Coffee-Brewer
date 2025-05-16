@@ -11,11 +11,11 @@ struct SearchGrinderPicker: View {
     @Binding var focusedField: AddRecipe.FocusedField?
 
     var body: some View {
-        SearchPickerView<Grinder>(
+        FormSearchPickerField<Grinder>(
             label: "Grinder",
             selectedItem: $selectedGrinder,
             items: Array(grinders),
-            displayName: { $0.name ?? "Unnamed" },
+            displayName: { $0.name ?? "" },
             createNewItem: { name in
                 let grinder = Grinder(context: viewContext)
                 grinder.name = name
