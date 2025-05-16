@@ -1,11 +1,3 @@
-//
-//  GlobalBackground.swift
-//  Coffee Brewer
-//
-//  Created by Maxim on 14/05/2025.
-//
-
-
 import SwiftUI
 
 struct GlobalBackground<Content: View>: View {

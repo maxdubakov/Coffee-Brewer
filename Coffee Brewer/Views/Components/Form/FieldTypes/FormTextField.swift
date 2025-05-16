@@ -1,15 +1,22 @@
 import SwiftUI
 
 struct FormTextField: View {
-    let title: String
-    @Binding var text: String
-    @Binding var focusedField: AddRecipe.FocusedField?
-    let field: AddRecipe.FocusedField
-    var keyboardType: UIKeyboardType = .default
+        // MARK: - Public Properties
+        let title: String
+        let field: AddRecipe.FocusedField
+        var keyboardType: UIKeyboardType = .default
 
-    @FocusState private var isFocused: Bool
+        // MARK: - Bindings
+        @Binding var text: String
+        @Binding var focusedField: AddRecipe.FocusedField?
 
-    private var isActive: Bool { focusedField == field }
+        // MARK: - Focus State
+        @FocusState private var isFocused: Bool
+
+        // MARK: - Computed Properties
+        private var isActive: Bool {
+            focusedField == field
+        }
 
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {

@@ -2,18 +2,26 @@ import SwiftUI
 import CoreData
 
 struct FormSearchPickerField<T: NSManagedObject>: View {
-    @Environment(\.managedObjectContext) private var viewContext
-
-    var label: String
-    @Binding var selectedItem: T?
+    // MARK: - Public Properties
+    let label: String
     var items: [T]
     var displayName: (T) -> String
     var createNewItem: (String) -> T?
+    
+    // MARK: - Environment
+    @Environment(\.managedObjectContext) private var viewContext
 
-    @State private var searchText: String = ""
+    // MARK: - Bindings
+    @Binding var selectedItem: T?
     @Binding var focusedField: AddRecipe.FocusedField?
+    
+    // MARK: - State
+    @State private var searchText: String = ""
+
+    // MARK: - Focus State
     @FocusState private var isFocused: Bool
 
+    // MARK: - Computed Properties
     private var filteredItems: [T] {
         items.filter { searchText.isEmpty || displayName($0).localizedCaseInsensitiveContains(searchText) }
     }

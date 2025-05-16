@@ -1,6 +1,7 @@
 import SwiftUI
 
 struct RecipeCard: View {
+    // MARK: - Public Properties
     var title: String
     var timeAgo: String
     var onTap: () -> Void

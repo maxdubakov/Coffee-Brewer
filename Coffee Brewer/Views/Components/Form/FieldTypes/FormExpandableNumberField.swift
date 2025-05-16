@@ -1,13 +1,17 @@
 import SwiftUI
 
 struct FormExpandableNumberField<T: Hashable & CustomStringConvertible>: View {
+    // MARK: - Public Properties
     let title: String
-    @Binding var value: T
     let range: [T]
     let formatter: (T) -> String
-    @Binding var focusedField: AddRecipe.FocusedField?
     let field: AddRecipe.FocusedField
+    
+    // MARK: - Bindings
+    @Binding var value: T
+    @Binding var focusedField: AddRecipe.FocusedField?
 
+    // MARK: - Computed Properties
     var isActive: Bool {
         focusedField == field
     }

@@ -1,12 +1,16 @@
 import SwiftUI
 
 struct MainView: View {
-    @Environment(\.managedObjectContext) private var viewContext
-    @State private var selectedTab: Tab = .home
-    
+    // MARK: - Nested Types
     enum Tab {
         case home, add, history
     }
+    
+    // MARK: - Environment
+    @Environment(\.managedObjectContext) private var viewContext
+    
+    // MARK: - State
+    @State private var selectedTab: Tab = .home
     
     init() {
         let appearance = UITabBarAppearance()
@@ -16,29 +20,29 @@ struct MainView: View {
     }
 
     var body: some View {
-            TabView(selection: $selectedTab) {
-                Recipes()
-                    .background(BrewerColors.background)
-                    .tabItem {
-                        TabIcon(imageName: "home", label: "Home")
-                    }
-                    .tag(Tab.home)
+        TabView(selection: $selectedTab) {
+            Recipes()
+                .background(BrewerColors.background)
+                .tabItem {
+                    TabIcon(imageName: "home", label: "Home")
+                }
+                .tag(Tab.home)
 
-                AddRecipe(context: viewContext, selectedTab: $selectedTab)
-                    .background(BrewerColors.background)
-                    .tabItem {
-                        TabIcon(imageName: "add.recipe", label: "Add")
-                    }
-                    .tag(Tab.add)
+            AddRecipe(context: viewContext, selectedTab: $selectedTab)
+                .background(BrewerColors.background)
+                .tabItem {
+                    TabIcon(imageName: "add.recipe", label: "Add")
+                }
+                .tag(Tab.add)
 
-                History()
-                    .background(BrewerColors.background)
-                    .tabItem {
-                        TabIcon(imageName: "history", label: "History")
-                    }
-                    .tag(Tab.history)
-            }
-            .accentColor(BrewerColors.cream)
+            History()
+                .background(BrewerColors.background)
+                .tabItem {
+                    TabIcon(imageName: "history", label: "History")
+                }
+                .tag(Tab.history)
+        }
+        .accentColor(BrewerColors.cream)
     }
 
     struct TabIcon: View {

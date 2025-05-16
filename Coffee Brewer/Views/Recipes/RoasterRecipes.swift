@@ -2,22 +2,23 @@ import SwiftUI
 import CoreData
 
 struct RoasterRecipes: View {
-    @ObservedObject var roaster: Roaster
+    // MARK: - Environment
     @Environment(\.managedObjectContext) private var viewContext
     
-    @State private var recipes: [Recipe] = []
+    // MARK: - Observed Objects
+    @ObservedObject var roaster: Roaster
     
-    private func fetchRecipes() {
-        let request: NSFetchRequest<Recipe> = Recipe.fetchRequest()
-        request.predicate = NSPredicate(format: "roaster == %@", roaster)
-        request.sortDescriptors = [NSSortDescriptor(keyPath: \Recipe.lastBrewedAt, ascending: false)]
-
-        do {
-            recipes = try viewContext.fetch(request)
-        } catch {
-            print("❌ Error fetching recipes: \(error.localizedDescription)")
-            recipes = []
-        }
+    // MARK: - Fetch Requests
+    @FetchRequest private var recipes: FetchedResults<Recipe>
+    
+    init(roaster: Roaster) {
+        self.roaster = roaster
+        _recipes = FetchRequest(
+            entity: Recipe.entity(),
+            sortDescriptors: [NSSortDescriptor(keyPath: \Recipe.lastBrewedAt, ascending: false)],
+            predicate: NSPredicate(format: "roaster == %@", roaster),
+            animation: .default
+        )
     }
     
     var body: some View {
@@ -25,9 +26,9 @@ struct RoasterRecipes: View {
             header
             recipeScroll
         }
-        .onAppear(perform: fetchRecipes)
     }
     
+    // MARK: - Header View
     private var header: some View {
         HStack {
             SecondaryHeader(title: roaster.name ?? "Unknown Roaster")
@@ -41,6 +42,7 @@ struct RoasterRecipes: View {
         .padding(.horizontal, 20)
     }
     
+    // MARK: - Recipes Scroll View
     private var recipeScroll: some View {
         ScrollView(.horizontal, showsIndicators: false) {
             HStack(alignment: .top, spacing: 10) {

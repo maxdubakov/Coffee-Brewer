@@ -2,10 +2,13 @@ import SwiftUI
 import CoreData
 
 struct Recipes: View {
+    // MARK: - Fetch Requests
     @FetchRequest(
             sortDescriptors: [NSSortDescriptor(keyPath: \Roaster.name, ascending: true)],
             animation: .default
         )
+    
+    // MARK: - Private Properties
     private var roasters: FetchedResults<Roaster>
     
     var body: some View {
