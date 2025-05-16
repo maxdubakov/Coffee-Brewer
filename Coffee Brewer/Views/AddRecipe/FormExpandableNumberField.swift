@@ -14,24 +14,16 @@ struct ExpandableNumberField<T: Hashable & CustomStringConvertible>: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
-            HStack {
-                Text(title)
-                    .font(.system(size: 17, weight: .light))
-                    .foregroundColor(BrewerColors.placeholder)
-
+            FormField {
+                PlaceholderText(value: title)
                 Spacer()
-
-                Text(formatter(value))
-                    .font(.system(size: 17, weight: .medium))
-                    .foregroundColor(BrewerColors.textPrimary)
+                FormValueText(value: formatter(value))
             }
-            .contentShape(Rectangle())
             .onTapGesture {
                 withAnimation(.spring()) {
                     focusedField = isActive ? nil : field
                 }
             }
-            .padding(.vertical, 13.5)
 
             if isActive {
                 VStack {
@@ -47,9 +39,7 @@ struct ExpandableNumberField<T: Hashable & CustomStringConvertible>: View {
                 }
             }
 
-            Rectangle()
-                .frame(height: 0.5)
-                .foregroundColor(BrewerColors.divider)
+            Divider()
         }
     }
 }

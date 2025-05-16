@@ -11,7 +11,6 @@ struct SearchPickerView<T: NSManagedObject>: View {
     var createNewItem: (String) -> T?
 
     @State private var searchText: String = ""
-    @State private var isEditing: Bool = false
     @Binding var focusedField: AddRecipe.FocusedField?
     @FocusState private var isFocused: Bool
 
@@ -22,63 +21,52 @@ struct SearchPickerView<T: NSManagedObject>: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
             VStack(alignment: .leading, spacing: 0) {
-                HStack {
+                FormField {
                     ZStack(alignment: .leading) {
                         if searchText.isEmpty {
-                            Text(label)
-                                .font(.system(size: 17, weight: .light))
-                                .foregroundColor(BrewerColors.placeholder)
-                                .padding(.leading, 4)
+                            FormPlaceholderText(value: label)
                         }
-
-                        TextField("", text: $searchText, onEditingChanged: { editing in
-                            isEditing = editing
-                        })
-                        .font(.system(size: 17, weight: .medium))
-                        .foregroundColor(BrewerColors.textPrimary)
+                        FormValueText(placeholder: "", textBinding: Binding(
+                            get: {searchText},
+                            set: {searchText = $0}
+                        ),
+                                      isFocused: $isFocused)
                         .keyboardType(.default)
-                        .focused($isFocused)
-                    }
-                    .frame(maxWidth: .infinity, alignment: .trailing)
-                    .contentShape(Rectangle())
-                    .onTapGesture { isEditing = true }
-
-                    Spacer()
-
-                    if !isEditing && selectedItem != nil {
-                        Text(displayName(selectedItem!))
-                            .font(.system(size: 17, weight: .medium))
-                            .foregroundColor(BrewerColors.textPrimary)
-                            .onTapGesture {
-                                isEditing = true
+                        .onChange(of: isFocused) { oldValue, newValue in
+                            if newValue, let selected = selectedItem {
+                                searchText = displayName(selected)
                             }
+                        }
+                    }
+                    
+                    Spacer()
+                    
+                    if !isFocused && selectedItem != nil {
+                        FormValueText(value: displayName(selectedItem!))
                     }
                 }
-                .padding(.vertical, 13.5)
+                .onTapGesture {
+                    isFocused = true
+                }
 
-                Rectangle()
-                    .frame(height: 0.5)
-                    .foregroundColor(BrewerColors.divider)
+                Divider()
             }
 
-            if isEditing && !searchText.isEmpty {
+            if isFocused && !searchText.isEmpty {
                 VStack(alignment: .leading, spacing: 0) {
                     if !filteredItems.isEmpty {
                         ForEach(filteredItems, id: \.objectID) { item in
                             Button {
                                 selectedItem = item
                                 searchText = ""
-                                isEditing = false
                                 isFocused = false
                                 focusedField = nil
                             } label: {
-                                Text(displayName(item))
+                                FormValueText(value: displayName(item))
                                     .padding()
-                                    .foregroundStyle(BrewerColors.textPrimary)
                             }
-                            .background(BrewerColors.background)
                             .onTapGesture {
-                                isEditing = false
+                                isFocused = false
                                 focusedField = nil
                             }
                         }
@@ -88,7 +76,6 @@ struct SearchPickerView<T: NSManagedObject>: View {
                                 selectedItem = newItem
                             }
                             searchText = ""
-                            isEditing = false
                             isFocused = false
                             focusedField = nil
                         } label: {
@@ -98,7 +85,6 @@ struct SearchPickerView<T: NSManagedObject>: View {
                         }
                     }
                 }
-                .background(BrewerColors.background)
                 .cornerRadius(8)
                 .shadow(radius: 4)
                 .padding(.top, 4)
