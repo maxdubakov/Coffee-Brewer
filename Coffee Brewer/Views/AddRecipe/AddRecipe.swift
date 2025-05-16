@@ -19,6 +19,11 @@ struct AddRecipe: View {
     // MARK: - State
     @State private var searchText: String = ""
     @State private var focusedField: FocusedField? = nil
+    @StateObject private var brewMath = BrewMathViewModel(
+        grams: 18,
+        ratio: 16.0,
+        water: 288
+    )
     
     // MARK: - Constants
     private let roaster: Roaster?
@@ -31,11 +36,8 @@ struct AddRecipe: View {
         let draft = Recipe(context: context)
         draft.roaster = roaster
         draft.name = ""
-        draft.grams = 18
-        draft.ratio = 16.0
         draft.temperature = 95.0
         draft.grindSize = 40
-        draft.lastBrewedAt = Date()
 
         _recipe = ObservedObject(wrappedValue: draft)
     }
@@ -75,10 +77,7 @@ struct AddRecipe: View {
                             range: Array(8...40),
                             formatter: { "\($0)g" },
                             field: .grams,
-                            value: Binding(
-                                get: {recipe.grams},
-                                set: {recipe.grams = $0}
-                            ),
+                            value: $brewMath.grams,
                             focusedField: $focusedField,
                         )
                         
@@ -87,10 +86,7 @@ struct AddRecipe: View {
                             range: Array(stride(from: 10.0, through: 20.0, by: 1.0)),
                             formatter: { "1:\($0)" },
                             field: .ratio,
-                            value: Binding(
-                                get: {recipe.ratio},
-                                set: {recipe.ratio = $0}
-                            ),
+                            value: $brewMath.ratio,
                             focusedField: $focusedField,
                         )
                         
@@ -100,10 +96,7 @@ struct AddRecipe: View {
                             keyboardType: .numberPad,
                             valueToString: { String($0) },
                             stringToValue: { Int16($0) },
-                            value: Binding(
-                                get: { recipe.waterAmount },
-                                set: { recipe.waterAmount = $0 }
-                            ),
+                            value: $brewMath.water,
                             focusedField: $focusedField
                         )
 
@@ -156,6 +149,9 @@ struct AddRecipe: View {
                 Button(action: {
                     recipe.lastBrewedAt = Date()
                     do {
+                        recipe.grams = brewMath.grams
+                        recipe.ratio = brewMath.ratio
+                        recipe.waterAmount = brewMath.water
                         try viewContext.save()
                         selectedTab = .home
                     } catch {

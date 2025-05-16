@@ -68,8 +68,12 @@ struct FormKeyboardInputField<Value>: View {
             isFocused = newValue == field
         }
         .onChange(of: isFocused) { _, newValue in
-            if !newValue, focusedField == field {
-                focusedField = nil
+            if newValue {
+                internalText = valueToString(value)
+            } else {
+                if focusedField == field {
+                    focusedField = nil
+                }
             }
         }
     }
