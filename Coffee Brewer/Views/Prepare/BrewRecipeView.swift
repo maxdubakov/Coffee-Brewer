@@ -51,28 +51,31 @@ struct BrewRecipeView: View {
                 Text("by \(recipe.roaster?.name ?? "Unknown Roaster")")
                     .font(.subheadline)
                     .foregroundColor(BrewerColors.textSecondary)
-                    .padding(.bottom, 32)
+                    .padding(.bottom, 60)
             }
         
         
-            VStack(spacing: 60) {
-                RecipeMetricsBar(recipe: recipe)
+            VStack(spacing: 30) {
 
                 BrewTimer(
                     elapsedTime: timerViewModel.elapsedTime,
                     pouredWater: timerViewModel.totalWaterPoured,
                     totalTime: timerViewModel.totalTime,
                     onToggle: timerViewModel.toggleTimer
-                )
+                ).padding(.bottom, 50)
                 
-                // MARK: - Current Stage
-                if let stage = currentStage {
-                    CurrentStageCard(
-                        stage: stage,
-                        stageNumber: currentStageIndex + 1,
-                        waterProgress: timerViewModel.waterPoured(forStage: currentStageIndex),
-                        timeRemaining: timerViewModel.timeRemaining(forStage: currentStageIndex)
-                    )
+                VStack {
+                    RecipeMetricsBar(recipe: recipe)
+                    
+                    // MARK: - Current Stage
+                    if let stage = currentStage {
+                        CurrentStageCard(
+                            stage: stage,
+                            stageNumber: currentStageIndex + 1,
+                            waterProgress: timerViewModel.waterPoured(forStage: currentStageIndex),
+                            timeRemaining: timerViewModel.timeRemaining(forStage: currentStageIndex)
+                        )
+                    }
                 }
 
                 // MARK: - Next Stage

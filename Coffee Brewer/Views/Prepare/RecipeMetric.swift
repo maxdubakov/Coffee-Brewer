@@ -9,25 +9,25 @@ struct RecipeMetric: View {
         HStack(spacing: 4) {
             // Icon section
             Image(systemName: iconName)
-                .font(.system(size: 10))
+                .font(.system(size: 14))
                 .foregroundColor(color)
-                .frame(width: 12, height: 12)
+                .frame(width: 16, height: 16)
             
             // Value
             Text(value)
-                .font(.system(size: 13, weight: .semibold))
+                .font(.system(size: 16, weight: .semibold))
                 .foregroundColor(BrewerColors.textPrimary)
-                .minimumScaleFactor(0.8)
                 .lineLimit(1)
         }
         .padding(.vertical, 8)
-        .padding(.horizontal, 6)
+        .padding(.horizontal, 8)
+        .frame(maxWidth: .infinity)
         .background(
-            RoundedRectangle(cornerRadius: 6)
-                .fill(BrewerColors.surface)
+            RoundedRectangle(cornerRadius: 10)
+                .fill(BrewerColors.surface.opacity(0.4))
                 .overlay(
-                    RoundedRectangle(cornerRadius: 6)
-                        .strokeBorder(color.opacity(0.3), lineWidth: 1)
+                    RoundedRectangle(cornerRadius: 10)
+                        .strokeBorder(color.opacity(0.3), lineWidth: 0.5)
                 )
         )
     }

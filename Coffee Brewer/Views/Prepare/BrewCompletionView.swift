@@ -44,11 +44,6 @@ struct BrewCompletionView: View {
             }
             .padding(.top, 40)
             
-            // Recipe metrics summary
-            RecipeMetricsBar(recipe: recipe)
-                .padding(.horizontal, 24)
-                .padding(.vertical, 20)
-            
             ScrollView {
                 VStack(alignment: .leading, spacing: 24) {
                     // Rating
