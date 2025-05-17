@@ -3,44 +3,60 @@ import SwiftUI
 struct RecipeCard: View {
     // MARK: - Public Properties
     let recipe: Recipe
-
+    var onBrewTapped: () -> Void = {}
+    var onEditTapped: () -> Void = {}
+    var onDeleteTapped: () -> Void = {}
+    
+    @State private var showMenu: Bool = false
+    
     var body: some View {
-        
-            VStack(alignment: .leading, spacing: 0) {
-                Rectangle()
-                    .fill(BrewerColors.textPrimary.opacity(0.5))
-                    .frame(width: 169, height: 169)
-                    .overlay(
-                        Text("⾖")
-                            .font(.largeTitle)
-                            .foregroundColor(.white)
-                    )
+        VStack(alignment: .leading, spacing: 0) {
+            Rectangle()
+                .fill(BrewerColors.textPrimary.opacity(0.5))
+                .frame(width: 169, height: 169)
+                .overlay(
+                    Text("later :)")
+                        .font(.largeTitle)
+                        .foregroundColor(.white)
+                )
 
-                VStack(alignment: .leading, spacing: 6) {
-                    Text(recipe.name ?? "Untitled Recipe")
-                        .font(.subheadline)
-                        .fontWeight(.semibold)
-                        .foregroundColor(BrewerColors.textPrimary)
-                        .frame(minWidth: 99, alignment: .leading)
+            VStack(alignment: .leading, spacing: 6) {
+                Text(recipe.name ?? "Untitled Recipe")
+                    .font(.subheadline)
+                    .fontWeight(.semibold)
+                    .foregroundColor(BrewerColors.textPrimary)
+                    .frame(minWidth: 99, alignment: .leading)
 
-                    Text((recipe.lastBrewedAt ?? Date()).timeAgoDescription())
-                        .font(.caption)
-                        .foregroundColor(BrewerColors.textSecondary)
-                        .frame(minWidth: 99, alignment: .leading)
-                }
-                .padding(14)
+                Text((recipe.lastBrewedAt ?? Date()).timeAgoDescription())
+                    .font(.caption)
+                    .foregroundColor(BrewerColors.textSecondary)
+                    .frame(minWidth: 99, alignment: .leading)
             }
-            .background(BrewerColors.surface)
-            .cornerRadius(12)
-            .shadow(color: Color.black.opacity(0.12), radius: 10, y: 2)
-        
+            .padding(14)
+        }
+        .background(BrewerColors.surface)
+        .cornerRadius(12)
+        .shadow(color: Color.black.opacity(0.12), radius: 10, y: 2)
+        .contextMenu {
+            Button(action: onBrewTapped) {
+                Label("Brew", systemImage: "mug")
+            }
+            
+            Button(action: onEditTapped) {
+                Label("Edit", systemImage: "pencil")
+            }
+            
+            Button(action: onDeleteTapped) {
+                Label("Delete", systemImage: "trash")
+                    .foregroundColor(Color.red)
+            }
+        }
     }
 }
 
 struct RecipeCardViewPreview: PreviewProvider {
     static var previews: some View {
         let context = PersistenceController.preview.container.viewContext
-        @State var startedBrew = false
         
         // Create a test recipe
         let testRecipe = Recipe(context: context)
@@ -75,14 +91,16 @@ struct RecipeCardViewPreview: PreviewProvider {
         return GlobalBackground {
             RecipeCard(
                 recipe: testRecipe,
+                onBrewTapped: {
+                    print("Brew tapped")
+                },
+                onEditTapped: {
+                    print("Edit tapped")
+                },
+                onDeleteTapped: {
+                    print("Delete tapped")
+                }
             )
-            .onTapGesture {
-                startedBrew = true
-            }
-            .fullScreenCover(isPresented: $startedBrew) {
-                BrewRecipeView(recipe: testRecipe)
-            }
-                
         }
     }
 }

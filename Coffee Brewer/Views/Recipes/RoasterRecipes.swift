@@ -14,6 +14,8 @@ struct RoasterRecipes: View {
     // MARK: - State
     @State private var selectedRecipeID: NSManagedObjectID?
     @State private var showBrewScreen = false
+    @State private var showDeleteAlert = false
+    @State private var recipeToDelete: Recipe?
     
     init(roaster: Roaster) {
         self.roaster = roaster
@@ -25,6 +27,27 @@ struct RoasterRecipes: View {
         )
     }
     
+    private func brew(recipe: Recipe) -> Void {
+        selectedRecipeID = recipe.objectID
+        showBrewScreen = true
+    }
+    
+    private func deleteRecipe() {
+        guard let recipe = recipeToDelete else { return }
+        
+        // Create animations to fade out the deleted recipe
+        withAnimation(.bouncy(duration: 0.5)) {
+            viewContext.delete(recipe)
+            
+            // Save the context
+            do {
+                try viewContext.save()
+            } catch {
+                print("Error deleting recipe: \(error)")
+            }
+        }
+    }
+    
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
             header
@@ -34,8 +57,6 @@ struct RoasterRecipes: View {
             if let id = selectedRecipeID,
                let brewRecipe = viewContext.object(with: id) as? Recipe {
                 BrewRecipeView(recipe: brewRecipe)
-            } else {
-                Text("SHIT")
             }
         }
         .onChange(of: showBrewScreen) { oldValue, newValue in
@@ -43,6 +64,17 @@ struct RoasterRecipes: View {
                 // Reset selectedRecipeID when sheet is dismissed
                 selectedRecipeID = nil
             }
+        }
+        .alert("Delete Recipe", isPresented: $showDeleteAlert) {
+            Button("Cancel", role: .cancel) {
+                recipeToDelete = nil
+            }
+            
+            Button("Delete", role: .destructive) {
+                deleteRecipe()
+            }
+        } message: {
+            Text("Are you sure you want to delete \(recipeToDelete?.name ?? "this recipe")?")
         }
     }
     
@@ -67,10 +99,18 @@ struct RoasterRecipes: View {
                 ForEach(recipes, id: \.self) { recipe in
                     RecipeCard(
                         recipe: recipe,
+                        onBrewTapped: {
+                            brew(recipe: recipe)
+                        },
+                        onEditTapped: {
+                            print("Editing")
+                        },
+                        onDeleteTapped: {
+                            recipeToDelete = recipe
+                            showDeleteAlert = true
+                        }
                     ).onTapGesture {
-                        print("Selected Recipe ID: \(recipe.objectID)")
-                        selectedRecipeID = recipe.objectID
-                        showBrewScreen = true
+                        brew(recipe: recipe)
                     }
                 }
             }

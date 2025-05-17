@@ -5,7 +5,7 @@ struct SecondaryHeader: View {
     
     var body : some View {
         Text(title)
-            .font(.headline)
+            .font(.system(size: 20, weight: .semibold))
             .fontWeight(.semibold)
             .foregroundColor(BrewerColors.textPrimary)
     }

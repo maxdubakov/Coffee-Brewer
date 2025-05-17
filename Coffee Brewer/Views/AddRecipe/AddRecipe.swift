@@ -35,7 +35,7 @@ struct AddRecipe: View {
         self.roaster = existingRoaster
         let draft = Recipe(context: context)
         draft.roaster = roaster
-        draft.name = ""
+        draft.name = "New Recipe"
         draft.temperature = 95.0
         draft.grindSize = 40
 
