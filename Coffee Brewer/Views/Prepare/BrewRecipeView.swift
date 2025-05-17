@@ -39,25 +39,13 @@ struct BrewRecipeView: View {
                         .foregroundColor(BrewerColors.textPrimary)
                         .frame(maxWidth: .infinity)
                     
-                    HStack {
-                        Button(action: {
-                            if timerViewModel.isRunning {
-                                confirmExitBrewing()
-                            } else {
-                                dismiss()
-                            }
-                        }) {
-                            HStack(spacing: 6) {
-                                Image(systemName: "chevron.left")
-                                    .font(.system(size: 16, weight: .semibold))
-                                Text("Back")
-                            }
-                            .foregroundColor(BrewerColors.textPrimary)
+                    BackButton(action: {
+                        if timerViewModel.isRunning {
+                            confirmExitBrewing()
+                        } else {
+                            dismiss()
                         }
-                        .padding(.leading, 18)
-                        
-                        Spacer()
-                    }
+                    })
                 }
                 .padding(.top, 20)
                 Text("by \(recipe.roaster?.name ?? "Unknown Roaster")")

@@ -74,27 +74,13 @@ struct AddStage: View {
     
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
-            HStack {
-                Button(action: {
-                    dismiss()
-                }) {
-                    Image(systemName: "chevron.left")
-                        .font(.system(size: 16, weight: .semibold))
-                        .foregroundColor(BrewerColors.textPrimary)
-                }
-                .padding(.leading, 18)
-                Text("Add Stage")
-                    .font(.system(size: 20, weight: .bold))
-                    .foregroundColor(BrewerColors.textPrimary)
-                    .padding(.vertical, 20)
-            }
+            BackButton(action: {
+                dismiss()
+            })
             
             ScrollView {
                 VStack(alignment: .leading, spacing: 18) {
                     VStack(alignment: .leading, spacing: 0) {
-                        SecondaryHeader(title: "Stage Configuration")
-                            .padding(.bottom, 10)
-                        
                         // Stage Type Picker
                         FormTypePicker(
                             title: "Stage Type",
@@ -103,17 +89,17 @@ struct AddStage: View {
                             selection: $selectedType,
                             focusedField: $focusedField
                         )
-                        
-                        if selectedType == .wait {
-                            FormExpandableNumberField(
-                                title: "Duration (seconds)",
-                                range: Array(5...120),
-                                formatter: { "\($0)s" },
-                                field: .seconds,
-                                value: $seconds,
-                                focusedField: $focusedField,
-                            )
-                        } else {
+
+                        FormExpandableNumberField(
+                            title: "Duration (seconds)",
+                            range: Array(5...120),
+                            formatter: { "\($0)s" },
+                            field: .seconds,
+                            value: $seconds,
+                            focusedField: $focusedField,
+                        )
+
+                        if (selectedType != .wait) {
                             FormKeyboardInputField(
                                 title: "Water Amount (ml)",
                                 field: .stageWaterAmount,
@@ -164,27 +150,15 @@ struct AddStage: View {
         if let stageToUpdate = existingStage {
             // Update existing stage
             stageToUpdate.type = selectedType.id
-            
-            if selectedType == .wait {
-                stageToUpdate.seconds = seconds
-                stageToUpdate.waterAmount = 0
-            } else {
-                stageToUpdate.waterAmount = waterAmount
-                stageToUpdate.seconds = 0
-            }
+            stageToUpdate.seconds = seconds
+            stageToUpdate.waterAmount = waterAmount
         } else {
             // Create new stage
             let newStage = Stage(context: viewContext)
             newStage.type = selectedType.id
             newStage.orderIndex = Int16(recipe.stagesArray.count)
-            
-            if selectedType == .wait {
-                newStage.seconds = seconds
-                newStage.waterAmount = 0
-            } else {
-                newStage.waterAmount = waterAmount
-                newStage.seconds = 0
-            }
+            newStage.seconds = seconds
+            newStage.waterAmount = waterAmount
             recipe.addToStages(newStage)
         }
         

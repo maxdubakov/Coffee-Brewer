@@ -48,7 +48,6 @@ struct StagesList: View {
                             focusedField: $focusedField,
                             existingStage: stage
                         )
-                        
                     }
                 }
             }
