@@ -94,7 +94,7 @@ struct AddRecipe: View {
                         FormKeyboardInputField(
                             title: "Water (ml)",
                             field: .waterml,
-                            keyboardType: .numberPad,
+                            keyboardType: .default,
                             valueToString: { String($0) },
                             stringToValue: { Int16($0) },
                             value: $brewMath.water,

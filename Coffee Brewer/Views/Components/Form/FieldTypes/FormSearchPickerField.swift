@@ -21,30 +21,28 @@ struct SearchablePickerSheet<T: NSManagedObject>: View {
         NavigationStack {
             List {
                 Section {
-                    if !searchText.isEmpty {
-                        ForEach(filtered, id: \.objectID) { item in
-                            Button {
-                                onSelect(item)
-                                dismiss()
-                            } label: {
-                                Text(displayName(item))
-                                    .foregroundColor(BrewerColors.textPrimary)
-                            }
-                            .listRowBackground(BrewerColors.background)
+                    ForEach(filtered, id: \.objectID) { item in
+                        Button {
+                            onSelect(item)
+                            dismiss()
+                        } label: {
+                            Text(displayName(item))
+                                .foregroundColor(BrewerColors.textPrimary)
                         }
+                        .listRowBackground(BrewerColors.background)
+                    }
 
-                        if filtered.isEmpty, let create = createNewItem {
-                            Button {
-                                if let new = create(searchText) {
-                                    onSelect(new)
-                                    dismiss()
-                                }
-                            } label: {
-                                Text("Create '\(searchText)'")
-                                    .foregroundColor(BrewerColors.textPrimary)
+                    if filtered.isEmpty, let create = createNewItem {
+                        Button {
+                            if let new = create(searchText) {
+                                onSelect(new)
+                                dismiss()
                             }
-                            .listRowBackground(BrewerColors.background)
+                        } label: {
+                            Text("Create '\(searchText)'")
+                                .foregroundColor(BrewerColors.textPrimary)
                         }
+                        .listRowBackground(BrewerColors.background)
                     }
                 }
             }
