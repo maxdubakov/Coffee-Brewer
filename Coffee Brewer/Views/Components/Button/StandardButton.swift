@@ -2,6 +2,7 @@ import SwiftUI
 
 struct StandardButton: BrewerButton {
     var title: String
+    var iconName: String?
     var action: () -> Void
     var maxWidth: CGFloat? = .infinity
     var style: ButtonStyleType
@@ -16,7 +17,14 @@ struct StandardButton: BrewerButton {
     
     var body: some View {
         Button(action: action) {
-            Text(title)
+            if (iconName != nil) {
+                HStack {
+                    Image(systemName: iconName ?? "drop")
+                    Text(title)
+                }
+            } else {
+                Text(title)
+            }
         }
         .modifier(buttonStyleModifier)
         .frame(maxWidth: .infinity, alignment: .center)
@@ -36,6 +44,13 @@ struct ExampleButtonsView: View {
                     // Using the direct button components
                     StandardButton(
                         title: "Order Now",
+                        action: { print("Primary tapped") },
+                        style: .primary
+                    )
+                    
+                    StandardButton(
+                        title: "Order Now",
+                        iconName: "cart.fill",
                         action: { print("Primary tapped") },
                         style: .primary
                     )

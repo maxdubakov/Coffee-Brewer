@@ -16,31 +16,36 @@ struct RecipeMetricsBar: View {
         HStack(spacing: 20) {
             // Coffee amount
             MetricCircle(
-                value: "\(recipe.grams)g",
+                value: "\(recipe.grams)",
+                label: "grams",
                 color: BrewerColors.caramel
             )
             
             // Brew ratio
             MetricCircle(
                 value: "1:\(Int(recipe.ratio))",
+                label: "ratio",
                 color: BrewerColors.caramel
             )
             
             // Water temperature
             MetricCircle(
                 value: "\(Int(recipe.temperature))°",
+                label: "°C",
                 color: BrewerColors.caramel
             )
             
             // Grind size
             MetricCircle(
                 value: "\(recipe.grindSize)",
+                label: "grind",
                 color: BrewerColors.caramel
             )
             
             // Total brew time
             MetricCircle(
                 value: formattedTotalTime,
+                label: "time",
                 color: BrewerColors.caramel
             )
         }

@@ -25,6 +25,10 @@ struct BrewRecipeView: View {
         return recipe.stagesArray[currentStageIndex + 1]
     }
     
+    private var showComplete: Bool {
+        timerViewModel.elapsedTime > timerViewModel.totalTime * 0.8
+    }
+    
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
             VStack {
@@ -66,100 +70,77 @@ struct BrewRecipeView: View {
             RecipeMetricsBar(recipe: recipe)
                 .padding(.horizontal, 18)
                 .padding(.bottom, 24)
-            
-            ScrollView {
-                VStack(spacing: 28) {
-                    // MARK: - Timer Circle
-                    BrewTimerCircle(
-                        elapsedTime: timerViewModel.elapsedTime,
-                        pouredWater: timerViewModel.totalWaterPoured,
-                        totalTime: timerViewModel.totalTime,
-                        totalWater: recipe.waterAmount,
-                        isRunning: timerViewModel.isRunning,
-                        onToggle: timerViewModel.toggleTimer
+        
+        
+            VStack(spacing: 28) {
+                // MARK: - Timer Circle
+                BrewTimer(
+                    elapsedTime: timerViewModel.elapsedTime,
+                    pouredWater: timerViewModel.totalWaterPoured,
+                    totalTime: timerViewModel.totalTime,
+                    onToggle: timerViewModel.toggleTimer
+                )
+                .padding(.top, 8)
+                .padding(.bottom, 30)
+                
+                // MARK: - Current Stage
+                if let stage = currentStage {
+                    CurrentStageCard(
+                        stage: stage,
+                        stageNumber: currentStageIndex + 1,
+                        waterProgress: timerViewModel.waterPoured(forStage: currentStageIndex),
+                        timeRemaining: timerViewModel.timeRemaining(forStage: currentStageIndex)
                     )
-                    .padding(.top, 8)
-                    .padding(.bottom, 30)
-                    
-                    // MARK: - Current Stage
-                    if let stage = currentStage {
-                        CurrentStageCard(
-                            stage: stage,
-                            stageNumber: currentStageIndex + 1,
-                            waterProgress: timerViewModel.waterPoured(forStage: currentStageIndex),
-                            timeRemaining: timerViewModel.timeRemaining(forStage: currentStageIndex)
-                        )
-                    }
-
-                    // MARK: - Next Stage
-                    if let stage = nextStage {
-                        NextStagePreview(
-                            stage: stage,
-                            stageNumber: currentStageIndex + 2
-                        )
-                    }
-                    
-                    // MARK: - Control Buttons
-                    VStack(spacing: 16) {
-                        // Primary action
-                        StandardButton(
-                            title: timerViewModel.isRunning ? "Pause" : (timerViewModel.elapsedTime > 0 ? "Resume" : "Start Brewing"),
-                            action: timerViewModel.toggleTimer,
-                            style: .primary
-                        )
-                        
-                        // Secondary actions in a row
-                        HStack(spacing: 12) {
-                            // Skip stage - only when timer is running
-                            if timerViewModel.isRunning {
-                                Button(action: {
-                                    timerViewModel.advanceToNextStage()
-                                }) {
-                                    HStack {
-                                        Text("Skip Stage")
-                                        Image(systemName: "forward.fill")
-                                    }
-                                    .frame(maxWidth: .infinity)
-                                    .padding(.vertical, 14)
-                                }
-                                .buttonStyle(SecondaryButtonStyle())
-                            }
-                            // Reset - only if paused and timer has started
-                            else if !timerViewModel.isRunning && timerViewModel.elapsedTime > 0 {
-                                Button(action: {
-                                    timerViewModel.resetTimer()
-                                }) {
-                                    HStack {
-                                        Text("Reset")
-                                        Image(systemName: "arrow.counterclockwise")
-                                    }
-                                    .frame(maxWidth: .infinity)
-                                    .padding(.vertical, 14)
-                                }
-                                .buttonStyle(SecondaryButtonStyle())
-                            }
-                            
-                            // Complete button - only shows when close to end
-                            if timerViewModel.elapsedTime > timerViewModel.totalTime * 0.8 {
-                                Button(action: {
-                                    completeBrew()
-                                }) {
-                                    HStack {
-                                        Text("Complete")
-                                        Image(systemName: "checkmark.circle")
-                                    }
-                                    .frame(maxWidth: .infinity)
-                                    .padding(.vertical, 14)
-                                }
-                                .buttonStyle(CoffeeButtonStyle())
-                            }
-                        }
-                    }
-                    .padding(.top, 20)
-                    .padding(.bottom, 30)
                 }
-                .padding(.horizontal, 18)
+
+                // MARK: - Next Stage
+                if let stage = nextStage {
+                    NextStagePreview(
+                        stage: stage,
+                        stageNumber: currentStageIndex + 2
+                    )
+                }
+                
+                Spacer()
+                
+                // MARK: - Control Buttons
+                HStack(spacing: 16) {
+                    // Primary action
+                    StandardButton(
+                        title: timerViewModel.isRunning ? "Pause" : (timerViewModel.elapsedTime > 0 ? "Resume" : "Start Brewing"),
+                        action: timerViewModel.toggleTimer,
+                        style: .primary
+                    )
+
+                    // Reset Button
+                    if !showComplete && timerViewModel.elapsedTime > 0 {
+                        StandardButton(
+                            title: "Reset",
+                            iconName: "arrow.counterclockwise",
+                            action: {
+                                timerViewModel.resetTimer()
+                            },
+                            style: .destructive,
+                        )
+                    }
+                    
+                    // Complete Button
+                    if showComplete && timerViewModel.elapsedTime > timerViewModel.totalTime * 0.8 {
+                        StandardButton(
+                            title: "Complete",
+                            iconName: "checkmark.circle",
+                            action: {
+                                completeBrew()
+                            },
+                            style: .secondary,
+                        )
+                    }
+                    
+                }
+                .padding(.top, 20)
+                .padding(.bottom, 30)
             }
+            .padding(.horizontal, 18)
         }
         .background(BrewerColors.background.edgesIgnoringSafeArea(.all))
         .onAppear {
@@ -245,9 +226,9 @@ struct BrewRecipeViewPreview: PreviewProvider {
         
         // Add all three types of stages
         createStage("fast", 50, 0, 0)
-        createStage("wait", 0, 30, 1)
-        createStage("slow", 138, 0, 2)
-        createStage("fast", 100, 0, 3)
+//        createStage("wait", 0, 30, 1)
+//        createStage("slow", 138, 0, 2)
+//        createStage("fast", 100, 0, 3)
         
         return GlobalBackground {
             BrewRecipeView(recipe: testRecipe)

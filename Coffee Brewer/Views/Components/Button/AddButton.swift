@@ -4,7 +4,7 @@ struct AddButton: BrewerButton {
     var title: String
     var action: () -> Void
     var maxWidth: CGFloat? = .infinity
-    var iconName: String = "plus.circle.fill"
+    var iconName: String?
     
     var body: some View {
         Button(action: action) {
@@ -21,7 +21,7 @@ struct AddButton: BrewerButton {
                                 .strokeBorder(BrewerColors.caramel, lineWidth: 1.5)
                             
                             // Plus symbol
-                            Image(systemName: "plus")
+                            Image(systemName: iconName ?? "plus")
                                 .font(.system(size: 20, weight: .semibold))
                                 .foregroundColor(.white)
                         }

@@ -41,23 +41,7 @@ class BrewTimerViewModel: ObservableObject {
         elapsedTime = 0
         currentStageIndex = 0
         totalWaterPoured = 0
-    }
-    
-    func advanceToNextStage() {
-        guard let recipe = recipe else { return }
-        
-        if currentStageIndex < recipe.stagesArray.count - 1 {
-            // Update water poured for current stage if needed
-            if recipe.stagesArray[currentStageIndex].type != "wait" {
-                totalWaterPoured += recipe.stagesArray[currentStageIndex].waterAmount
-            }
-            
-            // Advance to next stage
-            currentStageIndex += 1
-        } else {
-            // Brewing complete - handle completion
-            completeBrewingProcess()
-        }
+        isRunning = false
     }
     
     func waterPoured(forStage stageIndex: Int) -> Double {
