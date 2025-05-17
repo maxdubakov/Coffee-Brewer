@@ -31,8 +31,8 @@ struct AddRecipe: View {
 
     init(existingRoaster: Roaster? = nil, context: NSManagedObjectContext, selectedTab: Binding<MainView.Tab>) {
         _selectedTab = selectedTab
-
         self.roaster = existingRoaster
+
         let draft = Recipe(context: context)
         draft.roaster = roaster
         draft.name = "New Recipe"

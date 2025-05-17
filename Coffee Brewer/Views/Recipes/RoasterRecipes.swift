@@ -5,6 +5,10 @@ struct RoasterRecipes: View {
     // MARK: - Environment
     @Environment(\.managedObjectContext) private var viewContext
     
+    // MARK: - Bindings
+    @Binding var selectedTab: MainView.Tab
+    @Binding var selectedRoaster: Roaster?
+    
     // MARK: - Observed Objects
     @ObservedObject var roaster: Roaster
     
@@ -17,7 +21,7 @@ struct RoasterRecipes: View {
     @State private var showDeleteAlert = false
     @State private var recipeToDelete: Recipe?
     
-    init(roaster: Roaster) {
+    init(roaster: Roaster, selectedTab: Binding<MainView.Tab>, selectedRoaster: Binding<Roaster?>) {
         self.roaster = roaster
         _recipes = FetchRequest(
             entity: Recipe.entity(),
@@ -25,6 +29,9 @@ struct RoasterRecipes: View {
             predicate: NSPredicate(format: "roaster == %@", roaster),
             animation: .default
         )
+        _selectedTab = selectedTab
+        _selectedRoaster = selectedRoaster
+        
     }
     
     private func brew(recipe: Recipe) -> Void {
@@ -85,7 +92,10 @@ struct RoasterRecipes: View {
         HStack {
             SecondaryHeader(title: roaster.name ?? "Unknown Roaster")
             Spacer()
-            Button(action: {print("do nothing yet")}) {
+            Button(action: {
+                selectedRoaster = roaster
+                selectedTab = .add
+            }) {
                 Image(systemName: "plus.circle")
                     .foregroundColor(BrewerColors.textPrimary)
             }
@@ -121,10 +131,13 @@ struct RoasterRecipes: View {
     }
 }
 
-
 #Preview {
     GlobalBackground {
-        RoasterRecipes(roaster: PersistenceController.sampleRoaster)
+        RoasterRecipes(
+            roaster: PersistenceController.sampleRoaster,
+            selectedTab: .constant(.home),
+            selectedRoaster: .constant(nil)
+        )
             .environment(\.managedObjectContext, PersistenceController.preview.container.viewContext)
     }
 }

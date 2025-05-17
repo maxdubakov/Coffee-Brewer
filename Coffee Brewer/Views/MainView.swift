@@ -11,6 +11,7 @@ struct MainView: View {
     
     // MARK: - State
     @State private var selectedTab: Tab = .home
+    @State private var selectedRoaster: Roaster? = nil
     
     init() {
         let appearance = UITabBarAppearance()
@@ -21,14 +22,18 @@ struct MainView: View {
 
     var body: some View {
         TabView(selection: $selectedTab) {
-            Recipes()
+            Recipes(selectedTab: $selectedTab, selectedRoaster: $selectedRoaster)
                 .background(BrewerColors.background)
                 .tabItem {
                     TabIcon(imageName: "home", label: "Home")
                 }
                 .tag(Tab.home)
 
-            AddRecipe(context: viewContext, selectedTab: $selectedTab)
+            AddRecipe(
+                existingRoaster: selectedRoaster,
+                context: viewContext,
+                selectedTab: $selectedTab
+            )
                 .background(BrewerColors.background)
                 .tabItem {
                     TabIcon(imageName: "add.recipe", label: "Add")
