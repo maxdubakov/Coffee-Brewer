@@ -109,6 +109,71 @@ struct PersistenceController {
         // Simple stage for espresso
         createStage(recipe: guatemalaRecipe, type: "slow", waterAmount: 36, seconds: 0, orderIndex: 0)
         
+        let nordRoaster = Roaster(context: viewContext)
+        nordRoaster.name = "Nord Coffee Roasters"
+
+        let brightBean = Roaster(context: viewContext)
+        brightBean.name = "Bright Bean Co."
+
+        // Nord Roaster Recipes
+        let nordKenya = Recipe(context: viewContext)
+        nordKenya.name = "Kenya V60"
+        nordKenya.grams = 19
+        nordKenya.ratio = 15.5
+        nordKenya.waterAmount = 295
+        nordKenya.temperature = 92.0
+        nordKenya.lastBrewedAt = Date()
+        nordKenya.grindSize = 30
+        nordKenya.roaster = nordRoaster
+        nordKenya.grinder = commandante
+
+        createStage(recipe: nordKenya, type: "fast", waterAmount: 50, seconds: 0, orderIndex: 0)
+        createStage(recipe: nordKenya, type: "wait", waterAmount: 0, seconds: 30, orderIndex: 1)
+        createStage(recipe: nordKenya, type: "slow", waterAmount: 245, seconds: 0, orderIndex: 2)
+
+        let nordDecaf = Recipe(context: viewContext)
+        nordDecaf.name = "Decaf Dream"
+        nordDecaf.grams = 17
+        nordDecaf.ratio = 16.0
+        nordDecaf.waterAmount = 272
+        nordDecaf.temperature = 91.0
+        nordDecaf.lastBrewedAt = Calendar.current.date(byAdding: .day, value: -3, to: Date())!
+        nordDecaf.grindSize = 34
+        nordDecaf.roaster = nordRoaster
+        nordDecaf.grinder = niche
+
+        createStage(recipe: nordDecaf, type: "fast", waterAmount: 60, seconds: 0, orderIndex: 0)
+        createStage(recipe: nordDecaf, type: "slow", waterAmount: 212, seconds: 0, orderIndex: 1)
+
+        // Bright Bean Recipes
+        let brightBlend = Recipe(context: viewContext)
+        brightBlend.name = "Morning Blend"
+        brightBlend.grams = 16
+        brightBlend.ratio = 15.0
+        brightBlend.waterAmount = 240
+        brightBlend.temperature = 93.5
+        brightBlend.lastBrewedAt = Calendar.current.date(byAdding: .day, value: -4, to: Date())!
+        brightBlend.grindSize = 32
+        brightBlend.roaster = brightBean
+        brightBlend.grinder = commandante
+
+        createStage(recipe: brightBlend, type: "fast", waterAmount: 40, seconds: 0, orderIndex: 0)
+        createStage(recipe: brightBlend, type: "wait", waterAmount: 0, seconds: 20, orderIndex: 1)
+        createStage(recipe: brightBlend, type: "slow", waterAmount: 200, seconds: 0, orderIndex: 2)
+
+        let brightEspresso = Recipe(context: viewContext)
+        brightEspresso.name = "Bright Espresso"
+        brightEspresso.grams = 18
+        brightEspresso.ratio = 2.2
+        brightEspresso.waterAmount = 40
+        brightEspresso.temperature = 94.0
+        brightEspresso.lastBrewedAt = Date()
+        brightEspresso.grindSize = 10
+        brightEspresso.roaster = brightBean
+        brightEspresso.grinder = niche
+
+        createStage(recipe: brightEspresso, type: "slow", waterAmount: 40, seconds: 0, orderIndex: 0)
+        
         do {
             try viewContext.save()
         } catch {

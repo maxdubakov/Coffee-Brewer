@@ -15,8 +15,11 @@ struct Recipes: View {
         VStack(alignment: .leading, spacing: 0) {
             SectionHeader(title: "Recipes")
             ScrollView {
-                ForEach(roasters) { roaster in
-                    RoasterRecipes(roaster: roaster)
+                VStack {
+                    ForEach(roasters) { roaster in
+                        RoasterRecipes(roaster: roaster)
+                    }
+                    Spacer().frame(height: 80)
                 }
             }
             .edgesIgnoringSafeArea(.all)
