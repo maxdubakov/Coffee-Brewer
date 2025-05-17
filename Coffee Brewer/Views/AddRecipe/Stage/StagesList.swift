@@ -14,7 +14,7 @@ struct StagesList: View {
     
     // MARK: - State
     @State private var isAddingStage = false
-    @State private var isModifyingStage = false
+    @State private var stageBeingModified: Stage? = nil
 
     // Animation state
     @State private var stageOpacity: [NSManagedObjectID: Double] = [:]
@@ -34,22 +34,12 @@ struct StagesList: View {
                 .opacity(stageOpacity[stage.objectID] ?? 1.0)
                 .frame(height: stageHeight[stage.objectID] ?? nil)
                 .onTapGesture {
-                    isModifyingStage = true
+                    stageBeingModified = stage
                 }
                 .transition(.asymmetric(
                     insertion: .scale.combined(with: .opacity),
                     removal: .scale.combined(with: .opacity)
                 ))
-                .fullScreenCover(isPresented: $isModifyingStage) {
-                    GlobalBackground {
-                        AddStage(
-                            recipe: recipe,
-                            brewMath: brewMath,
-                            focusedField: $focusedField,
-                            existingStage: stage
-                        )
-                    }
-                }
             }
             .animation(.spring(response: 0.4, dampingFraction: 0.75), value: recipe.stagesArray.count)
             
@@ -65,6 +55,16 @@ struct StagesList: View {
         .fullScreenCover(isPresented: $isAddingStage) {
             GlobalBackground {
                 AddStage(recipe: recipe, brewMath: brewMath, focusedField: $focusedField)
+            }
+        }
+        .fullScreenCover(item: $stageBeingModified) { stage in
+            GlobalBackground {
+                AddStage(
+                    recipe: recipe,
+                    brewMath: brewMath,
+                    focusedField: $focusedField,
+                    existingStage: stage
+                )
             }
         }
         .onAppear {
