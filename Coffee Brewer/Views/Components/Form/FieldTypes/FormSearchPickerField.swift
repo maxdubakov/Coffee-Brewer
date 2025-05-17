@@ -1,111 +1,68 @@
 import SwiftUI
 import CoreData
 
-struct FormSearchPickerField<T: NSManagedObject>: View {
-    // MARK: - Public Properties
+struct SearchablePickerSheet<T: NSManagedObject>: View {
     let label: String
-    var items: [T]
-    var displayName: (T) -> String
-    var createNewItem: (String) -> T?
-    
-    // MARK: - Environment
-    @Environment(\.managedObjectContext) private var viewContext
+    let items: [T]
+    let displayName: (T) -> String
+    let onSelect: (T) -> Void
+    let createNewItem: ((String) -> T?)?
 
-    // MARK: - Bindings
-    @Binding var selectedItem: T?
-    @Binding var focusedField: AddRecipe.FocusedField?
-    
-    // MARK: - State
+    @Environment(\.dismiss) private var dismiss
     @State private var searchText: String = ""
 
-    // MARK: - Focus State
-    @FocusState private var isFocused: Bool
-
-    // MARK: - Computed Properties
-    private var filteredItems: [T] {
-        items.filter { searchText.isEmpty || displayName($0).localizedCaseInsensitiveContains(searchText) }
+    private var filtered: [T] {
+        items.filter {
+            searchText.isEmpty || displayName($0).localizedCaseInsensitiveContains(searchText)
+        }
     }
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 0) {
-            VStack(alignment: .leading, spacing: 0) {
-                FormField {
-                    ZStack(alignment: .leading) {
-                        if searchText.isEmpty {
-                            FormPlaceholderText(value: label)
-                        }
-                        FormValueText(
-                            placeholder: "",
-                            textBinding: Binding(
-                                get: {searchText},
-                                set: {searchText = $0}
-                            ),
-                            isFocused: $isFocused
-                        )
-                        .keyboardType(.default)
-                        .onChange(of: isFocused) { oldValue, newValue in
-                            if newValue, let selected = selectedItem {
-                                searchText = displayName(selected)
-                            }
-                        }
-                    }
-                    
-                    Spacer()
-                    
-                    if !isFocused && selectedItem != nil {
-                        FormValueText(value: displayName(selectedItem!))
-                    }
-                }
-                .onTapGesture {
-                    isFocused = true
-                }
-
-                Divider()
-            }
-            .onChange(of: isFocused) {oldValue, newValue in
-                if !newValue {
-                    searchText = ""
-                    isFocused = false
-                }
-            }
-
-            if isFocused && !searchText.isEmpty {
-                VStack(alignment: .leading, spacing: 0) {
-                    if !filteredItems.isEmpty {
-                        ForEach(filteredItems, id: \.objectID) { item in
+        NavigationStack {
+            List {
+                Section {
+                    if !searchText.isEmpty {
+                        ForEach(filtered, id: \.objectID) { item in
                             Button {
-                                selectedItem = item
-                                searchText = ""
-                                isFocused = false
-                                focusedField = nil
+                                onSelect(item)
+                                dismiss()
                             } label: {
-                                FormValueText(value: displayName(item))
-                                    .padding()
+                                Text(displayName(item))
+                                    .foregroundColor(BrewerColors.textPrimary)
                             }
-                            .onTapGesture {
-                                isFocused = false
-                                focusedField = nil
-                            }
+                            .listRowBackground(BrewerColors.background)
                         }
-                    } else {
-                        Button {
-                            if let newItem = createNewItem(searchText) {
-                                selectedItem = newItem
+
+                        if filtered.isEmpty, let create = createNewItem {
+                            Button {
+                                if let new = create(searchText) {
+                                    onSelect(new)
+                                    dismiss()
+                                }
+                            } label: {
+                                Text("Create '\(searchText)'")
+                                    .foregroundColor(BrewerColors.textPrimary)
                             }
-                            searchText = ""
-                            isFocused = false
-                            focusedField = nil
-                        } label: {
-                            Text("Create '\(searchText)'")
-                                .foregroundColor(BrewerColors.textPrimary)
-                                .padding()
+                            .listRowBackground(BrewerColors.background)
                         }
                     }
                 }
-                .cornerRadius(8)
-                .shadow(radius: 4)
-                .padding(.top, 4)
+            }
+            .listStyle(.insetGrouped)
+            .scrollContentBackground(.hidden)
+            .background(BrewerColors.background)
+            .searchable(text: $searchText, prompt: "Search")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbarBackground(BrewerColors.surface, for: .navigationBar)
+            .toolbarBackground(.visible, for: .navigationBar)
+            .toolbar {
+                ToolbarItem(placement: .principal) {
+                    Text(label)
+                        .font(.headline)
+                        .foregroundColor(BrewerColors.textPrimary)
+                }
             }
         }
+        .background(BrewerColors.background.ignoresSafeArea())
     }
 }
