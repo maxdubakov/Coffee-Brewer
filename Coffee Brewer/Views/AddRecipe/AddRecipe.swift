@@ -28,19 +28,25 @@ struct AddRecipe: View {
     // MARK: - Constants
     private let roaster: Roaster?
     private let grinder: Grinder? = nil
+    private let isEditing: Bool
 
-    init(existingRoaster: Roaster? = nil, context: NSManagedObjectContext, selectedTab: Binding<MainView.Tab>) {
+    init(existingRoaster: Roaster? = nil, context: NSManagedObjectContext, selectedTab: Binding<MainView.Tab>, existingRecipe: Recipe? = nil) {
         _selectedTab = selectedTab
         self.roaster = existingRoaster
+        isEditing = existingRecipe != nil
 
-        let draft = Recipe(context: context)
-        draft.roaster = roaster
-        draft.name = "New Recipe"
-        draft.temperature = 95.0
-        draft.grindSize = 40
+        if let recipe = existingRecipe {
+            _recipe = ObservedObject(wrappedValue: recipe)
+        } else {
+            let draft = Recipe(context: context)
+            draft.roaster = roaster
+            draft.name = "New Recipe"
+            draft.temperature = 95.0
+            draft.grindSize = 40
 
-        _recipe = ObservedObject(wrappedValue: draft)
-        draft.createDefaultStage(context: context)
+            _recipe = ObservedObject(wrappedValue: draft)
+            draft.createDefaultStage(context: context)
+        }
     }
 
     var body: some View {
@@ -151,9 +157,11 @@ struct AddRecipe: View {
                     
                     HStack {
                         StandardButton(
-                            title: "Save",
+                            title: isEditing ? "Update" : "Save",
                             action: {
-                                recipe.lastBrewedAt = Date()
+                                if !isEditing {
+                                    recipe.lastBrewedAt = Date()
+                                }
                                 do {
                                     recipe.grams = brewMath.grams
                                     recipe.ratio = brewMath.ratio

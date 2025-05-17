@@ -113,7 +113,7 @@ struct StagesList: View {
 #Preview {
     let context = PersistenceController.preview.container.viewContext
 
-    var brewMath = BrewMathViewModel(
+    let brewMath = BrewMathViewModel(
         grams: 18,
         ratio: 16.0,
         water: 288

@@ -8,6 +8,7 @@ struct RoasterRecipes: View {
     // MARK: - Bindings
     @Binding var selectedTab: MainView.Tab
     @Binding var selectedRoaster: Roaster?
+    @Binding var selectedRecipe: Recipe?
     
     // MARK: - Observed Objects
     @ObservedObject var roaster: Roaster
@@ -21,7 +22,7 @@ struct RoasterRecipes: View {
     @State private var showDeleteAlert = false
     @State private var recipeToDelete: Recipe?
     
-    init(roaster: Roaster, selectedTab: Binding<MainView.Tab>, selectedRoaster: Binding<Roaster?>) {
+    init(roaster: Roaster, selectedTab: Binding<MainView.Tab>, selectedRoaster: Binding<Roaster?>, selectedRecipe: Binding<Recipe?>) {
         self.roaster = roaster
         _recipes = FetchRequest(
             entity: Recipe.entity(),
@@ -31,6 +32,7 @@ struct RoasterRecipes: View {
         )
         _selectedTab = selectedTab
         _selectedRoaster = selectedRoaster
+        _selectedRecipe = selectedRecipe
         
     }
     
@@ -115,7 +117,8 @@ struct RoasterRecipes: View {
                             brew(recipe: recipe)
                         },
                         onEditTapped: {
-                            print("Editing")
+                            selectedRecipe = recipe
+                            selectedTab = .add
                         },
                         onDeleteTapped: {
                             recipeToDelete = recipe
@@ -136,7 +139,8 @@ struct RoasterRecipes: View {
         RoasterRecipes(
             roaster: PersistenceController.sampleRoaster,
             selectedTab: .constant(.home),
-            selectedRoaster: .constant(nil)
+            selectedRoaster: .constant(nil),
+            selectedRecipe: .constant(nil),
         )
             .environment(\.managedObjectContext, PersistenceController.preview.container.viewContext)
     }

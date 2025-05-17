@@ -4,6 +4,7 @@ import CoreData
 struct Recipes: View {
     @Binding var selectedTab: MainView.Tab
     @Binding var selectedRoaster: Roaster?
+    @Binding var selectedRecipe: Recipe?
     
     // MARK: - Fetch Requests
     @FetchRequest(
@@ -20,7 +21,7 @@ struct Recipes: View {
             ScrollView {
                 VStack {
                     ForEach(roasters) { roaster in
-                        RoasterRecipes(roaster: roaster, selectedTab: $selectedTab, selectedRoaster: $selectedRoaster)
+                        RoasterRecipes(roaster: roaster, selectedTab: $selectedTab, selectedRoaster: $selectedRoaster, selectedRecipe: $selectedRecipe)
                     }
                     Spacer().frame(height: 80)
                 }
@@ -32,7 +33,7 @@ struct Recipes: View {
 
 #Preview {
     GlobalBackground {
-        Recipes(selectedTab: .constant(.home), selectedRoaster: .constant(nil))
+        Recipes(selectedTab: .constant(.home), selectedRoaster: .constant(nil), selectedRecipe: .constant(nil))
             .environment(\.managedObjectContext, PersistenceController.preview.container.viewContext)
     }
 }
