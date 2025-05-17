@@ -26,7 +26,6 @@ struct BrewTimer: View {
     }
     
     var body: some View {
-        
             // Time display
             VStack(spacing: 8) {
                 Text(formattedElapsedTime)
@@ -34,7 +33,6 @@ struct BrewTimer: View {
                     .monospacedDigit()
                     .foregroundColor(BrewerColors.textPrimary)
                     .shadow(color: .black.opacity(0.15), radius: 1, x: 0, y: 1)
-                    .padding(.horizontal, 10)
                 
                 Text("\(pouredWater) ml")
                     .font(.system(size: 30, weight: .ultraLight, design: .rounded))
@@ -62,6 +60,5 @@ struct BrewTimer: View {
                 onToggle: {}
             )
         }
-        .padding()
     }
 }

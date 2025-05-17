@@ -1,10 +1,8 @@
 import SwiftUI
 
 struct RecipeMetricsBar: View {
-    // MARK: - Properties
     var recipe: Recipe
     
-    // MARK: - Computed Properties
     private var formattedTotalTime: String {
         let totalTime = getTotalTime()
         let minutes = totalTime / 60
@@ -13,51 +11,61 @@ struct RecipeMetricsBar: View {
     }
     
     var body: some View {
-        HStack(spacing: 20) {
-            // Coffee amount
-            MetricCircle(
-                value: "\(recipe.grams)",
-                label: "grams",
-                color: BrewerColors.caramel
-            )
-            
-            // Brew ratio
-            MetricCircle(
-                value: "1:\(Int(recipe.ratio))",
-                label: "ratio",
-                color: BrewerColors.caramel
-            )
-            
-            // Water temperature
-            MetricCircle(
-                value: "\(Int(recipe.temperature))°",
-                label: "°C",
-                color: BrewerColors.caramel
-            )
-            
-            // Grind size
-            MetricCircle(
-                value: "\(recipe.grindSize)",
-                label: "grind",
-                color: BrewerColors.caramel
-            )
-            
-            // Total brew time
-            MetricCircle(
-                value: formattedTotalTime,
-                label: "time",
-                color: BrewerColors.caramel
-            )
+        GeometryReader { geometry in
+            HStack(spacing: calculateSpacing(for: geometry.size.width)) {
+                RecipeMetric(
+                    iconName: "scalemass",
+                    value: "\(recipe.grams)g",
+                    color: BrewerColors.caramel
+                )
+                
+                RecipeMetric(
+                    iconName: "drop",
+                    value: "\(recipe.waterAmount)ml",
+                    color: BrewerColors.caramel
+                )
+                
+                RecipeMetric(
+                    iconName: "equal.square",
+                    value: "1:\(Int(recipe.ratio))",
+                    color: BrewerColors.caramel
+                )
+                
+                RecipeMetric(
+                    iconName: "thermometer",
+                    value: "\(Int(recipe.temperature))°",
+                    color: BrewerColors.caramel
+                )
+                
+                RecipeMetric(
+                    iconName: "circle.grid.3x3",
+                    value: "\(recipe.grindSize)",
+                    color: BrewerColors.caramel
+                )
+                
+                RecipeMetric(
+                    iconName: "timer",
+                    value: formattedTotalTime,
+                    color: BrewerColors.caramel
+                )
+            }
+            .frame(width: geometry.size.width)
         }
-        .padding(.vertical, 16)
-        .frame(maxWidth: .infinity)
-        .background(
-            RoundedRectangle(cornerRadius: 16)
-                .fill(BrewerColors.surface.opacity(0.6))
-        )
+        .frame(height: 35) // Fixed height for the container
     }
     
-    // MARK: - Helper Methods
+    private func calculateSpacing(for width: CGFloat) -> CGFloat {
+        // Adaptive spacing based on screen width
+        // This is a simple approach - you may need to fine-tune
+        if width < 330 { // Small iPhone (SE, mini)
+            return 2
+        } else if width < 380 { // Medium iPhone (base models)
+            return 4
+        } else { // Larger iPhones (Plus, Pro Max)
+            return 6
+        }
+    }
+    
     private func getTotalTime() -> Int16 {
         return recipe.stagesArray.reduce(0, {$0 + $1.seconds})
     }

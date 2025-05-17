@@ -63,25 +63,19 @@ struct BrewRecipeView: View {
                 Text("by \(recipe.roaster?.name ?? "Unknown Roaster")")
                     .font(.subheadline)
                     .foregroundColor(BrewerColors.textSecondary)
-                    .padding(.bottom, 24)
+                    .padding(.bottom, 32)
             }
-            
-            // MARK: - Recipe Metrics
-            RecipeMetricsBar(recipe: recipe)
-                .padding(.horizontal, 18)
-                .padding(.bottom, 24)
         
         
-            VStack(spacing: 28) {
-                // MARK: - Timer Circle
+            VStack(spacing: 60) {
+                RecipeMetricsBar(recipe: recipe)
+
                 BrewTimer(
                     elapsedTime: timerViewModel.elapsedTime,
                     pouredWater: timerViewModel.totalWaterPoured,
                     totalTime: timerViewModel.totalTime,
                     onToggle: timerViewModel.toggleTimer
                 )
-                .padding(.top, 8)
-                .padding(.bottom, 30)
                 
                 // MARK: - Current Stage
                 if let stage = currentStage {
@@ -225,10 +219,10 @@ struct BrewRecipeViewPreview: PreviewProvider {
         }
         
         // Add all three types of stages
-        createStage("fast", 50, 0, 0)
-//        createStage("wait", 0, 30, 1)
-//        createStage("slow", 138, 0, 2)
-//        createStage("fast", 100, 0, 3)
+        createStage("fast", 50, 15, 0)
+        createStage("wait", 0, 30, 1)
+        createStage("slow", 138, 15, 2)
+        createStage("fast", 100, 40, 3)
         
         return GlobalBackground {
             BrewRecipeView(recipe: testRecipe)
