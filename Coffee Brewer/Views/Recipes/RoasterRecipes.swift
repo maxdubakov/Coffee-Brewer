@@ -50,8 +50,10 @@ struct RoasterRecipes: View {
     
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
-            header
-            recipeScroll
+            if recipes.count > 0 {
+                header
+                recipeScroll
+            }
         }
         .fullScreenCover(isPresented: $showBrewScreen) {
             if let id = selectedRecipeID,
