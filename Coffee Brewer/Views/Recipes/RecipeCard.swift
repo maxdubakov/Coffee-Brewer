@@ -2,12 +2,10 @@ import SwiftUI
 
 struct RecipeCard: View {
     // MARK: - Public Properties
-    var title: String
-    var timeAgo: String
-    var onTap: () -> Void
+    let recipe: Recipe
 
     var body: some View {
-        Button(action: onTap) {
+        
             VStack(alignment: .leading, spacing: 0) {
                 Rectangle()
                     .fill(BrewerColors.textPrimary.opacity(0.5))
@@ -19,13 +17,13 @@ struct RecipeCard: View {
                     )
 
                 VStack(alignment: .leading, spacing: 6) {
-                    Text(title)
+                    Text(recipe.name ?? "Untitled Recipe")
                         .font(.subheadline)
                         .fontWeight(.semibold)
                         .foregroundColor(BrewerColors.textPrimary)
                         .frame(minWidth: 99, alignment: .leading)
 
-                    Text(timeAgo)
+                    Text((recipe.lastBrewedAt ?? Date()).timeAgoDescription())
                         .font(.caption)
                         .foregroundColor(BrewerColors.textSecondary)
                         .frame(minWidth: 99, alignment: .leading)
@@ -35,18 +33,56 @@ struct RecipeCard: View {
             .background(BrewerColors.surface)
             .cornerRadius(12)
             .shadow(color: Color.black.opacity(0.12), radius: 10, y: 2)
-        }
-        .buttonStyle(.plain)
+        
     }
 }
 
-#Preview {
-    GlobalBackground {
-        RecipeCard(
-            title: "Sample Recipe",
-            timeAgo: "2 days ago",
-            onTap: {}
-        )
-        .frame(width: 200, height: 250)
+struct RecipeCardViewPreview: PreviewProvider {
+    static var previews: some View {
+        let context = PersistenceController.preview.container.viewContext
+        @State var startedBrew = false
+        
+        // Create a test recipe
+        let testRecipe = Recipe(context: context)
+        testRecipe.name = "Ethiopian Pour Over"
+        testRecipe.grams = 18
+        testRecipe.ratio = 16.0
+        testRecipe.waterAmount = 288
+        testRecipe.temperature = 94.0
+        testRecipe.grindSize = 22
+        
+        // Create a test roaster
+        let testRoaster = Roaster(context: context)
+        testRoaster.name = "Mad Heads"
+        testRecipe.roaster = testRoaster
+        
+        // Create sample stages
+        let createStage = { (type: String, water: Int16, seconds: Int16, order: Int16) in
+            let stage = Stage(context: context)
+            stage.type = type
+            stage.waterAmount = water
+            stage.seconds = seconds
+            stage.orderIndex = order
+            stage.recipe = testRecipe
+        }
+        
+        // Add all three types of stages
+        createStage("fast", 50, 0, 0)
+        createStage("wait", 0, 30, 1)
+        createStage("slow", 138, 0, 2)
+        createStage("fast", 100, 0, 3)
+        
+        return GlobalBackground {
+            RecipeCard(
+                recipe: testRecipe,
+            )
+            .onTapGesture {
+                startedBrew = true
+            }
+            .fullScreenCover(isPresented: $startedBrew) {
+                BrewRecipeView(recipe: testRecipe)
+            }
+                
+        }
     }
 }

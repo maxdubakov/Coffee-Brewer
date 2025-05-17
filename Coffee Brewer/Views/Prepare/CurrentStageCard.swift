@@ -1,0 +1,229 @@
+import SwiftUI
+
+struct CurrentStageCard: View {
+    // MARK: - Properties
+    var stage: Stage
+    var stageNumber: Int
+    var waterProgress: Double
+    var timeRemaining: Double
+    
+    // MARK: - Computed Properties
+    private var stageType: String {
+        return stage.type ?? "fast"
+    }
+    
+    private var stageColor: Color {
+        switch stageType {
+        case "fast":
+            return BrewerColors.caramel
+        case "slow":
+            return BrewerColors.caramel
+        case "wait":
+            return BrewerColors.amber
+        default:
+            return BrewerColors.coffee
+        }
+    }
+    
+    private var stageIcon: String {
+        switch stageType {
+        case "fast":
+            return "drop.fill"
+        case "slow":
+            return "drop.fill"
+        case "wait":
+            return "hourglass"
+        default:
+            return "questionmark.circle"
+        }
+    }
+    
+    private var stageTitle: String {
+        switch stageType {
+        case "fast":
+            return "Fast Pour"
+        case "slow":
+            return "Slow Pour"
+        case "wait":
+            return "Wait"
+        default:
+            return "Unknown Stage"
+        }
+    }
+    
+    private var stageInstruction: String {
+        if stageType == "wait" {
+            return "Wait for \(stage.seconds)s"
+        } else {
+            return "Pour \(stage.waterAmount)ml"
+        }
+    }
+    
+    private var formattedTimeRemaining: String {
+        let minutes = Int(timeRemaining) / 60
+        let seconds = Int(timeRemaining) % 60
+        
+        if minutes > 0 {
+            return "\(minutes):\(String(format: "%02d", seconds))"
+        } else {
+            return "\(seconds)s"
+        }
+    }
+    
+    var body: some View {
+        HStack(spacing: 16) {
+            // Stage number circle
+            ZStack {
+                Circle()
+                    .fill(LinearGradient(
+                        gradient: Gradient(colors: [BrewerColors.espresso, stageColor.opacity(0.6)]),
+                        startPoint: .topLeading,
+                        endPoint: .bottomTrailing
+                    ))
+                    .overlay(
+                        Circle()
+                            .strokeBorder(stageColor, lineWidth: 1.5)
+                    )
+                    .frame(width: 60, height: 60)
+                    .shadow(color: BrewerColors.buttonShadow, radius: 4, x: 0, y: 2)
+                
+                Text("\(stageNumber)")
+                    .font(.system(size: 24, weight: .semibold))
+                    .foregroundColor(BrewerColors.cream)
+            }
+            
+            // Stage details
+            VStack(alignment: .leading, spacing: 8) {
+                HStack(spacing: 8) {
+                    Image(systemName: stageIcon)
+                        .foregroundColor(stageColor)
+                        .font(.system(size: 18, weight: .medium))
+                    
+                    Text(stageTitle)
+                        .font(.system(size: 22, weight: .semibold))
+                        .foregroundColor(BrewerColors.textPrimary)
+                }
+                
+                HStack(alignment: .center, spacing: 8) {
+                    Text(stageInstruction)
+                        .font(.system(size: 17))
+                        .foregroundColor(BrewerColors.textSecondary)
+                    
+                    if timeRemaining > 0 {
+                        Text(formattedTimeRemaining)
+                            .font(.system(size: 17, weight: .medium))
+                            .foregroundColor(BrewerColors.cream)
+                            .padding(.horizontal, 8)
+                            .padding(.vertical, 4)
+                            .background(
+                                Capsule()
+                                    .fill(BrewerColors.coffee)
+                                    .opacity(0.6)
+                            )
+                    }
+                }
+                
+                // Progress indicator for pour stages
+                if stageType != "wait" {
+                    ProgressView(value: waterProgress)
+                        .progressViewStyle(
+                            PourProgressStyle(
+                                height: 10,
+                                cornerRadius: 5,
+                                foregroundColor: stageColor
+                            )
+                        )
+                        .padding(.top, 8)
+                }
+            }
+            
+            Spacer()
+        }
+        .padding(.vertical, 20)
+        .padding(.horizontal, 16)
+        .background(
+            RoundedRectangle(cornerRadius: 16)
+                .fill(BrewerColors.surface.opacity(0.8))
+                .overlay(
+                    RoundedRectangle(cornerRadius: 16)
+                        .strokeBorder(stageColor.opacity(0.3), lineWidth: 1.5)
+                )
+                .shadow(color: Color.black.opacity(0.2), radius: 4, x: 0, y: 2)
+        )
+    }
+}
+
+// MARK: - Pour Progress Style
+struct PourProgressStyle: ProgressViewStyle {
+    var height: CGFloat
+    var cornerRadius: CGFloat
+    var foregroundColor: Color
+    
+    func makeBody(configuration: Configuration) -> some View {
+        let progress = configuration.fractionCompleted ?? 0
+        
+        GeometryReader { geometry in
+            ZStack(alignment: .leading) {
+                RoundedRectangle(cornerRadius: cornerRadius)
+                    .fill(BrewerColors.background.opacity(0.5))
+                    .frame(height: height)
+                
+                RoundedRectangle(cornerRadius: cornerRadius)
+                    .fill(
+                        LinearGradient(
+                            gradient: Gradient(colors: [foregroundColor.opacity(0.7), foregroundColor]),
+                            startPoint: .leading,
+                            endPoint: .trailing
+                        )
+                    )
+                    .frame(width: max(1, CGFloat(progress) * geometry.size.width), height: height)
+            }
+            .animation(.easeInOut(duration: 0.3), value: progress)
+        }
+        .frame(height: height)
+    }
+}
+
+// MARK: - Preview
+#Preview {
+    let context = PersistenceController.preview.container.viewContext
+    
+    // Create sample stages
+    let fastStage = Stage(context: context)
+    fastStage.type = "fast"
+    fastStage.waterAmount = 50
+    
+    let slowStage = Stage(context: context)
+    slowStage.type = "slow"
+    slowStage.waterAmount = 138
+    
+    let waitStage = Stage(context: context)
+    waitStage.type = "wait"
+    waitStage.seconds = 30
+    
+    return GlobalBackground {
+        VStack(spacing: 20) {
+            CurrentStageCard(
+                stage: fastStage,
+                stageNumber: 1,
+                waterProgress: 0.7,
+                timeRemaining: 15
+            )
+            
+            CurrentStageCard(
+                stage: slowStage,
+                stageNumber: 2,
+                waterProgress: 0.4,
+                timeRemaining: 45
+            )
+            
+            CurrentStageCard(
+                stage: waitStage,
+                stageNumber: 3,
+                waterProgress: 0.0,
+                timeRemaining: 30
+            )
+        }
+        .padding()
+    }
+}

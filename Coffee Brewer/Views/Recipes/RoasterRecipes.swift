@@ -11,6 +11,10 @@ struct RoasterRecipes: View {
     // MARK: - Fetch Requests
     @FetchRequest private var recipes: FetchedResults<Recipe>
     
+    // MARK: - State
+    @State private var selectedRecipeID: NSManagedObjectID?
+    @State private var showBrewScreen = false
+    
     init(roaster: Roaster) {
         self.roaster = roaster
         _recipes = FetchRequest(
@@ -25,6 +29,20 @@ struct RoasterRecipes: View {
         VStack(alignment: .leading, spacing: 0) {
             header
             recipeScroll
+        }
+        .fullScreenCover(isPresented: $showBrewScreen) {
+            if let id = selectedRecipeID,
+               let brewRecipe = viewContext.object(with: id) as? Recipe {
+                BrewRecipeView(recipe: brewRecipe)
+            } else {
+                Text("SHIT")
+            }
+        }
+        .onChange(of: showBrewScreen) { oldValue, newValue in
+            if !newValue {
+                // Reset selectedRecipeID when sheet is dismissed
+                selectedRecipeID = nil
+            }
         }
     }
     
@@ -48,12 +66,12 @@ struct RoasterRecipes: View {
             HStack(alignment: .top, spacing: 10) {
                 ForEach(recipes, id: \.self) { recipe in
                     RecipeCard(
-                        title: recipe.name ?? "Untitled",
-                        timeAgo: (recipe.lastBrewedAt ?? Date()).timeAgoDescription(),
-                        onTap: {
-                            print("Selected \(recipe.name ?? "Untitled") recipe")
-                        }
-                    )
+                        recipe: recipe,
+                    ).onTapGesture {
+                        print("Selected Recipe ID: \(recipe.objectID)")
+                        selectedRecipeID = recipe.objectID
+                        showBrewScreen = true
+                    }
                 }
             }
             .padding(20)
