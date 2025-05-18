@@ -122,6 +122,7 @@ struct BrewRecipeView: View {
             showCompletionView = true
         }
         .navigationBarTitleDisplayMode(.inline)
+        .toolbar(.hidden, for: .tabBar)
         .toolbar {
             ToolbarItem(placement: .principal) {
                 VStack(spacing: 5) {
