@@ -23,12 +23,14 @@ struct MainView: View {
 
     var body: some View {
         TabView(selection: $selectedTab) {
-            Recipes(selectedTab: $selectedTab, selectedRoaster: $selectedRoaster, selectedRecipe: $selectedRecipe)
-                .background(BrewerColors.background)
-                .tabItem {
-                    TabIcon(imageName: "home", label: "Home")
-                }
-                .tag(Tab.home)
+            NavigationStack {
+                Recipes(selectedTab: $selectedTab, selectedRoaster: $selectedRoaster, selectedRecipe: $selectedRecipe)
+                    .background(BrewerColors.background)
+            }
+            .tabItem {
+                TabIcon(imageName: "home", label: "Home")
+            }
+            .tag(Tab.home)
 
             AddRecipe(
                 existingRoaster: selectedRoaster,

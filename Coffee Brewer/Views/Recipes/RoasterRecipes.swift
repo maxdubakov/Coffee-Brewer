@@ -64,7 +64,7 @@ struct RoasterRecipes: View {
                 recipeScroll
             }
         }
-        .fullScreenCover(isPresented: $showBrewScreen) {
+        .navigationDestination(isPresented: $showBrewScreen) {
             if let id = selectedRecipeID,
                let brewRecipe = viewContext.object(with: id) as? Recipe {
                 BrewRecipeView(recipe: brewRecipe)

@@ -30,40 +30,16 @@ struct BrewRecipeView: View {
     }
     
     var body: some View {
-        VStack(alignment: .leading, spacing: 0) {
-            VStack {
-                ZStack {
-                    Text(recipe.name ?? "Untitled Recipe")
-                        .font(.title2)
-                        .fontWeight(.bold)
-                        .foregroundColor(BrewerColors.textPrimary)
-                        .frame(maxWidth: .infinity)
-                    
-                    BackButton(action: {
-                        if timerViewModel.isRunning {
-                            confirmExitBrewing()
-                        } else {
-                            dismiss()
-                        }
-                    })
-                }
-                .padding(.top, 20)
-                Text("by \(recipe.roaster?.name ?? "Unknown Roaster")")
-                    .font(.subheadline)
-                    .foregroundColor(BrewerColors.textSecondary)
-                    .padding(.bottom, 60)
-            }
-        
-        
+        VStack(alignment: .center, spacing: 0) {
+            BrewTimer(
+                elapsedTime: timerViewModel.elapsedTime,
+                pouredWater: timerViewModel.totalWaterPoured,
+                totalTime: timerViewModel.totalTime,
+                onToggle: timerViewModel.toggleTimer
+            ).padding(.vertical, 100)
+
             VStack(spacing: 30) {
 
-                BrewTimer(
-                    elapsedTime: timerViewModel.elapsedTime,
-                    pouredWater: timerViewModel.totalWaterPoured,
-                    totalTime: timerViewModel.totalTime,
-                    onToggle: timerViewModel.toggleTimer
-                ).padding(.bottom, 50)
-                
                 VStack {
                     RecipeMetricsBar(recipe: recipe)
                     
@@ -144,6 +120,20 @@ struct BrewRecipeView: View {
         }
         .onReceive(NotificationCenter.default.publisher(for: .brewingCompleted)) { _ in
             showCompletionView = true
+        }
+        .navigationBarTitleDisplayMode(.inline)
+        .toolbar {
+            ToolbarItem(placement: .principal) {
+                VStack(spacing: 5) {
+                    Text(recipe.name ?? "Untitled Recipe")
+                        .font(.system(size: 18, weight: .semibold))
+                        .foregroundColor(BrewerColors.textPrimary)
+                    Text(recipe.roaster?.name ?? "Unknown Roaster")
+                        .font(.subheadline)
+                        .foregroundColor(BrewerColors.textSecondary)
+                }
+                .padding(.top, 5)
+            }
         }
     }
     
