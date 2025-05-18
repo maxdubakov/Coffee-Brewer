@@ -15,8 +15,8 @@ struct AddStage: View {
     
     // MARK: - State
     @State private var selectedType: StageType = .fast
-    @State private var seconds: Int16 = 0
-    @State private var waterAmount: Int16 = 0
+    @State private var seconds: Int16 = 10
+    @State private var waterAmount: Int16 = 50
     
     // MARK: - Constants
     private var existingStage: Stage?
@@ -90,15 +90,6 @@ struct AddStage: View {
                             focusedField: $focusedField
                         )
 
-                        FormExpandableNumberField(
-                            title: "Duration (seconds)",
-                            range: Array(5...120),
-                            formatter: { "\($0)s" },
-                            field: .seconds,
-                            value: $seconds,
-                            focusedField: $focusedField,
-                        )
-
                         if (selectedType != .wait) {
                             FormKeyboardInputField(
                                 title: "Water Amount (ml)",
@@ -109,20 +100,29 @@ struct AddStage: View {
                                 value: $waterAmount,
                                 focusedField: $focusedField
                             )
-                            
-                            if selectedType != .wait {
-                                HStack {
-                                    Spacer()
-                                    Text("Remaining Water: \(remainingWater) ml")
-                                        .font(.caption)
-                                        .foregroundColor(
-                                            waterAmount > remainingWater 
-                                                ? Color.red 
-                                                : BrewerColors.textSecondary
-                                        )
-                                }
-                                .padding(.top, 8)
+                        }
+                        
+                        FormExpandableNumberField(
+                            title: "Duration (seconds)",
+                            range: Array(5...120),
+                            formatter: { "\($0)s" },
+                            field: .seconds,
+                            value: $seconds,
+                            focusedField: $focusedField,
+                        )
+                        
+                        if selectedType != .wait {
+                            HStack {
+                                Spacer()
+                                Text("Remaining Water: \(remainingWater) ml")
+                                    .font(.caption)
+                                    .foregroundColor(
+                                        waterAmount > remainingWater
+                                            ? Color.red
+                                            : BrewerColors.textSecondary
+                                    )
                             }
+                            .padding(.top, 8)
                         }
                     }
                     .padding(.bottom, 20)

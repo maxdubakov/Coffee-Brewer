@@ -1,4 +1,4 @@
-struct StageType: Identifiable, CustomStringConvertible, Equatable {
+struct StageType: Identifiable, CustomStringConvertible, Equatable, Hashable {
     let id: String
     let name: String
     
@@ -15,6 +15,10 @@ struct StageType: Identifiable, CustomStringConvertible, Equatable {
     static func fromString(_ string: String) -> StageType? {
         return allTypes.first { $0.id.lowercased() == string.lowercased() }
     }
+    
+    func hash(into hasher: inout Hasher) {
+            hasher.combine(id)
+        }
     
     static func == (lhs: StageType, rhs: StageType) -> Bool {
         return lhs.id == rhs.id

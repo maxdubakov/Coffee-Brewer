@@ -1,81 +1,7 @@
 import SwiftUI
 
-// MARK: - Option Row Component
-struct PickerOptionRow<T: Identifiable & CustomStringConvertible>: View {
-    let option: T
-    let isSelected: Bool
-    let action: () -> Void
-    
-    var body: some View {
-        Button(action: action) {
-            HStack {
-                Text(option.description)
-                    .font(.system(size: 16))
-                    .foregroundColor(BrewerColors.textPrimary)
-                
-                Spacer()
-                
-                if isSelected {
-                    Image(systemName: "checkmark")
-                        .font(.system(size: 14, weight: .semibold))
-                        .foregroundColor(BrewerColors.cream)
-                }
-            }
-            .padding(.vertical, 12)
-            .padding(.horizontal, 16)
-            .background(isSelected ? BrewerColors.cream.opacity(0.1) : Color.clear)
-            .contentShape(Rectangle())
-        }
-        .buttonStyle(PlainButtonStyle())
-    }
-}
-
-// MARK: - Dropdown Options Component
-struct PickerOptionsContainer<T: Identifiable & CustomStringConvertible>: View {
-    let options: [T]
-    let selection: T
-    let onSelect: (T) -> Void
-    
-    var body: some View {
-        VStack(alignment: .leading, spacing: 0) {
-            ForEach(options, id: \.id) { option in
-                PickerOptionRow(
-                    option: option,
-                    isSelected: option.id == selection.id,
-                    action: { onSelect(option) }
-                )
-                
-                if option.id != options.last?.id {
-                    Divider().padding(.leading, 16)
-                }
-            }
-        }
-        .background(BrewerColors.background)
-        .cornerRadius(8)
-        .padding(.top, 8)
-    }
-}
-
-// MARK: - Selected Value Display
-struct SelectedValueDisplay<T: CustomStringConvertible>: View {
-    let selection: T
-    let isActive: Bool
-    
-    var body: some View {
-        HStack(spacing: 4) {
-            if !isActive {
-                FormValueText(value: selection.description)
-            }
-            
-            Image(systemName: isActive ? "chevron.up" : "chevron.down")
-                .font(.system(size: 12, weight: .semibold))
-                .foregroundColor(isActive ? BrewerColors.cream : BrewerColors.textSecondary)
-        }
-    }
-}
-
-// MARK: - Main FormTypePicker Component
-struct FormTypePicker<T: Identifiable & CustomStringConvertible>: View {
+// MARK: - Main SegmentedFormTypePicker Component
+struct FormTypePicker<T: Identifiable & CustomStringConvertible & Hashable>: View {
     // MARK: - Public Properties
     let title: String
     let field: AddRecipe.FocusedField
@@ -85,66 +11,61 @@ struct FormTypePicker<T: Identifiable & CustomStringConvertible>: View {
     @Binding var selection: T
     @Binding var focusedField: AddRecipe.FocusedField?
     
-    // MARK: - Local State
-    @State private var isExpanded: Bool = false
-    
-    // MARK: - Computed Properties
-    private var isActive: Bool {
-        focusedField == field || isExpanded
-    }
-    
-    // MARK: - Methods
-    private func toggleExpanded() {
-        withAnimation(.easeInOut(duration: 0.2)) {
-            if isExpanded {
-                isExpanded = false
-                focusedField = nil
-            } else {
-                isExpanded = true
-                focusedField = field
-            }
-        }
-    }
-    
-    private func selectOption(_ option: T) {
-        selection = option
-        withAnimation(.easeInOut(duration: 0.2)) {
-            isExpanded = false
-            focusedField = nil
-        }
+    init(title: String, field: AddRecipe.FocusedField, options: [T], selection: Binding<T>, focusedField: Binding<AddRecipe.FocusedField?>) {
+        self.title = title
+        self.field = field
+        self.options = options
+        self._selection = selection
+        self._focusedField = focusedField
+        
+        // Configure UISegmentedControl appearance
+        let segmentAppearance = UISegmentedControl.appearance()
+        
+        // Convert SwiftUI colors to UIColors
+        let selectedBgColor = UIColor(BrewerColors.cream)
+        let normalTextColor = UIColor(BrewerColors.textPrimary)
+        let selectedTextColor = UIColor(BrewerColors.espresso)
+        let bgColor = UIColor(BrewerColors.surface.opacity(0.6))
+        
+        // Set colors for different states
+        segmentAppearance.backgroundColor = bgColor
+        segmentAppearance.selectedSegmentTintColor = selectedBgColor
+        
+        // Set the text attributes for different states
+        segmentAppearance.setTitleTextAttributes([
+            .foregroundColor: normalTextColor,
+            .font: UIFont.systemFont(ofSize: 15, weight: .medium)
+        ], for: .normal)
+        
+        segmentAppearance.setTitleTextAttributes([
+            .foregroundColor: selectedTextColor,
+            .font: UIFont.systemFont(ofSize: 15, weight: .semibold)
+        ], for: .selected)
     }
     
     var body: some View {
-        VStack(alignment: .leading, spacing: 0) {
+        VStack(alignment: .leading, spacing: 12) {
             FormField {
-                FormPlaceholderText(value: title)
-                Spacer()
-                SelectedValueDisplay(selection: selection, isActive: isActive)
+                // Segmented control showing all options at once
+                Picker("", selection: $selection) {
+                    ForEach(options, id: \.id) { option in
+                        Text("\(option.description) \(option.id as! String != "wait" ? "Pour" : "")")
+                            .tag(option)
+                    }
+                }
+                .pickerStyle(.segmented)
+                .colorMultiply(BrewerColors.cream)
             }
-            .onTapGesture {
-                toggleExpanded()
-            }
-
-            if isActive {
-                PickerOptionsContainer(
-                    options: options,
-                    selection: selection,
-                    onSelect: selectOption
-                )
-                .transition(.opacity)
-            }
-            
-            Divider()
         }
-        .onChange(of: focusedField) { _, newValue in
-            if newValue != field {
-                isExpanded = false
-            }
+        .padding(.bottom, 10)
+        .onTapGesture {
+            focusedField = field
         }
     }
 }
 
-struct ExampleViewWithMultipleTypePickersPreview: View {
+// MARK: - Example Preview
+struct SegmentedFormTypePickerPreview: View {
     @State private var selectedStage: StageType = .fast
     @State private var focusedField: AddRecipe.FocusedField? = nil
     
@@ -165,5 +86,5 @@ struct ExampleViewWithMultipleTypePickersPreview: View {
 }
 
 #Preview {
-    ExampleViewWithMultipleTypePickersPreview()
+    SegmentedFormTypePickerPreview()
 }
