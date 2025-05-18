@@ -165,7 +165,7 @@ struct PourProgressStyle: ProgressViewStyle {
                             endPoint: .trailing
                         )
                     )
-                    .frame(width: max(1, CGFloat(progress) * geometry.size.width), height: height)
+                    .frame(width: max(0, CGFloat(progress) * geometry.size.width), height: height)
             }
             .animation(.easeInOut(duration: 0.3), value: progress)
         }
