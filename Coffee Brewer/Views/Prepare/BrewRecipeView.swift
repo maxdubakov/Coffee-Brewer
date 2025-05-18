@@ -97,12 +97,13 @@ struct BrewRecipeView: View {
             withAnimation(.spring(response: 0.5, dampingFraction: 0.7)) {
                 currentStageIndex = newValue
             }
-            
-            // Provide haptic feedback on stage change
+
             UIImpactFeedbackGenerator(style: .medium).impactOccurred()
         }
         .fullScreenCover(isPresented: $showCompletionView) {
-            BrewCompletionView(recipe: recipe)
+            GlobalBackground {
+                BrewCompletionView(recipe: recipe)
+            }
         }
         .onReceive(NotificationCenter.default.publisher(for: .brewingCompleted)) { _ in
             showCompletionView = true

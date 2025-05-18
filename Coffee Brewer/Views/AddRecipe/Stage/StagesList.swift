@@ -6,7 +6,7 @@ struct StagesList: View {
     @Environment(\.managedObjectContext) private var viewContext
     
     // MARK: - Bindings
-    @Binding var focusedField: AddRecipe.FocusedField?
+    @Binding var focusedField: FocusedField?
     
     // MARK: - Observed Objects
     @ObservedObject var recipe: Recipe

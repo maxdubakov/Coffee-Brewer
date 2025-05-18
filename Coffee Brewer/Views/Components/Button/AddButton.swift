@@ -28,7 +28,7 @@ struct AddButton: BrewerButton {
                     )
                     .frame(width: 40, height: 40)
                     .shadow(color: BrewerColors.buttonShadow, radius: 4, x: 0, y: 2)
-                
+
                 Text(title)
                     .fontWeight(.medium)
                 Spacer()

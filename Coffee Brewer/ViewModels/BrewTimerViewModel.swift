@@ -146,7 +146,7 @@ class BrewTimerViewModel: ObservableObject {
         var currentTime: Double = 0
         
         for stage in recipe.stagesArray {
-            var stageDuration = Double(stage.seconds)
+            let stageDuration = Double(stage.seconds)
             stageTimes.append(currentTime)
             currentTime += stageDuration
         }

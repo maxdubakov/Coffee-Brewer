@@ -12,7 +12,7 @@ struct SearchRoasterPicker: View {
 
     // MARK: - Bindings
     @Binding var selectedRoaster: Roaster?
-    @Binding var focusedField: AddRecipe.FocusedField?
+    @Binding var focusedField: FocusedField?
 
     @State private var isPresentingSheet = false
 

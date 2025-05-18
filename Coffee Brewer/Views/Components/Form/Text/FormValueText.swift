@@ -56,6 +56,9 @@ struct FormValueText: View {
                 Text(value)
                     .font(.system(size: fontSize, weight: fontWeight))
                     .foregroundColor(foregroundColor)
+                    .lineLimit(1)
+                    .truncationMode(.tail)
+                    .frame(maxWidth: 220, alignment: .trailing)
             }
         }
     }

@@ -5,11 +5,11 @@ struct FormExpandableNumberField<T: Hashable & CustomStringConvertible>: View {
     let title: String
     let range: [T]
     let formatter: (T) -> String
-    let field: AddRecipe.FocusedField
+    let field: FocusedField
     
     // MARK: - Bindings
     @Binding var value: T
-    @Binding var focusedField: AddRecipe.FocusedField?
+    @Binding var focusedField: FocusedField?
 
     // MARK: - Computed Properties
     var isActive: Bool {

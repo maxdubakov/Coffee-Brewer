@@ -7,7 +7,7 @@ struct AddStage: View {
     @Environment(\.dismiss) private var dismiss
     
     // MARK: - Bindings
-    @Binding var focusedField: AddRecipe.FocusedField?
+    @Binding var focusedField: FocusedField?
     
     // MARK: - Observed Objects
     @ObservedObject var recipe: Recipe
@@ -24,7 +24,7 @@ struct AddStage: View {
     init(
         recipe: Recipe,
         brewMath: BrewMathViewModel,
-        focusedField: Binding<AddRecipe.FocusedField?>,
+        focusedField: Binding<FocusedField?>,
         existingStage: Stage? = nil,
     ) {
         self.recipe = recipe

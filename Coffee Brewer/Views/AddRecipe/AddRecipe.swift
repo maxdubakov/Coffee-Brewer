@@ -2,11 +2,6 @@ import SwiftUI
 import CoreData
 
 struct AddRecipe: View {
-    // MARK: - Nested Types
-    enum FocusedField: Hashable {
-        case roaster, name, grams, ratio, waterml, temperature, grindSize, seconds, stageWaterAmount, stageType
-    }
-
     // MARK: - Environment
     @Environment(\.managedObjectContext) private var viewContext
     

@@ -89,6 +89,7 @@ struct PersistenceController {
         }
         
         // Add stages to Ethiopian recipe (Bloom-Rest-Pour-Pour sequence)
+        createStage(recipe: defaultRecipe, type: "fast", waterAmount: 60, seconds: 10, orderIndex: 0) // Bloom
         createStage(recipe: ethiopianRecipe, type: "fast", waterAmount: 60, seconds: 0, orderIndex: 0) // Bloom
         createStage(recipe: ethiopianRecipe, type: "wait", waterAmount: 0, seconds: 45, orderIndex: 1) // Rest
         createStage(recipe: ethiopianRecipe, type: "slow", waterAmount: 140, seconds: 0, orderIndex: 2) // Slow pour
@@ -173,6 +174,56 @@ struct PersistenceController {
         brightEspresso.grinder = niche
 
         createStage(recipe: brightEspresso, type: "slow", waterAmount: 40, seconds: 0, orderIndex: 0)
+        
+        // Create sample brews for the preview
+       let createSampleBrew = { (recipe: Recipe, rating: Int16, date: Date, notes: String?) in
+           let brew = Brew(context: viewContext)
+           brew.recipe = recipe
+           brew.rating = rating
+           brew.date = date
+           brew.notes = notes
+           
+           // Add sample flavor profile attributes
+           brew.acidity = Int16.random(in: 1...5)
+           brew.bitterness = Int16.random(in: 1...5)
+           brew.body = Int16.random(in: 1...5)
+           brew.sweetness = Int16.random(in: 1...5)
+       }
+       
+       // Create a few sample brews with different dates
+       let calendar = Calendar.current
+       let today = Date()
+       let yesterday = calendar.date(byAdding: .day, value: -1, to: today)!
+       let twoDaysAgo = calendar.date(byAdding: .day, value: -2, to: today)!
+       let threeDaysAgo = calendar.date(byAdding: .day, value: -3, to: today)!
+       
+       createSampleBrew(
+           ethiopianRecipe,
+           5,
+           today,
+           "Wonderful fruity notes with hints of blueberry. Very clean finish."
+       )
+       
+       createSampleBrew(
+           guatemalaRecipe,
+           3,
+           yesterday,
+           "A bit too bitter, might need to adjust the grind size next time."
+       )
+       
+       createSampleBrew(
+           nordKenya,
+           4,
+           twoDaysAgo,
+           "Bright acidity with citrus notes. Could use a slightly longer bloom time."
+       )
+       
+       createSampleBrew(
+           brightEspresso,
+           2,
+           threeDaysAgo,
+           "Channeling issues, need to distribute better."
+       )
         
         do {
             try viewContext.save()

@@ -3,7 +3,7 @@ import SwiftUI
 struct FormKeyboardInputField<Value>: View {
     // MARK: - Public Properties
     let title: String
-    let field: AddRecipe.FocusedField
+    let field: FocusedField
     var keyboardType: UIKeyboardType = .default
     var formatter: Formatter?
     let valueToString: (Value) -> String
@@ -11,7 +11,7 @@ struct FormKeyboardInputField<Value>: View {
 
     // MARK: - Bindings
     @Binding var value: Value
-    @Binding var focusedField: AddRecipe.FocusedField?
+    @Binding var focusedField: FocusedField?
 
     // MARK: - Focus State
     @FocusState private var isFocused: Bool

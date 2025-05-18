@@ -4,14 +4,14 @@ import SwiftUI
 struct FormTypePicker<T: Identifiable & CustomStringConvertible & Hashable>: View {
     // MARK: - Public Properties
     let title: String
-    let field: AddRecipe.FocusedField
+    let field: FocusedField
     let options: [T]
     
     // MARK: - Bindings
     @Binding var selection: T
-    @Binding var focusedField: AddRecipe.FocusedField?
+    @Binding var focusedField: FocusedField?
     
-    init(title: String, field: AddRecipe.FocusedField, options: [T], selection: Binding<T>, focusedField: Binding<AddRecipe.FocusedField?>) {
+    init(title: String, field: FocusedField, options: [T], selection: Binding<T>, focusedField: Binding<FocusedField?>) {
         self.title = title
         self.field = field
         self.options = options
@@ -67,7 +67,7 @@ struct FormTypePicker<T: Identifiable & CustomStringConvertible & Hashable>: Vie
 // MARK: - Example Preview
 struct SegmentedFormTypePickerPreview: View {
     @State private var selectedStage: StageType = .fast
-    @State private var focusedField: AddRecipe.FocusedField? = nil
+    @State private var focusedField: FocusedField? = nil
     
     var body: some View {
         GlobalBackground {

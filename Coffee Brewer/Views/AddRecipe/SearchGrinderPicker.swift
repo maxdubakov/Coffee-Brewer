@@ -12,7 +12,7 @@ struct SearchGrinderPicker: View {
 
     // MARK: - Bindings
     @Binding var selectedGrinder: Grinder?
-    @Binding var focusedField: AddRecipe.FocusedField?
+    @Binding var focusedField: FocusedField?
     
     @State private var isPresentingSheet = false
 
