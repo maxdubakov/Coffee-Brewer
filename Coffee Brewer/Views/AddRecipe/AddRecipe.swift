@@ -50,144 +50,146 @@ struct AddRecipe: View {
     }
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 0) {
-            SectionHeader(title: "Add Recipe")
-            ScrollView {
-                VStack(alignment: .leading, spacing: 18) {
-                    VStack(alignment: .leading, spacing: 0) {
-                        SecondaryHeader(title: "General")
-                            .padding(.bottom, 10)
-                        
-                        SearchRoasterPicker(
-                            selectedRoaster: Binding(
-                                get: { recipe.roaster },
-                                set: { recipe.roaster = $0 }
-                            ),
-                            focusedField: $focusedField,
-                        )
-                        
-                        FormKeyboardInputField(
-                            title: "Recipe Name",
-                            field: .name,
-                            keyboardType: .default,
-                            valueToString: { $0 },
-                            stringToValue: { $0 },
-                            value: Binding(
-                                get: { recipe.name ?? "" },
-                                set: { recipe.name = $0 }
-                            ),
-                            focusedField: $focusedField
-                        )
-                        
-                        FormExpandableNumberField(
-                            title: "Coffee (grams)",
-                            range: Array(8...40),
-                            formatter: { "\($0)g" },
-                            field: .grams,
-                            value: $brewMath.grams,
-                            focusedField: $focusedField,
-                        )
-                        
-                        FormExpandableNumberField(
-                            title: "Ratio",
-                            range: Array(stride(from: 10.0, through: 20.0, by: 1.0)),
-                            formatter: { "1:\($0)" },
-                            field: .ratio,
-                            value: $brewMath.ratio,
-                            focusedField: $focusedField,
-                        )
-                        
-                        FormKeyboardInputField(
-                            title: "Water (ml)",
-                            field: .waterml,
-                            keyboardType: .default,
-                            valueToString: { String($0) },
-                            stringToValue: { Int16($0) },
-                            value: $brewMath.water,
-                            focusedField: $focusedField
-                        )
+        NavigationStack {
+            VStack(alignment: .leading, spacing: 0) {
+                SectionHeader(title: "Add Recipe")
+                ScrollView {
+                    VStack(alignment: .leading, spacing: 18) {
+                        VStack(alignment: .leading, spacing: 0) {
+                            SecondaryHeader(title: "General")
+                                .padding(.bottom, 10)
+                            
+                            SearchRoasterPicker(
+                                selectedRoaster: Binding(
+                                    get: { recipe.roaster },
+                                    set: { recipe.roaster = $0 }
+                                ),
+                                focusedField: $focusedField,
+                            )
+                            
+                            FormKeyboardInputField(
+                                title: "Recipe Name",
+                                field: .name,
+                                keyboardType: .default,
+                                valueToString: { $0 },
+                                stringToValue: { $0 },
+                                value: Binding(
+                                    get: { recipe.name ?? "" },
+                                    set: { recipe.name = $0 }
+                                ),
+                                focusedField: $focusedField
+                            )
+                            
+                            FormExpandableNumberField(
+                                title: "Coffee (grams)",
+                                range: Array(8...40),
+                                formatter: { "\($0)g" },
+                                field: .grams,
+                                value: $brewMath.grams,
+                                focusedField: $focusedField,
+                            )
+                            
+                            FormExpandableNumberField(
+                                title: "Ratio",
+                                range: Array(stride(from: 10.0, through: 20.0, by: 1.0)),
+                                formatter: { "1:\($0)" },
+                                field: .ratio,
+                                value: $brewMath.ratio,
+                                focusedField: $focusedField,
+                            )
+                            
+                            FormKeyboardInputField(
+                                title: "Water (ml)",
+                                field: .waterml,
+                                keyboardType: .default,
+                                valueToString: { String($0) },
+                                stringToValue: { Int16($0) },
+                                value: $brewMath.water,
+                                focusedField: $focusedField
+                            )
 
+                            
+                            FormExpandableNumberField(
+                                title: "Water Temperature",
+                                range: Array(stride(from: 80.0, through: 99.5, by: 0.5)),
+                                formatter: { "\($0)°C" },
+                                field: .temperature,
+                                value: Binding(
+                                    get: {recipe.temperature},
+                                    set: {recipe.temperature = $0}
+                                ),
+                                focusedField: $focusedField,
+                            )
+                        }
+                        .padding(.bottom, 20)
                         
-                        FormExpandableNumberField(
-                            title: "Water Temperature",
-                            range: Array(stride(from: 80.0, through: 99.5, by: 0.5)),
-                            formatter: { "\($0)°C" },
-                            field: .temperature,
-                            value: Binding(
-                                get: {recipe.temperature},
-                                set: {recipe.temperature = $0}
-                            ),
-                            focusedField: $focusedField,
-                        )
-                    }
-                    .padding(.bottom, 20)
-                    
-                    VStack(alignment: .leading, spacing: 0) {
-                        SecondaryHeader(title: "Grinder")
-                            .padding(.bottom, 10)
-                        
-                        SearchGrinderPicker(
-                            selectedGrinder: Binding(
-                                get: { recipe.grinder },
-                                set: { recipe.grinder = $0 }
-                            ),
-                            focusedField: $focusedField,
-                        )
+                        VStack(alignment: .leading, spacing: 0) {
+                            SecondaryHeader(title: "Grinder")
+                                .padding(.bottom, 10)
+                            
+                            SearchGrinderPicker(
+                                selectedGrinder: Binding(
+                                    get: { recipe.grinder },
+                                    set: { recipe.grinder = $0 }
+                                ),
+                                focusedField: $focusedField,
+                            )
 
-                        FormExpandableNumberField(
-                            title: "Grind Size",
-                            range: Array(0...100),
-                            formatter: { "\($0)" },
-                            field: .grindSize,
-                            value: Binding(
-                                get: {recipe.grindSize},
-                                set: {recipe.grindSize = $0}
-                            ),
-                            focusedField: $focusedField,
-                        )
-                    }.padding(.bottom, 20)
+                            FormExpandableNumberField(
+                                title: "Grind Size",
+                                range: Array(0...100),
+                                formatter: { "\($0)" },
+                                field: .grindSize,
+                                value: Binding(
+                                    get: {recipe.grindSize},
+                                    set: {recipe.grindSize = $0}
+                                ),
+                                focusedField: $focusedField,
+                            )
+                        }.padding(.bottom, 20)
 
-                    VStack(alignment: .leading, spacing: 0) {
-                        SecondaryHeader(title: "Stages")
-                            .padding(.bottom, 10)
+                        VStack(alignment: .leading, spacing: 0) {
+                            SecondaryHeader(title: "Stages")
+                                .padding(.bottom, 10)
+                            
+                            StagesList(focusedField: $focusedField, recipe: recipe, brewMath: brewMath)
+                                .padding(.bottom, 20)
+                        }
                         
-                        StagesList(focusedField: $focusedField, recipe: recipe, brewMath: brewMath)
-                            .padding(.bottom, 20)
+                        HStack {
+                            StandardButton(
+                                title: isEditing ? "Update" : "Save",
+                                action: {
+                                    if !isEditing {
+                                        recipe.lastBrewedAt = Date()
+                                    }
+                                    do {
+                                        recipe.grams = brewMath.grams
+                                        recipe.ratio = brewMath.ratio
+                                        recipe.waterAmount = brewMath.water
+                                        
+                                        try viewContext.save()
+                                        selectedTab = .home
+                                    } catch {
+                                        print("Failed to save recipe: \(error)")
+                                    }
+                                },
+                                style: .primary
+                            )
+                        }
                     }
-                    
-                    HStack {
-                        StandardButton(
-                            title: isEditing ? "Update" : "Save",
-                            action: {
-                                if !isEditing {
-                                    recipe.lastBrewedAt = Date()
-                                }
-                                do {
-                                    recipe.grams = brewMath.grams
-                                    recipe.ratio = brewMath.ratio
-                                    recipe.waterAmount = brewMath.water
-                                    
-                                    try viewContext.save()
-                                    selectedTab = .home
-                                } catch {
-                                    print("Failed to save recipe: \(error)")
-                                }
-                            },
-                            style: .primary
-                        )
-                    }
+                    .padding(EdgeInsets(top: 0, leading: 18, bottom: 28, trailing: 18))
                 }
-                .padding(EdgeInsets(top: 0, leading: 18, bottom: 28, trailing: 18))
             }
+            .background(BrewerColors.background)
         }
     }
 }
 
 #Preview {
-    GlobalBackground {
-        AddRecipe(
-            context: PersistenceController.preview.container.viewContext,
-            selectedTab: .constant(.add)
-        ).environment(\.managedObjectContext, PersistenceController.preview.container.viewContext)
-    }
+    AddRecipe(
+        context: PersistenceController.preview.container.viewContext,
+        selectedTab: .constant(.add)
+    ).environment(\.managedObjectContext, PersistenceController.preview.container.viewContext)
+        .background(BrewerColors.background)
 }

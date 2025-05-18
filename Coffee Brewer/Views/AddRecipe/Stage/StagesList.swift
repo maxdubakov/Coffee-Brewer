@@ -52,20 +52,16 @@ struct StagesList: View {
             .transition(.scale.combined(with: .opacity))
             .animation(.spring(response: 0.4), value: isAddingStage)
         }
-        .fullScreenCover(isPresented: $isAddingStage) {
-            GlobalBackground {
-                AddStage(recipe: recipe, brewMath: brewMath, focusedField: $focusedField)
-            }
+        .navigationDestination(isPresented: $isAddingStage) {
+            AddStage(recipe: recipe, brewMath: brewMath, focusedField: $focusedField)
         }
-        .fullScreenCover(item: $stageBeingModified) { stage in
-            GlobalBackground {
-                AddStage(
-                    recipe: recipe,
-                    brewMath: brewMath,
-                    focusedField: $focusedField,
-                    existingStage: stage
-                )
-            }
+        .navigationDestination(item: $stageBeingModified) { stage in
+            AddStage(
+                recipe: recipe,
+                brewMath: brewMath,
+                focusedField: $focusedField,
+                existingStage: stage
+            )
         }
         .onAppear {
             // Initialize animation states for all stages

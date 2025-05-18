@@ -74,10 +74,6 @@ struct AddStage: View {
     
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
-            BackButton(action: {
-                dismiss()
-            })
-            
             ScrollView {
                 VStack(alignment: .leading, spacing: 18) {
                     VStack(alignment: .leading, spacing: 0) {
@@ -143,6 +139,7 @@ struct AddStage: View {
         .onChange(of: selectedType) { _, _ in
             updateDefaultValues()
         }
+        .background(BrewerColors.background)
     }
 
     // MARK: - Methods
