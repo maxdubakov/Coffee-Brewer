@@ -120,7 +120,7 @@ struct BrewRecipeView: View {
                         .font(.subheadline)
                         .foregroundColor(BrewerColors.textSecondary)
                 }
-                .padding(.top, 5)
+                .padding(.top, 20)
             }
         }
     }

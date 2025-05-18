@@ -16,24 +16,19 @@ struct RecipeCard: View {
     // MARK: - Size Calculations
     // Constants
     private let maxBarWidth: CGFloat = 160
-    private let minBarWidth: CGFloat = 50 // Minimum width to ensure the label is displayed nicely
+    private let minBarWidth: CGFloat = 50
     
-    // Compute the proportion based on ratio
     private var totalParts: Double {
         return 1.0 + recipe.ratio // 1 part coffee + X parts water
     }
     
     private var coffeeBarWidth: CGFloat {
-        // Calculate proportional width based on ratio
         let proportionalWidth = maxBarWidth * (1.0 / totalParts)
-        // Ensure the bar is at least the minimum width
         return max(proportionalWidth, minBarWidth)
     }
     
     private var waterBarWidth: CGFloat {
-        // Calculate proportional width based on ratio
         let proportionalWidth = maxBarWidth * (recipe.ratio / totalParts)
-        // Ensure the bar is at least the minimum width
         return max(proportionalWidth, minBarWidth)
     }
 
@@ -123,6 +118,9 @@ struct RecipeCard: View {
                     .fontWeight(.semibold)
                     .foregroundColor(BrewerColors.textPrimary)
                     .frame(minWidth: 99, alignment: .leading)
+                    .lineLimit(1)
+                    .truncationMode(.tail)
+                    .frame(maxWidth: 150, alignment: .leading)
                 
                 // Last brewed time
                 Text((recipe.lastBrewedAt ?? Date()).timeAgoDescription())
@@ -169,34 +167,6 @@ struct RecipeCard: View {
                     .foregroundColor(Color.red)
             }
         }
-    }
-}
-
-// MARK: - Enhanced Stat Pill
-struct StatPill: View {
-    var title: String
-    var icon: String
-    var color: Color = BrewerColors.caramel
-    
-    var body: some View {
-        HStack(spacing: 4) {
-            Image(systemName: icon)
-                .font(.caption2)
-                .foregroundColor(color)
-            
-            Text(title)
-                .font(.caption2)
-                .fontWeight(.medium)
-                .foregroundColor(BrewerColors.textPrimary)
-        }
-        .padding(.horizontal, 6)
-        .padding(.vertical, 3)
-        .background(Color(red: 0.15, green: 0.13, blue: 0.11)) // Darker pill background for contrast
-        .overlay(
-            RoundedRectangle(cornerRadius: 10)
-                .strokeBorder(color.opacity(0.4), lineWidth: 1)
-        )
-        .clipShape(RoundedRectangle(cornerRadius: 10))
     }
 }
 
