@@ -67,7 +67,7 @@ class BrewTimerViewModel: ObservableObject {
             return stageElapsedTime / stageDuration
         }
     }
-    
+
     func timeRemaining(forStage stageIndex: Int) -> Double {
         guard stageIndex < stageTimes.count else { return 0 }
         
@@ -75,10 +75,8 @@ class BrewTimerViewModel: ObservableObject {
         let stageDuration = stageDuration(forStage: stageIndex)
         
         if elapsedTime < stageStartTime {
-            // Stage hasn't started yet
             return stageDuration
         } else {
-            // Stage is in progress
             return max(0, stageDuration - (elapsedTime - stageStartTime))
         }
     }
@@ -148,22 +146,7 @@ class BrewTimerViewModel: ObservableObject {
         var currentTime: Double = 0
         
         for stage in recipe.stagesArray {
-            var stageDuration: Double = 0
-            
-            switch stage.type {
-            case "fast":
-                // Fast pour - estimate 15 seconds per 100ml
-                stageDuration = Double(stage.waterAmount) * 0.15
-            case "slow":
-                // Slow pour - estimate 30 seconds per 100ml
-                stageDuration = Double(stage.waterAmount) * 0.3
-            case "wait":
-                // Wait stage - use the specified seconds
-                stageDuration = Double(stage.seconds)
-            default:
-                stageDuration = 0
-            }
-            
+            var stageDuration = Double(stage.seconds)
             stageTimes.append(currentTime)
             currentTime += stageDuration
         }
@@ -194,16 +177,7 @@ class BrewTimerViewModel: ObservableObject {
         
         let stage = recipe.stagesArray[index]
         
-        switch stage.type {
-        case "fast":
-            return Double(stage.waterAmount) * 0.15
-        case "slow":
-            return Double(stage.waterAmount) * 0.3
-        case "wait":
-            return Double(stage.seconds)
-        default:
-            return 0
-        }
+        return Double(stage.seconds)
     }
     
     private func completeBrewingProcess() {

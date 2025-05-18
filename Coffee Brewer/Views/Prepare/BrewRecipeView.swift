@@ -42,24 +42,10 @@ struct BrewRecipeView: View {
 
                 VStack {
                     RecipeMetricsBar(recipe: recipe)
+                        .padding(.bottom, 20)
                     
                     // MARK: - Current Stage
-                    if let stage = currentStage {
-                        CurrentStageCard(
-                            stage: stage,
-                            stageNumber: currentStageIndex + 1,
-                            waterProgress: timerViewModel.waterPoured(forStage: currentStageIndex),
-                            timeRemaining: timerViewModel.timeRemaining(forStage: currentStageIndex)
-                        )
-                    }
-                }
-
-                // MARK: - Next Stage
-                if let stage = nextStage {
-                    NextStagePreview(
-                        stage: stage,
-                        stageNumber: currentStageIndex + 2
-                    )
+                    StageScroll(recipe: recipe, timerViewModel: timerViewModel, currentStageIndex: $currentStageIndex)
                 }
                 
                 Spacer()

@@ -4,7 +4,6 @@ struct CurrentStageCard: View {
     // MARK: - Properties
     var stage: Stage
     var stageNumber: Int
-    var waterProgress: Double
     var timeRemaining: Double
     
     // MARK: - Computed Properties
@@ -69,6 +68,11 @@ struct CurrentStageCard: View {
             return "\(seconds)s"
         }
     }
+
+    private var progressValue: Double {
+        let duration = Double(stage.seconds)
+        return duration > 0 ? (duration - timeRemaining) / duration : 0
+    }
     
     var body: some View {
         HStack(spacing: 16) {
@@ -104,38 +108,23 @@ struct CurrentStageCard: View {
                         .foregroundColor(BrewerColors.textPrimary)
                 }
                 
-                HStack(alignment: .center, spacing: 8) {
-                    Text(stageInstruction)
-                        .font(.system(size: 17))
-                        .foregroundColor(BrewerColors.textSecondary)
-                    
-                    if timeRemaining > 0 {
-                        Text(formattedTimeRemaining)
-                            .font(.system(size: 17, weight: .medium))
-                            .foregroundColor(BrewerColors.cream)
-                            .padding(.horizontal, 8)
-                            .padding(.vertical, 4)
-                            .background(
-                                Capsule()
-                                    .fill(BrewerColors.coffee)
-                                    .opacity(0.6)
-                            )
-                    }
-                }
+                
+                Text(stageInstruction)
+                    .font(.system(size: 17))
+                    .foregroundColor(BrewerColors.textSecondary)
+                
                 
                 // Progress indicator for pour stages
-                if stageType != "wait" {
-                    ProgressView(value: waterProgress)
-                        .progressViewStyle(
-                            PourProgressStyle(
-                                height: 10,
-                                cornerRadius: 5,
-                                foregroundColor: stageColor
-                            )
+                ProgressView(value: progressValue)
+                    .progressViewStyle(
+                        PourProgressStyle(
+                            height: 10,
+                            cornerRadius: 5,
+                            foregroundColor: stageColor
                         )
-                        .padding(.top, 8)
-                }
-            }
+                    )
+                    .padding(.top, 8)
+            }.frame(height: 80)
             
             Spacer()
         }
@@ -206,21 +195,18 @@ struct PourProgressStyle: ProgressViewStyle {
             CurrentStageCard(
                 stage: fastStage,
                 stageNumber: 1,
-                waterProgress: 0.7,
                 timeRemaining: 15
             )
             
             CurrentStageCard(
                 stage: slowStage,
                 stageNumber: 2,
-                waterProgress: 0.4,
                 timeRemaining: 45
             )
             
             CurrentStageCard(
                 stage: waitStage,
                 stageNumber: 3,
-                waterProgress: 0.0,
                 timeRemaining: 30
             )
         }
