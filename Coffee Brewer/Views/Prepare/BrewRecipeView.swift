@@ -39,7 +39,6 @@ struct BrewRecipeView: View {
             ).padding(.vertical, 100)
 
             VStack(spacing: 30) {
-
                 VStack {
                     RecipeMetricsBar(recipe: recipe)
                         .padding(.bottom, 20)
@@ -50,39 +49,31 @@ struct BrewRecipeView: View {
                 
                 Spacer()
                 
-                // MARK: - Control Buttons
-                HStack(spacing: 16) {
-                    // Primary action
-                    StandardButton(
-                        title: timerViewModel.isRunning ? "Pause" : (timerViewModel.elapsedTime > 0 ? "Resume" : "Start Brewing"),
-                        action: timerViewModel.toggleTimer,
-                        style: .primary
+                VStack(spacing: 24) {
+                    // MARK: - Brew Control Panel
+                    BrewControlPanel(
+                        isRunning: Binding(
+                            get: { timerViewModel.isRunning },
+                            set: { newValue in
+                                if newValue != timerViewModel.isRunning {
+                                    timerViewModel.toggleTimer()
+                                }
+                            }
+                        ),
+                        currentStageIndex: $currentStageIndex,
+                        totalStages: recipe.stagesArray.count,
+                        onTogglePlay: timerViewModel.toggleTimer,
+                        onRestart: {
+                            timerViewModel.resetTimer()
+                            currentStageIndex = 0
+                        },
+                        onSkipForward: {
+                            skipToStage(currentStageIndex + 1)
+                        },
+                        onSkipBackward: {
+                            skipToStage(currentStageIndex - 1)
+                        }
                     )
-
-                    // Reset Button
-                    if !showComplete && timerViewModel.elapsedTime > 0 {
-                        StandardButton(
-                            title: "Reset",
-                            iconName: "arrow.counterclockwise",
-                            action: {
-                                timerViewModel.resetTimer()
-                            },
-                            style: .destructive,
-                        )
-                    }
-                    
-                    // Complete Button
-                    if showComplete && timerViewModel.elapsedTime > timerViewModel.totalTime * 0.8 {
-                        StandardButton(
-                            title: "Complete",
-                            iconName: "checkmark.circle",
-                            action: {
-                                completeBrew()
-                            },
-                            style: .secondary,
-                        )
-                    }
-                    
                 }
                 .padding(.top, 20)
                 .padding(.bottom, 30)
@@ -97,8 +88,12 @@ struct BrewRecipeView: View {
             withAnimation(.spring(response: 0.5, dampingFraction: 0.7)) {
                 currentStageIndex = newValue
             }
-
             UIImpactFeedbackGenerator(style: .medium).impactOccurred()
+        }
+        .onChange(of: currentStageIndex) { oldValue, newValue in
+            if timerViewModel.currentStageIndex != newValue {
+                skipToStage(newValue)
+            }
         }
         .fullScreenCover(isPresented: $showCompletionView) {
             GlobalBackground {
@@ -126,17 +121,27 @@ struct BrewRecipeView: View {
     }
     
     // MARK: - Methods
+    private func skipToStage(_ targetIndex: Int) {
+        guard targetIndex >= 0 && targetIndex < recipe.stagesArray.count else { return }
+        
+        timerViewModel.stopTimer()
+        
+        timerViewModel.skipToStage(targetIndex)
+        
+        withAnimation(.spring(response: 0.5, dampingFraction: 0.7)) {
+            currentStageIndex = targetIndex
+        }
+        
+        UIImpactFeedbackGenerator(style: .medium).impactOccurred()
+    }
+    
     private func confirmExitBrewing() {
-        // In a real implementation, you'd use a proper SwiftUI confirmation dialog
         timerViewModel.stopTimer()
         dismiss()
     }
     
     private func completeBrew() {
-        // Stop the timer
         timerViewModel.stopTimer()
-        
-        // Save brew to history
         recipe.lastBrewedAt = Date()
         do {
             try viewContext.save()
@@ -144,18 +149,12 @@ struct BrewRecipeView: View {
             print("Error saving brew date: \(error)")
         }
         
-        // Show completion screen
         showCompletionView = true
     }
 }
 
-// MARK: - Extensions
-private extension BrewTimerViewModel {
-    func stopTimer() {
-        isRunning = false
-        // This calls the internal timer cancel logic
-        toggleTimer()
-    }
+extension Notification.Name {
+    static let brewingCompleted = Notification.Name("brewingCompleted")
 }
 
 // MARK: - Preview
@@ -163,7 +162,6 @@ struct BrewRecipeViewPreview: PreviewProvider {
     static var previews: some View {
         let context = PersistenceController.preview.container.viewContext
         
-        // Create a test recipe
         let testRecipe = Recipe(context: context)
         testRecipe.name = "Ethiopian Pour Over"
         testRecipe.grams = 18
@@ -172,12 +170,10 @@ struct BrewRecipeViewPreview: PreviewProvider {
         testRecipe.temperature = 94.0
         testRecipe.grindSize = 22
         
-        // Create a test roaster
         let testRoaster = Roaster(context: context)
         testRoaster.name = "Mad Heads"
         testRecipe.roaster = testRoaster
         
-        // Create sample stages
         let createStage = { (type: String, water: Int16, seconds: Int16, order: Int16) in
             let stage = Stage(context: context)
             stage.type = type
@@ -187,7 +183,6 @@ struct BrewRecipeViewPreview: PreviewProvider {
             stage.recipe = testRecipe
         }
         
-        // Add all three types of stages
         createStage("fast", 50, 15, 0)
         createStage("wait", 0, 30, 1)
         createStage("slow", 138, 15, 2)

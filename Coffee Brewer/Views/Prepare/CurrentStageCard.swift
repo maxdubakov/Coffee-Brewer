@@ -4,7 +4,7 @@ struct CurrentStageCard: View {
     // MARK: - Properties
     var stage: Stage
     var stageNumber: Int
-    var timeRemaining: Double
+    var stageProgress: Double
     
     // MARK: - Computed Properties
     private var stageType: String {
@@ -57,26 +57,9 @@ struct CurrentStageCard: View {
             return "Pour \(stage.waterAmount)ml"
         }
     }
-    
-    private var formattedTimeRemaining: String {
-        let minutes = Int(timeRemaining) / 60
-        let seconds = Int(timeRemaining) % 60
-        
-        if minutes > 0 {
-            return "\(minutes):\(String(format: "%02d", seconds))"
-        } else {
-            return "\(seconds)s"
-        }
-    }
 
-    private var progressValue: Double {
-        let duration = Double(stage.seconds)
-        return duration > 0 ? (duration - timeRemaining) / duration : 0
-    }
-    
     var body: some View {
         HStack(spacing: 16) {
-            // Stage number circle
             ZStack {
                 Circle()
                     .fill(LinearGradient(
@@ -96,7 +79,6 @@ struct CurrentStageCard: View {
                     .foregroundColor(BrewerColors.cream)
             }
             
-            // Stage details
             VStack(alignment: .leading, spacing: 8) {
                 HStack(spacing: 8) {
                     Image(systemName: stageIcon)
@@ -113,9 +95,7 @@ struct CurrentStageCard: View {
                     .font(.system(size: 17))
                     .foregroundColor(BrewerColors.textSecondary)
                 
-                
-                // Progress indicator for pour stages
-                ProgressView(value: progressValue)
+                ProgressView(value: stageProgress)
                     .progressViewStyle(
                         PourProgressStyle(
                             height: 10,
@@ -195,19 +175,19 @@ struct PourProgressStyle: ProgressViewStyle {
             CurrentStageCard(
                 stage: fastStage,
                 stageNumber: 1,
-                timeRemaining: 15
+                stageProgress: 0.1,
             )
             
             CurrentStageCard(
                 stage: slowStage,
                 stageNumber: 2,
-                timeRemaining: 45
+                stageProgress: 0.2,
             )
             
             CurrentStageCard(
                 stage: waitStage,
                 stageNumber: 3,
-                timeRemaining: 30
+                stageProgress: 0.95,
             )
         }
         .padding()

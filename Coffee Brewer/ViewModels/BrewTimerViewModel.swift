@@ -1,4 +1,5 @@
 import SwiftUI
+import CoreData
 import Combine
 
 class BrewTimerViewModel: ObservableObject {
@@ -8,10 +9,12 @@ class BrewTimerViewModel: ObservableObject {
     @Published var isRunning: Bool = false
     @Published var currentStageIndex: Int = 0
     @Published var totalWaterPoured: Int16 = 0
+    @Published var stageElapsedTimes: [Double] = []
+    @Published var stageProgress: [Double] = []
     
     // MARK: - Private Properties
     private var timer: AnyCancellable?
-    private var stageTimes: [Double] = []
+    private var stageDurations: [Double] = []
     private var stageWaterAmounts: [Int16] = []
     private var recipe: Recipe?
     
@@ -21,194 +24,193 @@ class BrewTimerViewModel: ObservableObject {
     // MARK: - Public Methods
     func setupWithRecipe(_ recipe: Recipe) {
         self.recipe = recipe
-        calculateStageTimes(recipe)
+        calculateStageDurations(recipe)
         calculateTotalTime()
         calculateStageWaterAmounts(recipe)
+        stageElapsedTimes = Array(repeating: 0.0, count: recipe.stagesArray.count)
+        stageProgress = Array(repeating: 0.0, count: recipe.stagesArray.count)
     }
     
     func toggleTimer() {
-        isRunning.toggle()
-        
         if isRunning {
-            startTimer()
-        } else {
             stopTimer()
+        } else {
+            startTimer()
         }
     }
     
     func resetTimer() {
         stopTimer()
+
         elapsedTime = 0
+        stageElapsedTimes = Array(repeating: 0.0, count: stageElapsedTimes.count)
+        stageProgress = Array(repeating: 0.0, count: stageProgress.count)
         currentStageIndex = 0
         totalWaterPoured = 0
-        isRunning = false
     }
     
-    func waterPoured(forStage stageIndex: Int) -> Double {
-        guard let recipe = recipe, stageIndex < recipe.stagesArray.count else { return 0 }
+    func skipToStage(_ index: Int) {
+        guard let recipe = recipe, index >= 0, index < recipe.stagesArray.count else { return }
         
-        let stage = recipe.stagesArray[stageIndex]
-        if stage.type == "wait" { return 1.0 } // Wait stages are complete or not
-        
-        if stageIndex < currentStageIndex {
-            // Previous stages have completed their water
-            return 1.0
-        } else if stageIndex > currentStageIndex {
-            // Future stages haven't started
-            return 0.0
-        } else {
-            // Current stage - calculate based on time
-            let stageStartTime = stageStartTime(forStage: stageIndex)
-            let stageDuration = stageDuration(forStage: stageIndex)
+        if index > currentStageIndex {
+            // First subtract any partially poured water from current stage
+            if currentStageIndex < recipe.stagesArray.count {
+                let currentStage = recipe.stagesArray[currentStageIndex]
+                if currentStage.type != "wait" {
+                    // Calculate how much water was already poured for the current stage
+                    let currentStagePartialWater = Int16(Double(currentStage.waterAmount) * stageProgress[currentStageIndex])
+                    
+                    // Remove this partial amount (it will be replaced with the full amount)
+                    totalWaterPoured -= currentStagePartialWater
+                }
+            }
             
-            if stageDuration <= 0 { return 0 }
+            // Moving forward: add all the water from skipped stages
+            for i in currentStageIndex..<index {
+                let stage = recipe.stagesArray[i]
+                if stage.type != "wait" {
+                    totalWaterPoured += stage.waterAmount
+                }
+                
+                // Mark these stages as complete in progress array
+                stageProgress[i] = 1.0
+                stageElapsedTimes[i] = stageDurations[i]
+            }
+        } else if index < currentStageIndex {
+            // Moving backward: recalculate total water from scratch
+            totalWaterPoured = 0
             
-            let stageElapsedTime = max(0, min(stageDuration, elapsedTime - stageStartTime))
-            return stageElapsedTime / stageDuration
+            // Reset progress for stages we're moving back past
+            for i in 0..<stageElapsedTimes.count {
+                if i >= index {
+                    // Reset stages we're moving back to or past
+                    stageElapsedTimes[i] = 0.0
+                    stageProgress[i] = 0.0
+                } else {
+                    // Earlier stages remain complete
+                    stageElapsedTimes[i] = stageDurations[i]
+                    stageProgress[i] = 1.0
+                    
+                    // Add water for completed earlier stages
+                    let stage = recipe.stagesArray[i]
+                    if stage.type != "wait" {
+                        totalWaterPoured += stage.waterAmount
+                    }
+                }
+            }
         }
-    }
 
-    func timeRemaining(forStage stageIndex: Int) -> Double {
-        guard stageIndex < stageTimes.count else { return 0 }
-        
-        let stageStartTime = stageStartTime(forStage: stageIndex)
-        let stageDuration = stageDuration(forStage: stageIndex)
-        
-        if elapsedTime < stageStartTime {
-            return stageDuration
-        } else {
-            return max(0, stageDuration - (elapsedTime - stageStartTime))
-        }
+        currentStageIndex = index
     }
     
-    // MARK: - Private Methods
-    private func startTimer() {
+
+    func stopTimer() {
+        isRunning = false
+        timer?.cancel()
+        timer = nil
+    }
+    
+
+    func startTimer() {
+        guard !isRunning else { return }
+        
+        isRunning = true
+        
         timer = Timer.publish(every: 0.1, on: .main, in: .common)
             .autoconnect()
             .sink { [weak self] _ in
-                guard let self = self else { return }
+                guard let self = self, let recipe = self.recipe else { return }
+                
+                if self.currentStageIndex < self.stageElapsedTimes.count {
+                    self.stageElapsedTimes[self.currentStageIndex] += 0.1
+                    
+                    if self.stageDurations[self.currentStageIndex] > 0 {
+                        self.stageProgress[self.currentStageIndex] = min(1.0,
+                            self.stageElapsedTimes[self.currentStageIndex] /
+                            self.stageDurations[self.currentStageIndex])
+                    }
+                }
                 
                 self.elapsedTime += 0.1
-                self.updateCurrentStage()
+                
+                if self.stageElapsedTimes[self.currentStageIndex] >= self.stageDurations[self.currentStageIndex] {
+                    self.completeCurrentStage()
+                }
+                
                 self.updateWaterAmount()
                 
-                // Check if brewing is complete
-                if self.elapsedTime >= self.totalTime {
+                if self.currentStageIndex >= recipe.stagesArray.count {
                     self.completeBrewingProcess()
                 }
             }
     }
     
-    private func stopTimer() {
-        timer?.cancel()
-        timer = nil
+    func progressForStage(_ index: Int) -> Double {
+        guard index < stageProgress.count else { return 0 }
+        return stageProgress[index]
     }
     
-    private func updateCurrentStage() {
-        guard let recipe = recipe else { return }
+    // MARK: - Private Methods
+    private func completeCurrentStage() {
+        guard let recipe = recipe, currentStageIndex < recipe.stagesArray.count else { return }
         
-        for (index, _) in recipe.stagesArray.enumerated() {
-            let stageStart = stageStartTime(forStage: index)
-            let stageEnd = stageStart + stageDuration(forStage: index)
-            
-            if elapsedTime >= stageStart && elapsedTime < stageEnd {
-                if currentStageIndex != index {
-                    currentStageIndex = index
-                }
-                return
-            }
+        stageElapsedTimes[currentStageIndex] = stageDurations[currentStageIndex]
+        stageProgress[currentStageIndex] = 1.0
+        
+        let stage = recipe.stagesArray[currentStageIndex]
+        if stage.type != "wait" {
+            totalWaterPoured = totalWaterPoured + stage.waterAmount
+        }
+        
+        if currentStageIndex + 1 < recipe.stagesArray.count {
+            currentStageIndex += 1
+        } else {
+            completeBrewingProcess()
         }
     }
     
     private func updateWaterAmount() {
-        guard let recipe = recipe else { return }
+        guard let recipe = recipe, currentStageIndex < recipe.stagesArray.count else { return }
         
-        var newWaterAmount: Int16 = 0
+        let stage = recipe.stagesArray[currentStageIndex]
+        if stage.type == "wait" { return }
+
+        let stageProgress = progressForStage(currentStageIndex)
+        let currentStageWater = Int16(Double(stage.waterAmount) * stageProgress)
         
-        for (index, stage) in recipe.stagesArray.enumerated() {
-            if stage.type == "wait" { continue }
-            
-            if index < currentStageIndex {
-                // Prior stages have completed their water
-                newWaterAmount += stage.waterAmount
-            } else if index == currentStageIndex {
-                // Current stage - calculate partial water based on stage progress
-                let stageProgress = waterPoured(forStage: index)
-                newWaterAmount += Int16(Double(stage.waterAmount) * stageProgress)
+        var totalWater: Int16 = 0
+        
+        for i in 0..<currentStageIndex {
+            let completedStage = recipe.stagesArray[i]
+            if completedStage.type != "wait" {
+                totalWater += completedStage.waterAmount
             }
         }
         
-        totalWaterPoured = newWaterAmount
+        totalWater += currentStageWater
+        totalWaterPoured = totalWater
     }
     
-    private func calculateStageTimes(_ recipe: Recipe) {
-        stageTimes = []
-        var currentTime: Double = 0
+    private func calculateStageDurations(_ recipe: Recipe) {
+        stageDurations = recipe.stagesArray.map { Double($0.seconds) }
         
-        for stage in recipe.stagesArray {
-            let stageDuration = Double(stage.seconds)
-            stageTimes.append(currentTime)
-            currentTime += stageDuration
+        for (index, stage) in recipe.stagesArray.enumerated() {
+            if stage.type != "wait" && stageDurations[index] <= 0 {
+                stageDurations[index] = 30.0
+            }
         }
     }
     
     private func calculateTotalTime() {
-        guard let _ = recipe, !stageTimes.isEmpty else {
-            totalTime = 0
-            return
-        }
-        
-        if let lastIndex = stageTimes.indices.last {
-            totalTime = stageTimes[lastIndex] + stageDuration(forStage: lastIndex)
-        }
+        totalTime = stageDurations.reduce(0, +)
     }
     
     private func calculateStageWaterAmounts(_ recipe: Recipe) {
         stageWaterAmounts = recipe.stagesArray.map { $0.waterAmount }
     }
     
-    private func stageStartTime(forStage index: Int) -> Double {
-        guard index < stageTimes.count else { return 0 }
-        return stageTimes[index]
-    }
-    
-    private func stageDuration(forStage index: Int) -> Double {
-        guard let recipe = recipe, index < recipe.stagesArray.count else { return 0 }
-        
-        let stage = recipe.stagesArray[index]
-        
-        return Double(stage.seconds)
-    }
-    
     private func completeBrewingProcess() {
-        // Stop the timer
         stopTimer()
-        
-        // Save the brew to history if needed
-        saveBrewToHistory()
-        
-        // Notify UI that brewing is complete
         NotificationCenter.default.post(name: .brewingCompleted, object: nil)
     }
-    
-    private func saveBrewToHistory() {
-        guard let recipe = recipe else { return }
-        
-        // Update the last brewed date
-        recipe.lastBrewedAt = Date()
-        
-        // Save to Core Data
-        if let context = recipe.managedObjectContext {
-            do {
-                try context.save()
-            } catch {
-                print("Error saving brew history: \(error)")
-            }
-        }
-    }
-}
-
-// MARK: - Notification Extension
-extension Notification.Name {
-    static let brewingCompleted = Notification.Name("brewingCompleted")
 }

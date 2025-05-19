@@ -34,7 +34,7 @@ struct StageScroll: View {
                             CurrentStageCard(
                                 stage: stage,
                                 stageNumber: index + 1,
-                                timeRemaining: timerViewModel.timeRemaining(forStage: index)
+                                stageProgress: timerViewModel.progressForStage(index),
                             )
                             .containerRelativeFrame(.vertical, count: 1, spacing: 0)
                             .opacity(index == currentStageIndex ? 1 : 0.25)

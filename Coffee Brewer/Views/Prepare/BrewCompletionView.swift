@@ -35,20 +35,14 @@ struct BrewCompletionView: View {
     
     init(recipe: Recipe) {
         self.recipe = recipe
-        
-        // Get the correct managed object context from the recipe
         let context = recipe.managedObjectContext ?? PersistenceController.shared.container.viewContext
         
-        // Create a new Brew entry right away
         brew = Brew(context: context)
         brew.date = Date()
         
-        // Set default name based on recipe
         let dateFormatter = DateFormatter()
         dateFormatter.dateFormat = "MMM d, yyyy"
         brew.name = "\(recipe.name ?? "Untitled Recipe") - \(dateFormatter.string(from: Date()))"
-        
-        // Initialize with default values
         brew.rating = 0
         brew.acidity = 0
         brew.bitterness = 0
@@ -60,7 +54,6 @@ struct BrewCompletionView: View {
     
     var body: some View {
         VStack(spacing: 0) {
-            // Header
             VStack(spacing: 8) {
                 Image(systemName: "cup.and.saucer.fill")
                     .renderingMode(.template)
@@ -201,7 +194,6 @@ struct BrewCompletionViewPreview: PreviewProvider {
     static var previews: some View {
         let context = PersistenceController.preview.container.viewContext
         
-        // Create a test recipe
         let testRecipe = Recipe(context: context)
         testRecipe.name = "Ethiopian Light Roast"
         testRecipe.grams = 18
@@ -210,12 +202,10 @@ struct BrewCompletionViewPreview: PreviewProvider {
         testRecipe.temperature = 94.0
         testRecipe.grindSize = 22
         
-        // Create a test roaster
         let testRoaster = Roaster(context: context)
         testRoaster.name = "Bright Beans"
         testRecipe.roaster = testRoaster
         
-        // Return the view
         return GlobalBackground {
             BrewCompletionView(recipe: testRecipe)
                 .environment(\.managedObjectContext, context)
