@@ -172,6 +172,7 @@ struct BrewCompletionView: View {
                 
                 }
             }
+            .scrollDismissesKeyboard(.immediately)
             .padding(.horizontal, 40)
             .padding(.vertical, 20)
         }

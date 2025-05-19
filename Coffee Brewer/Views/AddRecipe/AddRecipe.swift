@@ -175,6 +175,7 @@ struct AddRecipe: View {
                     }
                     .padding(EdgeInsets(top: 0, leading: 18, bottom: 28, trailing: 18))
                 }
+                .scrollDismissesKeyboard(.immediately)
             }
             .background(BrewerColors.background)
         }

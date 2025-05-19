@@ -127,6 +127,7 @@ struct AddStage: View {
                 }
                 .padding(EdgeInsets(top: 20, leading: 18, bottom: 28, trailing: 18))
             }
+            .scrollDismissesKeyboard(.immediately)
             StandardButton(
                 title: actionButtonTitle,
                 action: saveOrUpdateStage,
