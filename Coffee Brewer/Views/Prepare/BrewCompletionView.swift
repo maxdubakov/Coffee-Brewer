@@ -33,7 +33,7 @@ struct BrewCompletionView: View {
         return "\(recipeName) - \(dateFormatter.string(from: Date()))"
     }
     
-    init(recipe: Recipe) {
+    init(recipe: Recipe, actualElapsedTime: Double) {
         self.recipe = recipe
         let context = recipe.managedObjectContext ?? PersistenceController.shared.container.viewContext
         
@@ -50,6 +50,7 @@ struct BrewCompletionView: View {
         brew.sweetness = 0
         brew.tds = 0.0
         brew.recipe = recipe
+        brew.actualDurationSeconds = Int16(actualElapsedTime)
     }
     
     var body: some View {
@@ -207,7 +208,7 @@ struct BrewCompletionViewPreview: PreviewProvider {
         testRecipe.roaster = testRoaster
         
         return GlobalBackground {
-            BrewCompletionView(recipe: testRecipe)
+            BrewCompletionView(recipe: testRecipe, actualElapsedTime: 10)
                 .environment(\.managedObjectContext, context)
         }
     }

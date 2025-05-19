@@ -149,6 +149,12 @@ struct BrewHistoryCard: View {
                         value: "\(Int(recipe.temperature))°C",
                         color: BrewerColors.caramel
                     )
+                    
+                    RecipeDetailTag(
+                        icon: "timer",
+                        value: "\(Int(brew.actualDurationSeconds))s",
+                        color: BrewerColors.caramel
+                    )
                 }
             }
             .padding(.top, 12)

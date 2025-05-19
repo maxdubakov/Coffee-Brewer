@@ -25,10 +25,6 @@ struct BrewRecipeView: View {
         return recipe.stagesArray[currentStageIndex + 1]
     }
     
-    private var showComplete: Bool {
-        timerViewModel.elapsedTime > timerViewModel.totalTime * 0.8
-    }
-    
     var body: some View {
         VStack(alignment: .center, spacing: 0) {
             BrewTimer(
@@ -97,7 +93,7 @@ struct BrewRecipeView: View {
         }
         .fullScreenCover(isPresented: $showCompletionView) {
             GlobalBackground {
-                BrewCompletionView(recipe: recipe)
+                BrewCompletionView(recipe: recipe, actualElapsedTime: timerViewModel.elapsedTime)
             }
         }
         .onReceive(NotificationCenter.default.publisher(for: .brewingCompleted)) { _ in
