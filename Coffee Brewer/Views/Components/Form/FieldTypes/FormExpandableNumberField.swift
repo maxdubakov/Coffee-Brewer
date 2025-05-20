@@ -43,7 +43,6 @@ struct FormExpandableNumberField<T: Hashable & CustomStringConvertible>: View {
                 }
             }
 
-            Divider()
         }
     }
 }

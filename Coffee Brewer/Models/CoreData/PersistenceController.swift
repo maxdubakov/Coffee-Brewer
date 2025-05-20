@@ -42,20 +42,25 @@ struct PersistenceController {
         
         // Create roasters
         let madHeads = Roaster(context: viewContext)
+        madHeads.id = UUID()
         madHeads.name = "Mad Heads"
         
         let ethioRoaster = Roaster(context: viewContext)
+        ethioRoaster.id = UUID()
         ethioRoaster.name = "Ethio Coffee Co."
         
         // Create grinders
         let niche = Grinder(context: viewContext)
+        niche.id = UUID()
         niche.name = "Niche Zero"
         
         let commandante = Grinder(context: viewContext)
+        commandante.id = UUID()
         commandante.name = "Commandante C40"
         
         // Create a default recipe
         let defaultRecipe = Recipe(context: viewContext)
+        defaultRecipe.id = UUID()
         defaultRecipe.name = "Default"
         defaultRecipe.grams = 18
         defaultRecipe.ratio = 16.0
@@ -68,6 +73,7 @@ struct PersistenceController {
         
         // Create a complete recipe with stages
         let ethiopianRecipe = Recipe(context: viewContext)
+        ethiopianRecipe.id = UUID()
         ethiopianRecipe.name = "Ethiopian Pour Over"
         ethiopianRecipe.grams = 20
         ethiopianRecipe.ratio = 15.0
@@ -81,6 +87,7 @@ struct PersistenceController {
         // Helper function to create stages
         func createStage(recipe: Recipe, type: String, waterAmount: Int16, seconds: Int16, orderIndex: Int16) {
             let stage = Stage(context: viewContext)
+            stage.id = UUID()
             stage.type = type
             stage.waterAmount = waterAmount
             stage.seconds = seconds
@@ -97,6 +104,7 @@ struct PersistenceController {
         
         // Create a third recipe
         let guatemalaRecipe = Recipe(context: viewContext)
+        guatemalaRecipe.id = UUID()
         guatemalaRecipe.name = "Guatemala Espresso"
         guatemalaRecipe.grams = 18
         guatemalaRecipe.ratio = 2.0
@@ -111,13 +119,16 @@ struct PersistenceController {
         createStage(recipe: guatemalaRecipe, type: "slow", waterAmount: 36, seconds: 0, orderIndex: 0)
         
         let nordRoaster = Roaster(context: viewContext)
+        nordRoaster.id = UUID()
         nordRoaster.name = "Nord Coffee Roasters"
 
         let brightBean = Roaster(context: viewContext)
+        brightBean.id = UUID()
         brightBean.name = "Bright Bean Co."
 
         // Nord Roaster Recipes
         let nordKenya = Recipe(context: viewContext)
+        nordKenya.id = UUID()
         nordKenya.name = "Kenya V60"
         nordKenya.grams = 19
         nordKenya.ratio = 15.5
@@ -133,6 +144,7 @@ struct PersistenceController {
         createStage(recipe: nordKenya, type: "slow", waterAmount: 245, seconds: 0, orderIndex: 2)
 
         let nordDecaf = Recipe(context: viewContext)
+        nordDecaf.id = UUID()
         nordDecaf.name = "Decaf Dream"
         nordDecaf.grams = 17
         nordDecaf.ratio = 16.0
@@ -148,6 +160,7 @@ struct PersistenceController {
 
         // Bright Bean Recipes
         let brightBlend = Recipe(context: viewContext)
+        brightBlend.id = UUID()
         brightBlend.name = "Morning Blend"
         brightBlend.grams = 16
         brightBlend.ratio = 15.0
@@ -163,6 +176,7 @@ struct PersistenceController {
         createStage(recipe: brightBlend, type: "slow", waterAmount: 200, seconds: 0, orderIndex: 2)
 
         let brightEspresso = Recipe(context: viewContext)
+        brightEspresso.id = UUID()
         brightEspresso.name = "Bright Espresso"
         brightEspresso.grams = 18
         brightEspresso.ratio = 2.2
@@ -178,6 +192,7 @@ struct PersistenceController {
         // Create sample brews for the preview
        let createSampleBrew = { (recipe: Recipe, rating: Int16, date: Date, notes: String?) in
            let brew = Brew(context: viewContext)
+           brew.id = UUID()
            brew.recipe = recipe
            brew.rating = rating
            brew.date = date

@@ -33,7 +33,6 @@ struct SearchRoasterPicker: View {
                 isPresentingSheet = true
             }
 
-            Divider()
         }
         .sheet(isPresented: $isPresentingSheet) {
             SearchablePickerSheet(
@@ -43,6 +42,7 @@ struct SearchRoasterPicker: View {
                 onSelect: { selectedRoaster = $0 },
                 createNewItem: { name in
                     let roaster = Roaster(context: viewContext)
+                    roaster.id = UUID()
                     roaster.name = name
                     return roaster
                 }

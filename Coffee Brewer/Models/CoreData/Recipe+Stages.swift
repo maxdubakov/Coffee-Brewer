@@ -8,11 +8,12 @@ extension Recipe {
         }
     }
     
-    func addStage(type: String, waterAmount: Int16, context: NSManagedObjectContext) {
+    func addStage(type: String, waterAmount: Int16, seconds: Int16, context: NSManagedObjectContext) {
         let stage = Stage(context: context)
+        stage.id = UUID()
         stage.type = type
         stage.waterAmount = waterAmount
-        stage.seconds = 0
+        stage.seconds = seconds
         stage.orderIndex = Int16((stages?.count ?? 0))
         stage.recipe = self
     }
@@ -20,7 +21,7 @@ extension Recipe {
     func createDefaultStage(context: NSManagedObjectContext) {
         // Add default first stage if no stages exist
         if stagesArray.isEmpty {
-            addStage(type: "fast", waterAmount: 100, context: context)
+            addStage(type: "fast", waterAmount: 100, seconds: 20, context: context)
         }
     }
     

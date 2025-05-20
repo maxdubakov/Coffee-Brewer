@@ -9,7 +9,6 @@ struct SectionHeader: View {
                 .font(.title)
                 .fontWeight(.bold)
                 .foregroundColor(BrewerColors.textPrimary)
-                .padding(.horizontal, 18)
                 .padding(.vertical, 40)
             Spacer()
         }

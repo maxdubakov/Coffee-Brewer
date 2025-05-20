@@ -220,6 +220,7 @@ struct RecipeDetailTag: View {
     // Create some sample brews for the preview
     let createSampleBrew = { (recipeName: String, rating: Int16, date: Date, notes: String?) in
         let brew = Brew(context: context)
+        brew.id = UUID()
         
         // Find or create a recipe
         let fetchRequest: NSFetchRequest<Recipe> = Recipe.fetchRequest()
@@ -237,6 +238,7 @@ struct RecipeDetailTag: View {
             
             // Create a roaster if needed
             let roaster = Roaster(context: context)
+            roaster.id = UUID()
             roaster.name = "Sample Roaster"
             recipe.roaster = roaster
         }

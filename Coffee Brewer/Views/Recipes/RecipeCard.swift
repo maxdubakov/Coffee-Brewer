@@ -178,6 +178,7 @@ struct RecipeCardPreview: PreviewProvider {
         // Create test recipes with different characteristics
         func createRecipe(name: String, roasterName: String, grams: Int16, ratio: Double, grindSize: Int16) -> Recipe {
             let recipe = Recipe(context: context)
+            recipe.id = UUID()
             recipe.name = name
             recipe.grams = grams
             recipe.ratio = ratio
@@ -187,6 +188,7 @@ struct RecipeCardPreview: PreviewProvider {
             
             // Create a roaster
             let roaster = Roaster(context: context)
+            roaster.id = UUID()
             roaster.name = roasterName
             recipe.roaster = roaster
             
@@ -197,6 +199,7 @@ struct RecipeCardPreview: PreviewProvider {
         func addStages(to recipe: Recipe, types: [(String, Int16, Int16)]) {
             for (index, stageInfo) in types.enumerated() {
                 let stage = Stage(context: context)
+                stage.id = UUID()
                 stage.type = stageInfo.0
                 stage.waterAmount = stageInfo.1
                 stage.seconds = stageInfo.2

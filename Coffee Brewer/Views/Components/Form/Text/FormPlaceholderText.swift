@@ -5,6 +5,6 @@ struct FormPlaceholderText: View {
     var body: some View {
         Text(value)
             .font(.system(size: 17, weight: .light))
-            .foregroundColor(BrewerColors.placeholder)
+            .foregroundColor(BrewerColors.cream.opacity(0.6))
     }
 }

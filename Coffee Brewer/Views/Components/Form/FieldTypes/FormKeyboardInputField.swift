@@ -37,7 +37,7 @@ struct FormKeyboardInputField<Value>: View {
                             .focused($isFocused)
                             .keyboardType(keyboardType)
                             .font(.system(size: 17, weight: .medium))
-                            .foregroundColor(BrewerColors.textPrimary)
+                            .foregroundStyle(BrewerColors.cream)
                             .multilineTextAlignment(.leading)
                             .onChange(of: internalText) { _, newValue in
                                 if let newVal = stringToValue(newValue) {
@@ -55,8 +55,6 @@ struct FormKeyboardInputField<Value>: View {
                     FormValueText(value: valueToString(value))
                 }
             }
-
-            Divider()
         }
         .onTapGesture {
             focusedField = field

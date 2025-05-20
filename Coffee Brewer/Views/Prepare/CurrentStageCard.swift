@@ -159,14 +159,17 @@ struct PourProgressStyle: ProgressViewStyle {
     
     // Create sample stages
     let fastStage = Stage(context: context)
+    fastStage.id = UUID()
     fastStage.type = "fast"
     fastStage.waterAmount = 50
     
     let slowStage = Stage(context: context)
+    slowStage.id = UUID()
     slowStage.type = "slow"
     slowStage.waterAmount = 138
     
     let waitStage = Stage(context: context)
+    waitStage.id = UUID()
     waitStage.type = "wait"
     waitStage.seconds = 30
     

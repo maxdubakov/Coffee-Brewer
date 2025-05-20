@@ -33,7 +33,7 @@ struct SearchGrinderPicker: View {
                 isPresentingSheet = true
             }
 
-            Divider()
+            
         }
         .sheet(isPresented: $isPresentingSheet) {
             SearchablePickerSheet(
@@ -43,6 +43,7 @@ struct SearchGrinderPicker: View {
                 onSelect: { selectedGrinder = $0 },
                 createNewItem: { name in
                     let grinder = Grinder(context: viewContext)
+                    grinder.id = UUID()
                     grinder.name = name
                     return grinder
                 }

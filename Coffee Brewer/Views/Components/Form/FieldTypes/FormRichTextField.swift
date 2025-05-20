@@ -32,7 +32,7 @@ struct FormRichTextField: View {
         .padding(12) // Apply padding to the ZStack instead
         .background(
             RoundedRectangle(cornerRadius: 12)
-                .fill(BrewerColors.surface)
+                .fill(BrewerColors.surface.opacity(0.6))
                 .overlay(
                     RoundedRectangle(cornerRadius: 12)
                         .strokeBorder(BrewerColors.divider, lineWidth: 1)

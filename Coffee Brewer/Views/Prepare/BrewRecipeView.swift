@@ -159,6 +159,7 @@ struct BrewRecipeViewPreview: PreviewProvider {
         let context = PersistenceController.preview.container.viewContext
         
         let testRecipe = Recipe(context: context)
+        testRecipe.id = UUID()
         testRecipe.name = "Ethiopian Pour Over"
         testRecipe.grams = 18
         testRecipe.ratio = 16.0
@@ -167,11 +168,13 @@ struct BrewRecipeViewPreview: PreviewProvider {
         testRecipe.grindSize = 22
         
         let testRoaster = Roaster(context: context)
+        testRoaster.id = UUID()
         testRoaster.name = "Mad Heads"
         testRecipe.roaster = testRoaster
         
         let createStage = { (type: String, water: Int16, seconds: Int16, order: Int16) in
             let stage = Stage(context: context)
+            stage.id = UUID()
             stage.type = type
             stage.waterAmount = water
             stage.seconds = seconds

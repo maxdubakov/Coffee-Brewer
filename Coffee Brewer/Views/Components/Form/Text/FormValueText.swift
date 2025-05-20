@@ -9,7 +9,7 @@ struct FormValueText: View {
     private let isFocusedBinding: FocusState<Bool>.Binding?
     private let fontSize: CGFloat = 17.0
     private let fontWeight: Font.Weight = .medium
-    private let foregroundColor: Color = BrewerColors.textPrimary
+    private let foregroundColor: Color = BrewerColors.cream
     
     // MARK: - Initializers
     init(value: String) {

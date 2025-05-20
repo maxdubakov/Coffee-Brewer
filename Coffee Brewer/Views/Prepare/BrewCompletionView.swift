@@ -38,6 +38,7 @@ struct BrewCompletionView: View {
         let context = recipe.managedObjectContext ?? PersistenceController.shared.container.viewContext
         
         brew = Brew(context: context)
+        brew.id = UUID()
         brew.date = Date()
         
         let dateFormatter = DateFormatter()
@@ -54,128 +55,146 @@ struct BrewCompletionView: View {
     }
     
     var body: some View {
-        VStack(spacing: 0) {
-            VStack(spacing: 8) {
-                Image(systemName: "cup.and.saucer.fill")
-                    .renderingMode(.template)
-                    .foregroundColor(BrewerColors.caramel)
-                    .font(.system(size: 40))
-                    .padding(.bottom, 8)
-                
-                Text("Brew Complete!")
-                    .font(.system(size: 32, weight: .bold))
-                    .foregroundColor(BrewerColors.textPrimary)
-                
-                Text("\(roasterName) - \(recipeName)")
-                    .font(.system(size: 18))
-                    .foregroundColor(BrewerColors.textSecondary)
-                    .multilineTextAlignment(.center)
-                    .padding(.bottom, 16)
-            }
-            .padding(.top, 40)
-            
-            ScrollView {
-                VStack(alignment: .leading, spacing: 30) {
-                    FormKeyboardInputField(
-                        title: "Brew Name",
-                        field: .brewName,
-                        keyboardType: .default,
-                        valueToString: { $0 },
-                        stringToValue: { $0 },
+        ScrollView {
+            VStack(alignment: .leading, spacing: 30) {
+                // MARK: - Header Section
+                VStack(alignment: .center, spacing: 12) {
+                    Text("Brew Complete!")
+                        .font(.system(size: 28, weight: .bold))
+                        .foregroundColor(BrewerColors.textPrimary)
+                    
+                    Text("\(roasterName) - \(recipeName)")
+                        .font(.system(size: 16))
+                        .foregroundColor(BrewerColors.textSecondary)
+                        .multilineTextAlignment(.center)
+                }
+                .frame(maxWidth: .infinity)
+                .padding(.top, 20)
+                .padding(.bottom, 10)
+
+                // MARK: - Rating Section
+                VStack(alignment: .leading, spacing: 0) {
+                    HStack(spacing: 8) {
+                        Image(systemName: "star.fill")
+                            .foregroundColor(BrewerColors.caramel)
+                            .font(.system(size: 16))
+                        
+                        SecondaryHeader(title: "Rating")
+                    }
+                    .padding(.horizontal, 20)
+
+                    FormRatingField(
+                        field: .brewRating,
                         value: Binding(
-                            get: { brew.name ?? "" },
-                            set: { brew.name = $0 }
+                            get: {brew.rating},
+                            set: {brew.rating = $0}
                         ),
                         focusedField: $focusedField
                     )
+                    .padding(.horizontal, 18)
                     
-                    VStack(alignment: .leading, spacing: 0) {
-                        SecondaryHeader(title: "Rating")
-                        
-                        FormRatingField(
-                            field: .brewRating,
-                            value: Binding(
-                                get: {brew.rating},
-                                set: {brew.rating = $0}
-                            ),
-                            focusedField: $focusedField,
-                        )
-                    }
-                    
-                    VStack(alignment: .leading, spacing: 16) {
-                        SecondaryHeader(title: "Taste Profile")
-                        
-                        VStack(alignment: .leading, spacing: 0) {
-                            FormSliderField(
-                                value: Binding(
-                                    get: {Int(brew.bitterness)},
-                                    set: {brew.bitterness = Int16($0)}
-                                ),
-                                from: 0,
-                                to: 10,
-                                title: "Bitterness",
-                                color: BrewerColors.caramel,
-                            )
-                            
-                            FormSliderField(
-                                value: Binding(
-                                    get: {Int(brew.acidity)},
-                                    set: {brew.acidity = Int16($0)}
-                                ),
-                                from: 0,
-                                to: 10,
-                                title: "Acidity (Fruitiness)",
-                                color: BrewerColors.caramel,
-                            )
-                            
-                            FormSliderField(
-                                value: Binding(
-                                    get: {Int(brew.sweetness)},
-                                    set: {brew.sweetness = Int16($0)}
-                                ),
-                                from: 0,
-                                to: 10,
-                                title: "Sweetness",
-                                color: BrewerColors.caramel,
-                            )
-                            
-                            FormSliderField(
-                                value: Binding(
-                                    get: {Int(brew.body)},
-                                    set: {brew.body = Int16($0)}
-                                ),
-                                from: 0,
-                                to: 10,
-                                title: "Body",
-                                color: BrewerColors.caramel,
-                            )
-                        }
-                    }
-                    
-                    VStack(alignment: .leading, spacing: 30) {
-                        SecondaryHeader(title: "Notes")
-                        
-                        FormRichTextField(
-                            notes: Binding(
-                                get: {brew.notes ?? ""},
-                                set: {brew.notes = $0},
-                            ),
-                            placeholder: "How did it taste? (Aroma, acidity, body, etc.)"
-                        )
-                    }
-                
-                    StandardButton(
-                        title: "Save",
-                        action: saveBrewExperience,
-                        style: .primary
-                    )
-                
                 }
+                
+                // MARK: - Taste Profile Section
+                VStack(alignment: .leading, spacing: 18) {
+                    HStack(spacing: 8) {
+                        Image(systemName: "chart.bar.fill")
+                            .foregroundColor(BrewerColors.caramel)
+                            .font(.system(size: 16))
+                        
+                        SecondaryHeader(title: "Taste Profile")
+                    }
+                    .padding(.horizontal, 20)
+                    
+                    FormGroup {
+                        FormSliderField(
+                            value: Binding(
+                                get: {Int(brew.bitterness)},
+                                set: {brew.bitterness = Int16($0)}
+                            ),
+                            from: 0,
+                            to: 10,
+                            title: "Bitterness",
+                            color: BrewerColors.caramel
+                        )
+                        
+                        Divider()
+                        
+                        FormSliderField(
+                            value: Binding(
+                                get: {Int(brew.acidity)},
+                                set: {brew.acidity = Int16($0)}
+                            ),
+                            from: 0,
+                            to: 10,
+                            title: "Acidity (Fruitiness)",
+                            color: BrewerColors.caramel
+                        )
+                        
+                        Divider()
+                        
+                        FormSliderField(
+                            value: Binding(
+                                get: {Int(brew.sweetness)},
+                                set: {brew.sweetness = Int16($0)}
+                            ),
+                            from: 0,
+                            to: 10,
+                            title: "Sweetness",
+                            color: BrewerColors.caramel
+                        )
+                        
+                        Divider()
+                        
+                        FormSliderField(
+                            value: Binding(
+                                get: {Int(brew.body)},
+                                set: {brew.body = Int16($0)}
+                            ),
+                            from: 0,
+                            to: 10,
+                            title: "Body",
+                            color: BrewerColors.caramel
+                        )
+                    }
+                }
+                
+                // MARK: - Notes Section
+                VStack(alignment: .leading, spacing: 18) {
+                    HStack(spacing: 8) {
+                        Image(systemName: "note.text")
+                            .foregroundColor(BrewerColors.caramel)
+                            .font(.system(size: 16))
+                        
+                        SecondaryHeader(title: "Tasting Notes")
+                    }
+                    .padding(.horizontal, 20)
+                    
+                    FormRichTextField(
+                        notes: Binding(
+                            get: {brew.notes ?? ""},
+                            set: {brew.notes = $0}
+                        ),
+                        placeholder: "How did it taste? (Aroma, acidity, body, etc.)"
+                    )
+                    .padding(.horizontal, 18)
+                }
+                
+                // MARK: - Save Button
+                StandardButton(
+                    title: "Save Brew Experience",
+                    iconName: "checkmark.circle.fill",
+                    action: saveBrewExperience,
+                    style: .primary
+                )
+                .padding(.horizontal, 18)
+                .padding(.vertical, 20)
             }
-            .scrollDismissesKeyboard(.immediately)
-            .padding(.horizontal, 40)
-            .padding(.vertical, 20)
+            .padding(.horizontal, 2)
+            .padding(.bottom, 40)
         }
+        .background(BrewerColors.background)
+        .scrollDismissesKeyboard(.immediately)
         .scrollIndicators(.hidden)
     }
     
@@ -197,6 +216,7 @@ struct BrewCompletionViewPreview: PreviewProvider {
         let context = PersistenceController.preview.container.viewContext
         
         let testRecipe = Recipe(context: context)
+        testRecipe.id = UUID()
         testRecipe.name = "Ethiopian Light Roast"
         testRecipe.grams = 18
         testRecipe.ratio = 16.0
@@ -205,6 +225,7 @@ struct BrewCompletionViewPreview: PreviewProvider {
         testRecipe.grindSize = 22
         
         let testRoaster = Roaster(context: context)
+        testRoaster.id = UUID()
         testRoaster.name = "Bright Beans"
         testRecipe.roaster = testRoaster
         

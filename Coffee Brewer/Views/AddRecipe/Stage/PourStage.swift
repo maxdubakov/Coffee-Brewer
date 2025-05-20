@@ -3,9 +3,8 @@ import SwiftUI
 struct PourStage: View {
     // MARK: - Properties
     @ObservedObject var stage: Stage
-    let stageNumber: Int
     let progressValue: Int16
-    let onDelete: () -> Void
+    var minimize: Bool = false
     
     // MARK: - Computed Properties
     private var pourType: String {
@@ -61,11 +60,11 @@ struct PourStage: View {
     
     private var relativeProgressValue: CGFloat {
         return min(60, max(10, 60 * CGFloat(progressValue) / 300))
-
     }
     
     var body: some View {
         HStack(spacing: 16) {
+            // Stage number circle
             ZStack {
                 Circle()
                     .fill(LinearGradient(
@@ -80,7 +79,7 @@ struct PourStage: View {
                     .frame(width: 40, height: 40)
                     .shadow(color: BrewerColors.buttonShadow, radius: 4, x: 0, y: 2)
                 
-                Text("\(stageNumber)")
+                Text("\(stage.orderIndex + 1)")
                     .font(.system(size: 16, weight: .semibold))
                     .foregroundColor(BrewerColors.cream)
             }
@@ -96,17 +95,44 @@ struct PourStage: View {
                         .foregroundColor(BrewerColors.textPrimary)
                 }
                 
-                HStack(spacing: 4) {
-                    Text(detailText)
-                        .font(.system(size: 15))
-                        .foregroundColor(BrewerColors.textSecondary)
+                HStack(spacing: 6) {
+                    // Detail text (water amount or duration)
+                    HStack(spacing: 4) {
+                        if pourType != "wait" {
+                            Image(systemName: "drop")
+                                .font(.system(size: 10))
+                                .foregroundColor(BrewerColors.textSecondary)
+                        } else {
+                            Image(systemName: "clock")
+                                .font(.system(size: 10))
+                                .foregroundColor(BrewerColors.textSecondary)
+                        }
+                        
+                        Text(detailText)
+                            .font(.system(size: 14))
+                            .foregroundColor(BrewerColors.textSecondary)
+                    }
                     
-                    // Progress visualization
-                    if pourType != "wait" {
+                    // Duration for pour stages
+                    if pourType != "wait" && stage.seconds > 0 && !minimize {
+                        HStack(spacing: 4) {
+                            Image(systemName: "clock")
+                                .font(.system(size: 10))
+                                .foregroundColor(BrewerColors.textSecondary)
+                            
+                            Text("\(stage.seconds)s")
+                                .font(.system(size: 14))
+                                .foregroundColor(BrewerColors.textSecondary)
+                        }
+                    }
+                    
+                    // Progress visualization - only show when not minimized
+                    if pourType != "wait" && !minimize {
+                        Spacer()
                         ZStack(alignment: .leading) {
                             Capsule()
                                 .fill(BrewerColors.inputBackground)
-                                .frame(width: 60, height: 6)
+                                .frame(width: 80, height: 6)
                             
                             Capsule()
                                 .fill(LinearGradient(
@@ -122,26 +148,70 @@ struct PourStage: View {
             
             Spacer()
             
-            // Edit button (optional)
-            Image(systemName: "trash")
-                .font(.system(size: 20, weight: .medium))
-                .foregroundColor(BrewerColors.textSecondary)
-                .frame(width: 40, height: 40)
-                .contentShape(Rectangle())
-                .onTapGesture {
-                    onDelete()
-                }
+            // Edit indicator (only when not in edit mode)
+            if !minimize {
+                Image(systemName: "chevron.right")
+                    .font(.system(size: 14, weight: .semibold))
+                    .foregroundColor(BrewerColors.textSecondary.opacity(0.6))
+                    .padding(.trailing, 8)
+            }
         }
-        .padding(.vertical, 12)
-        .padding(.horizontal, 14)
+        .padding(.vertical, minimize ? 10 : 12)
+        .padding(.horizontal, minimize ? 12 : 16)
         .background(
             RoundedRectangle(cornerRadius: 14)
                 .fill(BrewerColors.surface.opacity(0.6))
                 .overlay(
                     RoundedRectangle(cornerRadius: 14)
-                        .strokeBorder(stageColor.opacity(0.2), lineWidth: 1)
+                        .strokeBorder(minimize ? stageColor.opacity(0.1) : stageColor.opacity(0.2), lineWidth: minimize ? 0.5 : 1)
                 )
-                .shadow(color: Color.black.opacity(0.2), radius: 3, x: 0, y: 1)
         )
+        .animation(.easeInOut(duration: 0.2), value: minimize)
+    }
+}
+
+// MARK: - Preview
+#Preview {
+    let context = PersistenceController.preview.container.viewContext
+    
+    // Create sample stages
+    let fastStage = Stage(context: context)
+    fastStage.id = UUID()
+    fastStage.type = "fast"
+    fastStage.waterAmount = 50
+    fastStage.seconds = 15
+    fastStage.orderIndex = 0
+    
+    let waitStage = Stage(context: context)
+    waitStage.id = UUID()
+    waitStage.type = "wait"
+    waitStage.seconds = 30
+    waitStage.orderIndex = 1
+    
+    let slowStage = Stage(context: context)
+    slowStage.id = UUID()
+    slowStage.type = "slow"
+    slowStage.waterAmount = 200
+    slowStage.seconds = 90
+    slowStage.orderIndex = 2
+    
+    return GlobalBackground {
+        VStack(spacing: 16) {
+            PourStage(
+                stage: fastStage,
+                progressValue: 50
+            )
+            
+            PourStage(
+                stage: waitStage,
+                progressValue: 50
+            )
+            
+            PourStage(
+                stage: slowStage,
+                progressValue: 250
+            )
+        }
+        .padding()
     }
 }
