@@ -33,7 +33,7 @@ struct MainView: View {
             .tag(Tab.home)
 
             AddRecipe(
-                existingRoaster: selectedRoaster,
+                selectedRoaster: $selectedRoaster,
                 context: viewContext,
                 selectedTab: $selectedTab,
                 existingRecipe: selectedRecipe,

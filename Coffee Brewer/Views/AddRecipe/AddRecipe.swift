@@ -7,6 +7,7 @@ struct AddRecipe: View {
     
     // MARK: - Bindings
     @Binding var selectedTab: MainView.Tab
+    @Binding var selectedRoaster: Roaster?
     
     // MARK: - Observed Objects
     @ObservedObject private var recipe: Recipe
@@ -17,18 +18,17 @@ struct AddRecipe: View {
     @StateObject private var brewMath: BrewMathViewModel
     @State private var showValidationAlert: Bool = false
     @State private var validationMessage: String = ""
-    @State private var selectedRoaster: Roaster?
     
     // MARK: - Constants
     private let isEditing: Bool
     
-    init(existingRoaster: Roaster? = nil, context: NSManagedObjectContext, selectedTab: Binding<MainView.Tab>, existingRecipe: Recipe? = nil) {
+    init(selectedRoaster: Binding<Roaster?>, context: NSManagedObjectContext, selectedTab: Binding<MainView.Tab>, existingRecipe: Recipe? = nil) {
         _selectedTab = selectedTab
+        _selectedRoaster = selectedRoaster
         isEditing = existingRecipe != nil
         
         if let recipe = existingRecipe {
             _recipe = ObservedObject(wrappedValue: recipe)
-            _selectedRoaster = State(initialValue: recipe.roaster)
             // Initialize BrewMath with existing recipe values
             _brewMath = StateObject(wrappedValue: BrewMathViewModel(
                 grams: recipe.grams,
@@ -42,9 +42,8 @@ struct AddRecipe: View {
             draft.name = "New Recipe"
             draft.temperature = 95.0
             draft.grindSize = 40
-            
+
             _recipe = ObservedObject(wrappedValue: draft)
-            // Initialize BrewMath with default values
             _brewMath = StateObject(wrappedValue: BrewMathViewModel(
                 grams: 18,
                 ratio: 16.0,
@@ -279,6 +278,7 @@ struct AddRecipe: View {
 #Preview {
     let context = PersistenceController.preview.container.viewContext
     return AddRecipe(
+        selectedRoaster: .constant(nil),
         context: context,
         selectedTab: .constant(.add)
     )

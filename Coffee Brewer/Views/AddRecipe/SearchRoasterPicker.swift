@@ -49,6 +49,9 @@ struct SearchRoasterPicker: View {
             )
             .environment(\.managedObjectContext, viewContext)
         }
+        .onAppear {
+            print("SearchRoasterPicker onAppear: \(selectedRoaster?.name ?? "nil")")
+        }
 
     }
 }
