@@ -141,6 +141,7 @@ struct StagesManagementView: View {
                 PourStage(
                     stage: stage,
                     progressValue: recipe.totalStageWaterToStep(stepIndex: Int(stage.orderIndex)),
+                    total: recipe.waterAmount,
                     minimize: editMode == .active
                 )
                 .contentShape(Rectangle())
@@ -291,21 +292,21 @@ struct StagesManagementView: View {
     
     private func deleteStages(at offsets: IndexSet) {
         let stagesToDelete = offsets.map { recipe.stagesArray[$0] }
-        
+
         for stage in stagesToDelete {
             viewContext.delete(stage)
-        }
-        
-        // Reindex remaining stages
-        let remainingStages = recipe.stagesArray
-        for (index, remainingStage) in remainingStages.enumerated() {
-            remainingStage.orderIndex = Int16(index)
         }
         
         do {
             try viewContext.save()
         } catch {
             print("Failed to delete stages: \(error)")
+        }
+
+        // Reindex remaining stages
+        let remainingStages = recipe.stagesArray
+        for (index, remainingStage) in remainingStages.enumerated() {
+            remainingStage.orderIndex = Int16(index)
         }
     }
     

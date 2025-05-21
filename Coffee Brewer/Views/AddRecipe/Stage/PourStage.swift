@@ -4,6 +4,7 @@ struct PourStage: View {
     // MARK: - Properties
     @ObservedObject var stage: Stage
     let progressValue: Int16
+    let total: Int16
     var minimize: Bool = false
     
     // MARK: - Computed Properties
@@ -59,7 +60,7 @@ struct PourStage: View {
     }
     
     private var relativeProgressValue: CGFloat {
-        return min(60, max(10, 60 * CGFloat(progressValue) / 300))
+        return CGFloat(progressValue) / CGFloat(total)
     }
     
     var body: some View {
@@ -140,7 +141,7 @@ struct PourStage: View {
                                     startPoint: .leading,
                                     endPoint: .trailing
                                 ))
-                                .frame(width: relativeProgressValue, height: 6)
+                                .frame(width: relativeProgressValue * 80, height: 6)
                         }
                     }
                 }
@@ -199,17 +200,20 @@ struct PourStage: View {
         VStack(spacing: 16) {
             PourStage(
                 stage: fastStage,
-                progressValue: 50
+                progressValue: 50,
+                total: 250,
             )
             
             PourStage(
                 stage: waitStage,
-                progressValue: 50
+                progressValue: 50,
+                total: 250,
             )
             
             PourStage(
                 stage: slowStage,
-                progressValue: 250
+                progressValue: 250,
+                total: 250,
             )
         }
         .padding()

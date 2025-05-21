@@ -242,7 +242,8 @@ struct AddStage: View {
         
         return PourStage(
             stage: previewStage,
-            progressValue: recipe.totalStageWater + (selectedType == .wait ? 0 : waterAmount)
+            progressValue: recipe.totalStageWater + (selectedType == .wait ? 0 : waterAmount),
+            total: recipe.waterAmount,
         )
     }
     
