@@ -17,18 +17,18 @@ struct AddRecipe: View {
     @StateObject private var brewMath: BrewMathViewModel
     @State private var showValidationAlert: Bool = false
     @State private var validationMessage: String = ""
+    @State private var selectedRoaster: Roaster?
     
     // MARK: - Constants
-    private let roaster: Roaster?
     private let isEditing: Bool
     
     init(existingRoaster: Roaster? = nil, context: NSManagedObjectContext, selectedTab: Binding<MainView.Tab>, existingRecipe: Recipe? = nil) {
         _selectedTab = selectedTab
-        self.roaster = existingRoaster
         isEditing = existingRecipe != nil
         
         if let recipe = existingRecipe {
             _recipe = ObservedObject(wrappedValue: recipe)
+            _selectedRoaster = State(initialValue: recipe.roaster)
             // Initialize BrewMath with existing recipe values
             _brewMath = StateObject(wrappedValue: BrewMathViewModel(
                 grams: recipe.grams,
@@ -39,7 +39,6 @@ struct AddRecipe: View {
             // Create a new recipe
             let draft = Recipe(context: context)
             draft.id = UUID()
-            draft.roaster = roaster
             draft.name = "New Recipe"
             draft.temperature = 95.0
             draft.grindSize = 40
@@ -81,10 +80,7 @@ struct AddRecipe: View {
 
                         FormGroup {
                             SearchRoasterPicker(
-                                selectedRoaster: Binding(
-                                    get: { recipe.roaster },
-                                    set: { recipe.roaster = $0 }
-                                ),
+                                selectedRoaster: $selectedRoaster,
                                 focusedField: $focusedField
                             )
 
@@ -253,12 +249,13 @@ struct AddRecipe: View {
             missingFields.append("Recipe Name")
         }
         
-        if recipe.roaster == nil {
+        if selectedRoaster == nil {
             missingFields.append("Roaster")
         }
         
         if missingFields.isEmpty {
             // Update recipe with brew math values before navigating
+            recipe.roaster = selectedRoaster
             recipe.grams = brewMath.grams
             recipe.ratio = brewMath.ratio
             recipe.waterAmount = brewMath.water
