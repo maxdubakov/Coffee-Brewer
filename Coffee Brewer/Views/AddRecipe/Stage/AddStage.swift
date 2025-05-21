@@ -238,7 +238,7 @@ struct AddStage: View {
         previewStage.type = selectedType.id
         previewStage.waterAmount = selectedType == .wait ? 0 : waterAmount
         previewStage.seconds = seconds
-        previewStage.orderIndex = Int16(recipe.stagesArray.count)
+        previewStage.orderIndex = existingStage != nil ? existingStage!.orderIndex : Int16(recipe.stagesArray.count)
         
         return PourStage(
             stage: previewStage,

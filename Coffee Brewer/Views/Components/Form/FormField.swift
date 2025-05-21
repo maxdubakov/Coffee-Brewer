@@ -12,6 +12,6 @@ struct FormField<Content: View> : View {
             content
         }
         .contentShape(Rectangle())
-        .padding(.vertical, 13.5)
+        .padding(.vertical, 4)
     }
 }
