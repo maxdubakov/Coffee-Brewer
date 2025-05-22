@@ -28,6 +28,7 @@ struct Recipes: View {
                 }
             }
             .edgesIgnoringSafeArea(.all)
+            .scrollIndicators(.hidden)
         }
     }
 }

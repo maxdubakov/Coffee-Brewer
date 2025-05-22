@@ -219,6 +219,7 @@ struct AddRecipe: View {
                 .padding(.top, 10)
             }
             .scrollDismissesKeyboard(.immediately)
+            .scrollIndicators(.hidden)
             .background(BrewerColors.background)
             .alert(isPresented: $showValidationAlert) {
                 Alert(
