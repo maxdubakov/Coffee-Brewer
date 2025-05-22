@@ -217,7 +217,8 @@ struct StagesManagementView: View {
             action: {
                 viewModel.saveRecipe { success in
                     if success {
-                        selectedTab = .home
+                        // Don't change tab here - let the coordinator handle it
+                        // The notification will trigger the proper cleanup and navigation
                     }
                 }
             },

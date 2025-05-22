@@ -30,12 +30,14 @@ struct AddRecipe: View {
                 )
             }
             .navigationDestination(isPresented: $viewModel.navigateToStages) {
-                GlobalBackground {
-                    StagesManagementView(
-                        recipe: viewModel.getRecipe(),
-                        brewMath: viewModel.brewMath,
-                        selectedTab: $selectedTab
-                    )
+                if viewModel.navigateToStages {  // Double-check the state
+                    GlobalBackground {
+                        StagesManagementView(
+                            recipe: viewModel.getRecipe(),
+                            brewMath: viewModel.brewMath,
+                            selectedTab: $selectedTab
+                        )
+                    }
                 }
             }
             .overlay {

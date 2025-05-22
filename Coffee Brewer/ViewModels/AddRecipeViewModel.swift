@@ -18,9 +18,10 @@ class AddRecipeViewModel: ObservableObject {
     
     // MARK: - Private Properties
     private let viewContext: NSManagedObjectContext
-    private var recipe: Recipe
+    private var recipe: Recipe?  // Made optional to prevent premature creation
     private let isEditing: Bool
     private var cancellables = Set<AnyCancellable>()
+    private let originalSelectedRoaster: Roaster?  // Store original for reset
     
     // MARK: - Observed Objects
     @Published var brewMath: BrewMathViewModel
@@ -42,6 +43,7 @@ class AddRecipeViewModel: ObservableObject {
     init(selectedRoaster: Binding<Roaster?>, context: NSManagedObjectContext, existingRecipe: Recipe? = nil) {
         self.viewContext = context
         self.isEditing = existingRecipe != nil
+        self.originalSelectedRoaster = selectedRoaster.wrappedValue
         
         if let recipe = existingRecipe {
             self.recipe = recipe
@@ -57,14 +59,8 @@ class AddRecipeViewModel: ObservableObject {
                 water: recipe.waterAmount
             )
         } else {
-            let draft = Recipe(context: context)
-            draft.id = UUID()
-            draft.roaster = selectedRoaster.wrappedValue
-            draft.name = "New Recipe"
-            draft.temperature = 95.0
-            draft.grindSize = 40
-            
-            self.recipe = draft
+            // Don't create recipe immediately for new recipes
+            self.recipe = nil
             self.selectedRoaster = selectedRoaster.wrappedValue
             
             self.brewMath = BrewMathViewModel(
@@ -79,38 +75,47 @@ class AddRecipeViewModel: ObservableObject {
     
     // MARK: - Private Methods
     private func setupBindings() {
+        // Only bind to recipe properties if recipe exists (editing mode)
+        if isEditing {
+            setupEditingBindings()
+        }
+    }
+    
+    private func setupEditingBindings() {
+        guard let recipe = recipe else { return }
+        
         // Bind recipe name changes
         $recipeName
             .sink { [weak self] newName in
-                self?.recipe.name = newName
+                self?.recipe?.name = newName
             }
             .store(in: &cancellables)
         
         // Bind roaster changes
         $selectedRoaster
             .sink { [weak self] roaster in
-                self?.recipe.roaster = roaster
+                self?.recipe?.roaster = roaster
             }
             .store(in: &cancellables)
         
         // Bind grinder changes
         $selectedGrinder
             .sink { [weak self] grinder in
-                self?.recipe.grinder = grinder
+                self?.recipe?.grinder = grinder
             }
             .store(in: &cancellables)
         
         // Bind temperature changes
         $temperature
             .sink { [weak self] temp in
-                self?.recipe.temperature = temp
+                self?.recipe?.temperature = temp
             }
             .store(in: &cancellables)
         
         // Bind grind size changes
         $grindSize
             .sink { [weak self] size in
-                self?.recipe.grindSize = size
+                self?.recipe?.grindSize = size
             }
             .store(in: &cancellables)
     }
@@ -128,7 +133,7 @@ class AddRecipeViewModel: ObservableObject {
         }
         
         if missingFields.isEmpty {
-            updateRecipeFromBrewMath()
+            createOrUpdateRecipe()
             saveAndNavigate()
         } else {
             validationMessage = "Please fill in the following fields: \(missingFields.joined(separator: ", "))"
@@ -136,10 +141,24 @@ class AddRecipeViewModel: ObservableObject {
         }
     }
     
-    private func updateRecipeFromBrewMath() {
-        recipe.grams = brewMath.grams
-        recipe.ratio = brewMath.ratio
-        recipe.waterAmount = brewMath.water
+    private func createOrUpdateRecipe() {
+        if recipe == nil {
+            // Create recipe only when needed (during validation)
+            let newRecipe = Recipe(context: viewContext)
+            newRecipe.id = UUID()
+            self.recipe = newRecipe
+            setupEditingBindings()  // Setup bindings after creation
+        }
+        
+        // Update recipe with current values
+        recipe?.name = recipeName
+        recipe?.roaster = selectedRoaster
+        recipe?.grinder = selectedGrinder
+        recipe?.temperature = temperature
+        recipe?.grindSize = grindSize
+        recipe?.grams = brewMath.grams
+        recipe?.ratio = brewMath.ratio
+        recipe?.waterAmount = brewMath.water
     }
     
     private func saveAndNavigate() {
@@ -163,57 +182,24 @@ class AddRecipeViewModel: ObservableObject {
     }
     
     func getRecipe() -> Recipe {
+        guard let recipe = recipe else {
+            fatalError("Recipe should be created before accessing it")
+        }
         return recipe
     }
     
-    // MARK: - Entity Validation
-    private var isRecipeValid: Bool {
-        guard let context = recipe.managedObjectContext else { return false }
-        
-        // Check if recipe still exists in context
-        do {
-            let _ = try context.existingObject(with: recipe.objectID)
-            return true
-        } catch {
-            return false
-        }
-    }
-    
-    private func ensureValidRecipe() {
-        if !isRecipeValid {
-            print("Recipe became invalid, creating new one")
-            createFreshRecipe()
-        }
-    }
-    
-    private func createFreshRecipe() {
-        // Create a completely new recipe
-        let newRecipe = Recipe(context: viewContext)
-        newRecipe.id = UUID()
-        newRecipe.name = recipeName.isEmpty ? "New Recipe" : recipeName
-        newRecipe.temperature = temperature
-        newRecipe.grindSize = grindSize
-        newRecipe.grams = brewMath.grams
-        newRecipe.ratio = brewMath.ratio
-        newRecipe.waterAmount = brewMath.water
-        
-        self.recipe = newRecipe
-        if let roaster = selectedRoaster {
-            self.selectedRoaster = roaster
-        }
-        if let grinder = selectedGrinder {
-            self.selectedGrinder = grinder
-        }
-    }
-    
     // MARK: - Reset Methods
-    func resetToDefaults() {
-//        if let currentRecipe = recipe, !isEditing {
-//            viewContext.delete(currentRecipe)
-//        }
-        // Reset UI state first
+    func resetToDefaults(deleteRecipe: Bool = true) {
+        // Only delete recipe if we're discarding (not if successfully saved)
+        if let currentRecipe = recipe, !isEditing && deleteRecipe {
+            viewContext.delete(currentRecipe)
+            // Force immediate processing of deletion
+            try? viewContext.save()
+        }
+        
+        // Reset all state to initial values
         recipeName = "New Recipe"
-        selectedRoaster = nil
+        selectedRoaster = originalSelectedRoaster
         selectedGrinder = nil
         temperature = 95.0
         grindSize = 40
@@ -228,40 +214,51 @@ class AddRecipeViewModel: ObservableObject {
         brewMath.ratio = 16.0
         brewMath.water = 288
         
-        // Create completely fresh recipe (if not editing)
-        if !isEditing {
-            createFreshRecipe()
-        }
+        // Clear recipe reference
+        recipe = nil
         
-        print("AddRecipe state reset with fresh recipe")
+        // Clear bindings
+        cancellables.removeAll()
+        
+        let action = deleteRecipe ? "reset with recipe deletion" : "reset after successful save"
+        print("AddRecipe state \(action)")
     }
-    
-    private func createNewRecipe() {
-        // Delete current draft if it exists and wasn't saved
-        if !recipe.isInserted || recipe.lastBrewedAt == nil {
-            viewContext.delete(recipe)
-        }
-        
-        // Create fresh recipe
-        let newRecipe = Recipe(context: viewContext)
-        newRecipe.id = UUID()
-        newRecipe.name = "New Recipe"
-        newRecipe.temperature = 95.0
-        newRecipe.grindSize = 40
-        
-        // Update reference (this might need adjustment based on your exact implementation)
-        // You may need to make recipe a @Published var instead of let
+
+    func resetAfterSuccessfulSave() {
+        resetToDefaults(deleteRecipe: false)
+    }
+
+    func resetAndDiscardChanges() {
+        resetToDefaults(deleteRecipe: true)
     }
     
     func viewDidAppear() {
-        ensureValidRecipe()
+        // Only ensure valid recipe if editing
+        if isEditing {
+            ensureValidRecipe()
+        }
     }
     
     func viewWillDisappear() {
-        // Optional: Clean up if needed
+        // Clean up if not saving and not editing
         if !isEditing && !isSaving {
-            // Don't save draft changes when leaving
+            if let draftRecipe = recipe {
+                viewContext.delete(draftRecipe)
+            }
             viewContext.rollback()
+        }
+    }
+    
+    private func ensureValidRecipe() {
+        guard let recipe = recipe else { return }
+        guard let context = recipe.managedObjectContext else { return }
+        
+        // Check if recipe still exists in context
+        do {
+            let _ = try context.existingObject(with: recipe.objectID)
+        } catch {
+            print("Recipe became invalid, resetting")
+            self.recipe = nil
         }
     }
     
@@ -276,7 +273,7 @@ class AddRecipeViewModel: ObservableObject {
         
         // Check if user has made any meaningful changes
         let hasRecipeName = recipeName != "New Recipe" && !recipeName.isEmpty
-        let hasRoaster = selectedRoaster != nil
+        let hasRoaster = selectedRoaster != originalSelectedRoaster
         let hasGrinder = selectedGrinder != nil
         let hasCustomTemp = temperature != 95.0
         let hasCustomGrind = grindSize != 40
@@ -285,4 +282,8 @@ class AddRecipeViewModel: ObservableObject {
         return hasRecipeName || hasRoaster || hasGrinder ||
                hasCustomTemp || hasCustomGrind || hasCustomBrewParams
     }
+}
+
+extension Notification.Name {
+    static let recipeSaved = Notification.Name("recipeSaved")
 }

@@ -155,7 +155,7 @@ class StagesManagementViewModel: ObservableObject {
         }
         
         isSaving = true
-        
+
         Task {
             await MainActor.run {
                 do {
@@ -171,6 +171,14 @@ class StagesManagementViewModel: ObservableObject {
                     
                     try viewContext.save()
                     isSaving = false
+                    
+                    // Mark the recipe as successfully saved
+                    NotificationCenter.default.post(
+                        name: .recipeSaved,
+                        object: nil,
+                        userInfo: ["recipe": recipe]
+                    )
+                    
                     completion(true)
                 } catch {
                     isSaving = false
