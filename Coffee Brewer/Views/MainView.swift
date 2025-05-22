@@ -47,6 +47,12 @@ struct MainView: View {
                 TabIcon(imageName: "add.recipe", label: "Add")
             }
             .tag(Tab.add)
+            .onChange(of: selectedRecipe) { oldValue, newValue in
+                print("selectedRecipe changed in MainView: \(oldValue?.name ?? "nil") -> \(newValue?.name ?? "nil")")
+            }
+            .onChange(of: selectedRoaster) { oldValue, newValue in
+                print("selectedRoaster changed in MainView: \(oldValue?.name ?? "nil") -> \(newValue?.name ?? "nil")")
+            }
 
             History()
                 .background(BrewerColors.background)
@@ -59,7 +65,8 @@ struct MainView: View {
         .onChange(of: selectedTab) { oldTab, newTab in
             handleTabChange(from: oldTab, to: newTab)
         }
-        .onReceive(NotificationCenter.default.publisher(for: .recipeSaved)) { _ in
+        .onReceive(NotificationCenter.default.publisher(for: .recipeSaved)) { notification in
+            print("Received recipeSaved notification: \(notification)")
             handleRecipeSaved()
         }
         .alert("Discard Recipe?", isPresented: $showingDiscardAlert) {

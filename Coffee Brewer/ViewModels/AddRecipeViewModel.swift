@@ -18,10 +18,12 @@ class AddRecipeViewModel: ObservableObject {
     
     // MARK: - Private Properties
     private let viewContext: NSManagedObjectContext
-    private var recipe: Recipe?  // Made optional to prevent premature creation
-    private let isEditing: Bool
+    private var recipe: Recipe?
+    private let originalSelectedRoaster: Roaster?
     private var cancellables = Set<AnyCancellable>()
-    private let originalSelectedRoaster: Roaster?  // Store original for reset
+    
+    // MARK: - Public Properties
+    let isEditing: Bool
     
     // MARK: - Observed Objects
     @Published var brewMath: BrewMathViewModel
@@ -39,13 +41,39 @@ class AddRecipeViewModel: ObservableObject {
         "Continue to Stages"
     }
     
+    // Safe recipe access - creates if needed
+    var currentRecipe: Recipe {
+        if let existingRecipe = recipe {
+            return existingRecipe
+        } else {
+            // Create recipe immediately when accessed
+            let newRecipe = Recipe(context: viewContext)
+            newRecipe.id = UUID()
+            newRecipe.name = recipeName
+            newRecipe.roaster = selectedRoaster
+            newRecipe.grinder = selectedGrinder
+            newRecipe.temperature = temperature
+            newRecipe.grindSize = grindSize
+            newRecipe.grams = brewMath.grams
+            newRecipe.ratio = brewMath.ratio
+            newRecipe.waterAmount = brewMath.water
+            
+            self.recipe = newRecipe
+            setupEditingBindings()
+            return newRecipe
+        }
+    }
+    
     // MARK: - Initialization
     init(selectedRoaster: Binding<Roaster?>, context: NSManagedObjectContext, existingRecipe: Recipe? = nil) {
         self.viewContext = context
         self.isEditing = existingRecipe != nil
         self.originalSelectedRoaster = selectedRoaster.wrappedValue
         
+        print("AddRecipeViewModel init - isEditing: \(isEditing), selectedRoaster: \(selectedRoaster.wrappedValue?.name ?? "nil"), existingRecipe: \(existingRecipe?.name ?? "nil")")
+        
         if let recipe = existingRecipe {
+            // EDITING MODE - populate with existing recipe data
             self.recipe = recipe
             self.recipeName = recipe.name ?? "New Recipe"
             self.selectedRoaster = recipe.roaster
@@ -58,8 +86,10 @@ class AddRecipeViewModel: ObservableObject {
                 ratio: recipe.ratio,
                 water: recipe.waterAmount
             )
+            
+            print("Editing mode initialized with recipe: \(recipe.name ?? "unnamed")")
         } else {
-            // Don't create recipe immediately for new recipes
+            // NEW RECIPE MODE - use provided roaster or defaults
             self.recipe = nil
             self.selectedRoaster = selectedRoaster.wrappedValue
             
@@ -68,10 +98,20 @@ class AddRecipeViewModel: ObservableObject {
                 ratio: 16.0,
                 water: 288
             )
+            
+            print("New recipe mode initialized with selectedRoaster: \(selectedRoaster.wrappedValue?.name ?? "nil")")
         }
         
         setupBindings()
     }
+    
+    // MARK: - Public Methods
+    func updateSelectedRoaster(_ roaster: Roaster?) {
+        print("updateSelectedRoaster called with: \(roaster?.name ?? "nil")")
+        self.selectedRoaster = roaster
+    }
+    
+    // ... rest of the methods remain the same ...
     
     // MARK: - Private Methods
     private func setupBindings() {
@@ -120,7 +160,6 @@ class AddRecipeViewModel: ObservableObject {
             .store(in: &cancellables)
     }
     
-    // MARK: - Public Methods
     func validateAndContinue() {
         var missingFields: [String] = []
         
@@ -133,7 +172,8 @@ class AddRecipeViewModel: ObservableObject {
         }
         
         if missingFields.isEmpty {
-            createOrUpdateRecipe()
+            // Ensure recipe is created and updated before navigation
+            updateRecipeFromCurrentState()
             saveAndNavigate()
         } else {
             validationMessage = "Please fill in the following fields: \(missingFields.joined(separator: ", "))"
@@ -141,24 +181,19 @@ class AddRecipeViewModel: ObservableObject {
         }
     }
     
-    private func createOrUpdateRecipe() {
-        if recipe == nil {
-            // Create recipe only when needed (during validation)
-            let newRecipe = Recipe(context: viewContext)
-            newRecipe.id = UUID()
-            self.recipe = newRecipe
-            setupEditingBindings()  // Setup bindings after creation
-        }
+    private func updateRecipeFromCurrentState() {
+        // Access currentRecipe to ensure it's created
+        let recipe = currentRecipe
         
-        // Update recipe with current values
-        recipe?.name = recipeName
-        recipe?.roaster = selectedRoaster
-        recipe?.grinder = selectedGrinder
-        recipe?.temperature = temperature
-        recipe?.grindSize = grindSize
-        recipe?.grams = brewMath.grams
-        recipe?.ratio = brewMath.ratio
-        recipe?.waterAmount = brewMath.water
+        // Update with current values
+        recipe.name = recipeName
+        recipe.roaster = selectedRoaster
+        recipe.grinder = selectedGrinder
+        recipe.temperature = temperature
+        recipe.grindSize = grindSize
+        recipe.grams = brewMath.grams
+        recipe.ratio = brewMath.ratio
+        recipe.waterAmount = brewMath.water
     }
     
     private func saveAndNavigate() {
@@ -182,10 +217,7 @@ class AddRecipeViewModel: ObservableObject {
     }
     
     func getRecipe() -> Recipe {
-        guard let recipe = recipe else {
-            fatalError("Recipe should be created before accessing it")
-        }
-        return recipe
+        return currentRecipe
     }
     
     // MARK: - Reset Methods
@@ -223,11 +255,11 @@ class AddRecipeViewModel: ObservableObject {
         let action = deleteRecipe ? "reset with recipe deletion" : "reset after successful save"
         print("AddRecipe state \(action)")
     }
-
+    
     func resetAfterSuccessfulSave() {
         resetToDefaults(deleteRecipe: false)
     }
-
+    
     func resetAndDiscardChanges() {
         resetToDefaults(deleteRecipe: true)
     }
@@ -237,6 +269,7 @@ class AddRecipeViewModel: ObservableObject {
         if isEditing {
             ensureValidRecipe()
         }
+        print("AddRecipeViewModel viewDidAppear - selectedRoaster: \(selectedRoaster?.name ?? "nil")")
     }
     
     func viewWillDisappear() {
