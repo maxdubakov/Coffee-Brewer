@@ -13,6 +13,9 @@ struct MainView: View {
     @State private var selectedTab: Tab = .home
     @State private var selectedRoaster: Roaster? = nil
     @State private var selectedRecipe: Recipe? = nil
+    @State private var pendingTab: Tab? = nil
+    @State private var showingDiscardAlert = false
+    @StateObject private var addRecipeCoordinator = AddRecipeCoordinator()
     
     init() {
         let appearance = UITabBarAppearance()
@@ -32,17 +35,18 @@ struct MainView: View {
             }
             .tag(Tab.home)
 
-            AddRecipe(
+            AddRecipeCoordinatorView(
+                coordinator: addRecipeCoordinator,
                 selectedRoaster: $selectedRoaster,
                 context: viewContext,
                 selectedTab: $selectedTab,
-                existingRecipe: selectedRecipe,
+                existingRecipe: selectedRecipe
             )
-                .background(BrewerColors.background)
-                .tabItem {
-                    TabIcon(imageName: "add.recipe", label: "Add")
-                }
-                .tag(Tab.add)
+            .background(BrewerColors.background)
+            .tabItem {
+                TabIcon(imageName: "add.recipe", label: "Add")
+            }
+            .tag(Tab.add)
 
             History()
                 .background(BrewerColors.background)
@@ -52,6 +56,46 @@ struct MainView: View {
                 .tag(Tab.history)
         }
         .accentColor(BrewerColors.cream)
+        .onChange(of: selectedTab) { oldTab, newTab in
+            handleTabChange(from: oldTab, to: newTab)
+        }
+        .alert("Discard Recipe?", isPresented: $showingDiscardAlert) {
+            Button("Cancel", role: .cancel) {
+                // Revert to the add tab
+                selectedTab = .add
+                pendingTab = nil
+            }
+            Button("Discard", role: .destructive) {
+                // Proceed with tab change
+                if let pendingTab = pendingTab {
+                    selectedTab = pendingTab
+                    addRecipeCoordinator.resetIfNeeded()
+                    selectedRecipe = nil
+                }
+                pendingTab = nil
+            }
+        } message: {
+            Text("You have unsaved changes. Are you sure you want to leave?")
+        }
+    }
+    
+    // MARK: - Tab Change Handler
+    private func handleTabChange(from oldTab: Tab, to newTab: Tab) {
+        // Check if leaving add tab with unsaved changes
+        if oldTab == .add && newTab != .add {
+            if addRecipeCoordinator.hasUnsavedChanges() {
+                // Store where the user wants to go
+                pendingTab = newTab
+                // Revert the tab selection (will be changed if user confirms)
+                selectedTab = .add
+                // Show the alert
+                showingDiscardAlert = true
+            } else {
+                // No unsaved changes, proceed normally
+                addRecipeCoordinator.resetIfNeeded()
+                selectedRecipe = nil
+            }
+        }
     }
 
     struct TabIcon: View {
