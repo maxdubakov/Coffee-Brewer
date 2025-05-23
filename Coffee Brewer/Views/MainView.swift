@@ -40,7 +40,7 @@ struct MainView: View {
                 selectedRoaster: $selectedRoaster,
                 context: viewContext,
                 selectedTab: $selectedTab,
-                existingRecipe: selectedRecipe
+                existingRecipe: $selectedRecipe
             )
             .background(BrewerColors.background)
             .tabItem {

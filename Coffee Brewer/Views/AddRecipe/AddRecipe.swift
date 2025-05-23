@@ -212,7 +212,7 @@ struct AddRecipe: View {
     let viewModel = AddRecipeViewModel(
         selectedRoaster: .constant(nil),
         context: context,
-        existingRecipe: nil
+        existingRecipe: .constant(nil)
     )
     
     return AddRecipe(

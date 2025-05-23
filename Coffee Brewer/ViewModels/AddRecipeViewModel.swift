@@ -65,14 +65,14 @@ class AddRecipeViewModel: ObservableObject {
     }
     
     // MARK: - Initialization
-    init(selectedRoaster: Binding<Roaster?>, context: NSManagedObjectContext, existingRecipe: Recipe? = nil) {
+    init(selectedRoaster: Binding<Roaster?>, context: NSManagedObjectContext, existingRecipe: Binding<Recipe?>) {
         self.viewContext = context
-        self.isEditing = existingRecipe != nil
+        self.isEditing = existingRecipe.wrappedValue != nil
         self.originalSelectedRoaster = selectedRoaster.wrappedValue
         
-        print("AddRecipeViewModel init - isEditing: \(isEditing), selectedRoaster: \(selectedRoaster.wrappedValue?.name ?? "nil"), existingRecipe: \(existingRecipe?.name ?? "nil")")
+        print("AddRecipeViewModel init - isEditing: \(isEditing), selectedRoaster: \(selectedRoaster.wrappedValue?.name ?? "nil"), existingRecipe: \(existingRecipe.wrappedValue?.name ?? "nil")")
         
-        if let recipe = existingRecipe {
+        if let recipe = existingRecipe.wrappedValue {
             // EDITING MODE - populate with existing recipe data
             self.recipe = recipe
             self.recipeName = recipe.name ?? "New Recipe"
@@ -111,11 +111,8 @@ class AddRecipeViewModel: ObservableObject {
         self.selectedRoaster = roaster
     }
     
-    // ... rest of the methods remain the same ...
-    
     // MARK: - Private Methods
     private func setupBindings() {
-        // Only bind to recipe properties if recipe exists (editing mode)
         if isEditing {
             setupEditingBindings()
         }

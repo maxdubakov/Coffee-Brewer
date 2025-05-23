@@ -6,7 +6,7 @@ struct AddRecipeCoordinatorView: View {
     @Binding var selectedRoaster: Roaster?
     let context: NSManagedObjectContext
     @Binding var selectedTab: MainView.Tab
-    let existingRecipe: Recipe?
+    @Binding var existingRecipe: Recipe?
     
     @StateObject private var viewModel: AddRecipeViewModel
     
@@ -14,13 +14,13 @@ struct AddRecipeCoordinatorView: View {
          selectedRoaster: Binding<Roaster?>,
          context: NSManagedObjectContext,
          selectedTab: Binding<MainView.Tab>,
-         existingRecipe: Recipe?) {
+         existingRecipe: Binding<Recipe?>) {
         
         self.coordinator = coordinator
         self._selectedRoaster = selectedRoaster
         self.context = context
         self._selectedTab = selectedTab
-        self.existingRecipe = existingRecipe
+        self._existingRecipe = existingRecipe
         
         // Create ViewModel with proper initialization
         let vm = AddRecipeViewModel(
@@ -30,7 +30,7 @@ struct AddRecipeCoordinatorView: View {
         )
         self._viewModel = StateObject(wrappedValue: vm)
         
-        print("AddRecipeCoordinatorView init - selectedRoaster: \(selectedRoaster.wrappedValue?.name ?? "nil"), existingRecipe: \(existingRecipe?.name ?? "nil")")
+        print("AddRecipeCoordinatorView init - selectedRoaster: \(selectedRoaster.wrappedValue?.name ?? "nil"), existingRecipe: \(existingRecipe.wrappedValue?.name ?? "nil")")
     }
     
     var body: some View {
