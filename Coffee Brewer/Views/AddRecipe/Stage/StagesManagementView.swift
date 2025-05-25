@@ -9,8 +9,11 @@ struct StagesManagementView: View {
     // MARK: - View Model
     @StateObject private var viewModel: StagesManagementViewModel
     
+    // MARK: - Callbacks
+    let onSaveComplete: (() -> Void)?
+    
     // MARK: - Initialization
-    init(formData: Binding<RecipeFormData>, brewMath: BrewMathViewModel, selectedTab: Binding<MainView.Tab>, context: NSManagedObjectContext, existingRecipeID: NSManagedObjectID?) {
+    init(formData: Binding<RecipeFormData>, brewMath: BrewMathViewModel, selectedTab: Binding<MainView.Tab>, context: NSManagedObjectContext, existingRecipeID: NSManagedObjectID?, onSaveComplete: (() -> Void)? = nil) {
         _selectedTab = selectedTab
         _formData = formData
         _viewModel = StateObject(wrappedValue: StagesManagementViewModel(
@@ -19,6 +22,7 @@ struct StagesManagementView: View {
             context: context,
             existingRecipeID: existingRecipeID
         ))
+        self.onSaveComplete = onSaveComplete
     }
     
     var body: some View {
@@ -223,6 +227,7 @@ struct StagesManagementView: View {
             action: {
                 viewModel.saveRecipe { success in
                     if success {
+                        onSaveComplete?()
                     }
                 }
             },

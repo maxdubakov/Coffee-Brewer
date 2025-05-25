@@ -20,6 +20,7 @@ struct RoasterRecipes: View {
     @State private var showBrewScreen = false
     @State private var showDeleteAlert = false
     @State private var recipeToDelete: Recipe?
+    @State private var editingRecipe: Recipe?
     
     init(roaster: Roaster, selectedTab: Binding<MainView.Tab>, selectedRoaster: Binding<Roaster?>) {
         self.roaster = roaster
@@ -85,6 +86,12 @@ struct RoasterRecipes: View {
         } message: {
             Text("Are you sure you want to delete \(recipeToDelete?.name ?? "this recipe")?")
         }
+        .sheet(item: $editingRecipe) { recipe in
+            NavigationStack {
+                EditRecipeView(recipe: recipe, isPresented: $editingRecipe)
+                    .environment(\.managedObjectContext, viewContext)
+            }
+        }
     }
     
     // MARK: - Header View
@@ -115,7 +122,7 @@ struct RoasterRecipes: View {
                             brew(recipe: recipe)
                         },
                         onEditTapped: {
-                            // TODO: Implement edit functionality
+                            editingRecipe = recipe
                         },
                         onDeleteTapped: {
                             recipeToDelete = recipe
