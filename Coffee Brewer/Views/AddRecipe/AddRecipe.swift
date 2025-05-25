@@ -197,7 +197,6 @@ struct AddRecipe: View {
     let viewModel = AddRecipeViewModel(
         selectedRoaster: nil,
         context: context,
-        existingRecipe: nil
     )
     
     @State var navigationPath = NavigationPath()

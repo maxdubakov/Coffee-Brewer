@@ -6,44 +6,23 @@ struct AddRecipeCoordinatorView: View {
     @Binding var selectedRoaster: Roaster?
     let context: NSManagedObjectContext
     @Binding var selectedTab: MainView.Tab
-    @Binding var selectedRecipe: Recipe?
     
     @State private var navigationPath = NavigationPath()
     
     var body: some View {
         NavigationStack(path: $navigationPath) {
-            // Root view based on whether we're editing or creating
-            if let recipe = selectedRecipe {
-                AddRecipeContainer(
-                    coordinator: coordinator,
-                    selectedRoaster: $selectedRoaster,
-                    context: context,
-                    selectedTab: $selectedTab,
-                    existingRecipe: recipe,
-                    navigationPath: $navigationPath
-                )
-                .id(recipe.objectID)
-            } else {
-                AddRecipeContainer(
-                    coordinator: coordinator,
-                    selectedRoaster: $selectedRoaster,
-                    context: context,
-                    selectedTab: $selectedTab,
-                    existingRecipe: nil,
-                    navigationPath: $navigationPath
-                )
-                .id("new-recipe")
-            }
+            AddRecipeContainer(
+                coordinator: coordinator,
+                selectedRoaster: $selectedRoaster,
+                context: context,
+                selectedTab: $selectedTab,
+                navigationPath: $navigationPath
+            )
+            .id("new-recipe")
         }
         .onChange(of: selectedTab) { _, newTab in
             // Clear navigation when leaving the tab
             if newTab != .add && !navigationPath.isEmpty {
-                navigationPath.removeLast(navigationPath.count)
-            }
-        }
-        .onChange(of: selectedRecipe) { _, _ in
-            // Clear navigation when recipe changes
-            if !navigationPath.isEmpty {
                 navigationPath.removeLast(navigationPath.count)
             }
         }
@@ -62,7 +41,6 @@ struct AddRecipeContainer: View {
     @Binding var selectedRoaster: Roaster?
     let context: NSManagedObjectContext
     @Binding var selectedTab: MainView.Tab
-    let existingRecipe: Recipe?
     @Binding var navigationPath: NavigationPath
     
     @StateObject private var viewModel: AddRecipeViewModel
@@ -71,25 +49,19 @@ struct AddRecipeContainer: View {
          selectedRoaster: Binding<Roaster?>,
          context: NSManagedObjectContext,
          selectedTab: Binding<MainView.Tab>,
-         existingRecipe: Recipe?,
          navigationPath: Binding<NavigationPath>) {
         
         self.coordinator = coordinator
         self._selectedRoaster = selectedRoaster
         self.context = context
         self._selectedTab = selectedTab
-        self.existingRecipe = existingRecipe
         self._navigationPath = navigationPath
         
-        // Create ViewModel with proper initialization
         let vm = AddRecipeViewModel(
             selectedRoaster: selectedRoaster.wrappedValue,
-            context: context,
-            existingRecipe: existingRecipe
+            context: context
         )
         self._viewModel = StateObject(wrappedValue: vm)
-        
-        print("AddRecipeContainer init - selectedRoaster: \(selectedRoaster.wrappedValue?.name ?? "nil"), existingRecipe: \(existingRecipe?.name ?? "nil")")
     }
     
     var body: some View {
@@ -100,14 +72,14 @@ struct AddRecipeContainer: View {
         )
         .navigationDestination(for: AddRecipeNavigation.self) { destination in
             switch destination {
-            case .stages(let formData, let existingRecipeID):
+            case .stages(let formData, _):
                 GlobalBackground {
                     StagesManagementViewWrapper(
                         initialFormData: formData,
                         brewMath: viewModel.brewMath,
                         selectedTab: $selectedTab,
                         context: context,
-                        existingRecipeID: existingRecipeID,
+                        existingRecipeID: nil,
                         onFormDataUpdate: { updatedFormData in
                             viewModel.formData = updatedFormData
                         }
@@ -116,19 +88,13 @@ struct AddRecipeContainer: View {
             }
         }
         .onAppear {
-            print("AddRecipeContainer appeared - setting viewModel in coordinator")
             coordinator.setViewModel(viewModel)
-            // Set navigation callback
-            viewModel.onNavigateToStages = { formData, recipeID in
-                navigationPath.append(AddRecipeNavigation.stages(formData: formData, existingRecipeID: recipeID))
+            viewModel.onNavigateToStages = { formData, _ in
+                navigationPath.append(AddRecipeNavigation.stages(formData: formData, existingRecipeID: nil))
             }
         }
-        .onChange(of: selectedRoaster) { oldValue, newValue in
-            print("selectedRoaster changed in container view: \(oldValue?.name ?? "nil") -> \(newValue?.name ?? "nil")")
-            // Update viewModel when selectedRoaster changes externally
-            if !viewModel.isEditing {
-                viewModel.updateSelectedRoaster(newValue)
-            }
+        .onChange(of: selectedRoaster) { _, newValue in
+            viewModel.updateSelectedRoaster(newValue)
         }
     }
 }

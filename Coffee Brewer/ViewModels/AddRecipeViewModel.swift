@@ -19,15 +19,11 @@ class AddRecipeViewModel: ObservableObject {
     private var cancellables = Set<AnyCancellable>()
     
     // MARK: - Recipe tracking
-    let existingRecipeID: NSManagedObjectID?
     @Published var savedRecipeID: NSManagedObjectID?
-    
-    // MARK: - Public Properties
-    let isEditing: Bool
     
     // MARK: - Computed Properties
     var headerTitle: String {
-        isEditing ? "Edit Recipe" : "New Recipe"
+        "New Recipe"
     }
     
     var headerSubtitle: String {
@@ -39,40 +35,19 @@ class AddRecipeViewModel: ObservableObject {
     }
     
     // MARK: - Initialization
-    init(selectedRoaster: Roaster?, context: NSManagedObjectContext, existingRecipe: Recipe? = nil) {
+    init(selectedRoaster: Roaster?, context: NSManagedObjectContext) {
         self.viewContext = context
-        self.existingRecipeID = existingRecipe?.objectID
-        self.isEditing = existingRecipe != nil
-        
-        print("AddRecipeViewModel init - isEditing: \(isEditing), selectedRoaster: \(selectedRoaster?.name ?? "nil"), existingRecipe: \(existingRecipe?.name ?? "nil")")
-        
-        if let recipe = existingRecipe {
-            // EDITING MODE - populate from existing recipe
-            self.formData = RecipeFormData(from: recipe)
-            self.brewMath = BrewMathViewModel(
-                grams: recipe.grams,
-                ratio: recipe.ratio,
-                water: recipe.waterAmount
-            )
-            print("Editing mode initialized with recipe: \(recipe.name ?? "unnamed")")
-            print("Form data populated - name: \(formData.name), roaster: \(formData.roaster?.name ?? "nil"), temp: \(formData.temperature)")
-        } else {
-            // NEW RECIPE MODE - use selected roaster
-            self.formData = RecipeFormData(selectedRoaster: selectedRoaster)
-            self.brewMath = BrewMathViewModel(
-                grams: 18,
-                ratio: 16.0,
-                water: 288
-            )
-            print("New recipe mode initialized with selectedRoaster: \(selectedRoaster?.name ?? "nil")")
-        }
-        
+        self.formData = RecipeFormData(selectedRoaster: selectedRoaster)
+        self.brewMath = BrewMathViewModel(
+            grams: 18,
+            ratio: 16.0,
+            water: 288
+        )
         setupBindings()
     }
     
     // MARK: - Public Methods
     func updateSelectedRoaster(_ roaster: Roaster?) {
-        print("updateSelectedRoaster called with: \(roaster?.name ?? "nil")")
         self.formData.roaster = roaster
     }
     
@@ -88,8 +63,7 @@ class AddRecipeViewModel: ObservableObject {
         }
         
         if missingFields.isEmpty {
-            // Navigate to stages with current form data
-            onNavigateToStages?(formData, existingRecipeID)
+            onNavigateToStages?(formData, nil)
         } else {
             validationMessage = "Please fill in the following fields: \(missingFields.joined(separator: ", "))"
             showValidationAlert = true
@@ -99,7 +73,6 @@ class AddRecipeViewModel: ObservableObject {
     
     // MARK: - Private Methods
     private func setupBindings() {
-        // Sync brew math changes back to form data
         brewMath.$grams
             .sink { [weak self] grams in
                 self?.formData.grams = grams
@@ -122,7 +95,6 @@ class AddRecipeViewModel: ObservableObject {
     
     // MARK: - Reset Methods
     func resetToDefaults() {
-        // Reset all state to initial values
         formData = RecipeFormData()
         brewMath.grams = 18
         brewMath.ratio = 16.0
@@ -132,15 +104,9 @@ class AddRecipeViewModel: ObservableObject {
         showValidationAlert = false
         validationMessage = ""
         isSaving = false
-        
-        print("AddRecipe state reset to defaults")
     }
     
     func hasUnsavedChanges() -> Bool {
-        // Don't show alert if editing existing recipe
-        if isEditing { return false }
-        
-        // Check if user has made any meaningful changes
         let hasRecipeName = formData.name != "New Recipe" && !formData.name.isEmpty
         let hasRoaster = formData.roaster != nil
         let hasGrinder = formData.grinder != nil

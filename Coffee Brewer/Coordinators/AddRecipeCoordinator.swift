@@ -9,24 +9,20 @@ class AddRecipeCoordinator: ObservableObject {
     func setViewModel(_ viewModel: AddRecipeViewModel) {
         currentViewModel = viewModel
     }
-    
+
     func resetIfNeeded() {
         guard let viewModel = currentViewModel else { return }
-        if !viewModel.isEditing && !isRecipeSaved {
-            // Reset form to defaults for new recipes
+        if !isRecipeSaved {
             viewModel.resetToDefaults()
             currentViewModel = nil
         }
-        // Reset the saved flag after use
         isRecipeSaved = false
     }
     
     func hasUnsavedChanges() -> Bool {
-        // If recipe was saved, don't consider it as unsaved changes
         if isRecipeSaved {
             return false
         }
-        
         guard let viewModel = currentViewModel else { return false }
         return viewModel.hasUnsavedChanges()
     }
@@ -39,7 +35,6 @@ class AddRecipeCoordinator: ObservableObject {
     
     func markRecipeAsSaved() {
         isRecipeSaved = true
-        // Reset view model state
         currentViewModel?.resetToDefaults()
         currentViewModel = nil
     }

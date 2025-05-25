@@ -12,9 +12,9 @@ struct MainView: View {
     // MARK: - State
     @State private var selectedTab: Tab = .home
     @State private var selectedRoaster: Roaster? = nil
-    @State private var selectedRecipe: Recipe? = nil
     @State private var pendingTab: Tab? = nil
     @State private var showingDiscardAlert = false
+    @State private var isHandlingTabChange = false
     @StateObject private var addRecipeCoordinator = AddRecipeCoordinator()
     
     init() {
@@ -27,7 +27,7 @@ struct MainView: View {
     var body: some View {
         TabView(selection: $selectedTab) {
             NavigationStack {
-                Recipes(selectedTab: $selectedTab, selectedRoaster: $selectedRoaster, selectedRecipe: $selectedRecipe)
+                Recipes(selectedTab: $selectedTab, selectedRoaster: $selectedRoaster)
                     .background(BrewerColors.background)
             }
             .tabItem {
@@ -39,20 +39,13 @@ struct MainView: View {
                 coordinator: addRecipeCoordinator,
                 selectedRoaster: $selectedRoaster,
                 context: viewContext,
-                selectedTab: $selectedTab,
-                selectedRecipe: $selectedRecipe
+                selectedTab: $selectedTab
             )
             .background(BrewerColors.background)
             .tabItem {
                 TabIcon(imageName: "add.recipe", label: "Add")
             }
             .tag(Tab.add)
-            .onChange(of: selectedRecipe) { oldValue, newValue in
-                print("selectedRecipe changed in MainView: \(oldValue?.name ?? "nil") -> \(newValue?.name ?? "nil")")
-            }
-            .onChange(of: selectedRoaster) { oldValue, newValue in
-                print("selectedRoaster changed in MainView: \(oldValue?.name ?? "nil") -> \(newValue?.name ?? "nil")")
-            }
 
             History()
                 .background(BrewerColors.background)
@@ -65,8 +58,7 @@ struct MainView: View {
         .onChange(of: selectedTab) { oldTab, newTab in
             handleTabChange(from: oldTab, to: newTab)
         }
-        .onReceive(NotificationCenter.default.publisher(for: .recipeSaved)) { notification in
-            print("Received recipeSaved notification: \(notification)")
+        .onReceive(NotificationCenter.default.publisher(for: .recipeSaved)) { _ in
             handleRecipeSaved()
         }
         .alert("Discard Recipe?", isPresented: $showingDiscardAlert) {
@@ -88,26 +80,34 @@ struct MainView: View {
     
     private func performTabChangeCleanup() {
         selectedRoaster = nil
-        selectedRecipe = nil
         // This will call resetAndDiscardChanges() which WILL delete the recipe
         addRecipeCoordinator.resetIfNeeded()
     }
     
     // MARK: - Tab Change Handler
     private func handleTabChange(from oldTab: Tab, to newTab: Tab) {
+        // Prevent recursive handling
+        guard !isHandlingTabChange else { return }
+        
         // Check if leaving add tab with unsaved changes
         if oldTab == .add && newTab != .add {
             if addRecipeCoordinator.hasUnsavedChanges() {
+                isHandlingTabChange = true
                 // Store where the user wants to go
                 pendingTab = newTab
                 // Revert the tab selection (will be changed if user confirms)
                 selectedTab = .add
                 // Show the alert
                 showingDiscardAlert = true
+                isHandlingTabChange = false
             } else {
                 // No unsaved changes, proceed with immediate cleanup
                 performTabChangeCleanup()
             }
+        } else if oldTab != .add && newTab == .add && selectedRoaster == nil && !showingDiscardAlert {
+            // Entering Add tab without a recipe or roaster selected - ensure clean state
+            // Don't reset if we're showing the discard alert
+            addRecipeCoordinator.resetIfNeeded()
         }
     }
     
@@ -117,12 +117,9 @@ struct MainView: View {
         
         // Clear selected states
         selectedRoaster = nil
-        selectedRecipe = nil
         
         // Navigate to home tab
         selectedTab = .home
-        
-        print("Recipe saved successfully, navigated to home")
     }
 
     struct TabIcon: View {
