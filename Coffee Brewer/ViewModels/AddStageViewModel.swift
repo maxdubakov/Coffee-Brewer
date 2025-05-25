@@ -132,8 +132,9 @@ class AddStageViewModel: ObservableObject {
             self.seconds = stage.seconds
             self.waterAmount = stage.waterAmount
         } else {
-            // Set smart defaults for new stage
-            initializeSmartDefaults()
+            self.selectedType = .fast
+            self.seconds = 15
+            self.waterAmount = 0
         }
         
         setupBindings()
@@ -197,29 +198,5 @@ class AddStageViewModel: ObservableObject {
                 }
             }
             .store(in: &cancellables)
-    }
-    
-    private func initializeSmartDefaults() {
-        let currentStages = stagesViewModel.formData.stages
-        
-        if currentStages.isEmpty {
-            // First stage - likely bloom
-            selectedType = .fast
-            seconds = 15
-            waterAmount = min(stagesViewModel.brewMath.grams * 2, availableWater)
-        } else if currentStages.count == 1 {
-            // Second stage - often a wait after bloom
-            selectedType = .wait
-            seconds = 30
-            waterAmount = 0
-        } else {
-            // Subsequent stages - usually pours
-            selectedType = .slow
-            seconds = 30
-            
-            // Calculate a reasonable water amount
-            let remainingStages = max(1, 4 - currentStages.count)
-            waterAmount = min(availableWater / Int16(remainingStages), availableWater)
-        }
     }
 }
