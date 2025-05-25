@@ -12,9 +12,9 @@ class AddRecipeCoordinator: ObservableObject {
     
     func resetIfNeeded() {
         guard let viewModel = currentViewModel else { return }
-        if viewModel.shouldResetOnTabChange() && !isRecipeSaved {
-            // Reset and discard changes (delete recipe)
-            viewModel.resetAndDiscardChanges()
+        if !viewModel.isEditing && !isRecipeSaved {
+            // Reset form to defaults for new recipes
+            viewModel.resetToDefaults()
             currentViewModel = nil
         }
         // Reset the saved flag after use
@@ -32,17 +32,15 @@ class AddRecipeCoordinator: ObservableObject {
     }
     
     func clearViewModel() {
-        currentViewModel?.resetAndDiscardChanges()
+        currentViewModel?.resetToDefaults()
         currentViewModel = nil
         isRecipeSaved = false
     }
     
     func markRecipeAsSaved() {
         isRecipeSaved = true
-        // Reset view model state but DON'T delete the saved recipe
-        currentViewModel?.resetAfterSuccessfulSave()
+        // Reset view model state
+        currentViewModel?.resetToDefaults()
         currentViewModel = nil
     }
 }
-
-

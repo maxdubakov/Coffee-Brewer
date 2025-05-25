@@ -7,6 +7,7 @@ struct AddRecipe: View {
     @Binding var selectedTab: MainView.Tab
     
     @ObservedObject var viewModel: AddRecipeViewModel
+    @State private var savedRecipe: Recipe?
     
     var body: some View {
         NavigationStack {
@@ -29,14 +30,24 @@ struct AddRecipe: View {
                     dismissButton: .default(Text("OK"))
                 )
             }
-            .navigationDestination(isPresented: $viewModel.navigateToStages) {
-                if viewModel.navigateToStages {  // Double-check the state
-                    GlobalBackground {
-                        StagesManagementView(
-                            recipe: viewModel.getRecipe(),
-                            brewMath: viewModel.brewMath,
-                            selectedTab: $selectedTab
-                        )
+            .navigationDestination(item: $savedRecipe) { recipe in
+                GlobalBackground {
+                    StagesManagementView(
+                        recipe: recipe,
+                        brewMath: viewModel.brewMath,
+                        selectedTab: $selectedTab
+                    )
+                }
+            }
+            .onChange(of: viewModel.savedRecipeID) { _, recipeID in
+                if let recipeID = recipeID {
+                    // The recipe was already saved in the view model
+                    do {
+                        if let recipe = try viewContext.existingObject(with: recipeID) as? Recipe {
+                            savedRecipe = recipe
+                        }
+                    } catch {
+                        print("Failed to get saved recipe: \(error)")
                     }
                 }
             }
@@ -51,10 +62,7 @@ struct AddRecipe: View {
             }
         }
         .onAppear {
-            viewModel.viewDidAppear()
-        }
-        .onDisappear {
-            viewModel.viewWillDisappear()
+            print("AddRecipe appeared")
         }
     }
     
@@ -83,7 +91,7 @@ struct AddRecipe: View {
 
             FormGroup {
                 SearchRoasterPicker(
-                    selectedRoaster: $viewModel.selectedRoaster,
+                    selectedRoaster: $viewModel.formData.roaster,
                     focusedField: $viewModel.focusedField
                 )
 
@@ -95,7 +103,7 @@ struct AddRecipe: View {
                     keyboardType: .default,
                     valueToString: { $0 },
                     stringToValue: { $0 },
-                    value: $viewModel.recipeName,
+                    value: $viewModel.formData.name,
                     focusedField: $viewModel.focusedField
                 )
             }
@@ -153,7 +161,7 @@ struct AddRecipe: View {
                     range: Array(stride(from: 80.0, through: 99.5, by: 0.5)),
                     formatter: { "\($0)°C" },
                     field: .temperature,
-                    value: $viewModel.temperature,
+                    value: $viewModel.formData.temperature,
                     focusedField: $viewModel.focusedField
                 )
             }
@@ -173,7 +181,7 @@ struct AddRecipe: View {
             
             FormGroup {
                 SearchGrinderPicker(
-                    selectedGrinder: $viewModel.selectedGrinder,
+                    selectedGrinder: $viewModel.formData.grinder,
                     focusedField: $viewModel.focusedField
                 )
                 
@@ -184,7 +192,7 @@ struct AddRecipe: View {
                     range: Array(0...100),
                     formatter: { "\($0)" },
                     field: .grindSize,
-                    value: $viewModel.grindSize,
+                    value: $viewModel.formData.grindSize,
                     focusedField: $viewModel.focusedField
                 )
             }
@@ -210,7 +218,7 @@ struct AddRecipe: View {
 #Preview {
     let context = PersistenceController.preview.container.viewContext
     let viewModel = AddRecipeViewModel(
-        selectedRoaster: .constant(nil),
+        selectedRoaster: nil,
         context: context,
         existingRecipe: nil
     )
