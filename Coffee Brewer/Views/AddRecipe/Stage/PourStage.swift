@@ -2,14 +2,14 @@ import SwiftUI
 
 struct PourStage: View {
     // MARK: - Properties
-    @ObservedObject var stage: Stage
+    let stage: StageFormData
     let progressValue: Int16
     let total: Int16
     var minimize: Bool = false
     
     // MARK: - Computed Properties
     private var pourType: String {
-        return stage.type ?? "fast"
+        return stage.type.id
     }
     
     private var stageColor: Color {
@@ -120,7 +120,7 @@ struct PourStage: View {
                             Image(systemName: "clock")
                                 .font(.system(size: 10))
                                 .foregroundColor(BrewerColors.textSecondary)
-                            
+
                             Text("\(stage.seconds)s")
                                 .font(.system(size: 14))
                                 .foregroundColor(BrewerColors.textSecondary)
@@ -173,49 +173,37 @@ struct PourStage: View {
 
 // MARK: - Preview
 #Preview {
-    let context = PersistenceController.preview.container.viewContext
-    
-    // Create sample stages
-    let fastStage = Stage(context: context)
-    fastStage.id = UUID()
-    fastStage.type = "fast"
-    fastStage.waterAmount = 50
-    fastStage.seconds = 15
-    fastStage.orderIndex = 0
-    
-    let waitStage = Stage(context: context)
-    waitStage.id = UUID()
-    waitStage.type = "wait"
-    waitStage.seconds = 30
-    waitStage.orderIndex = 1
-    
-    let slowStage = Stage(context: context)
-    slowStage.id = UUID()
-    slowStage.type = "slow"
-    slowStage.waterAmount = 200
-    slowStage.seconds = 90
-    slowStage.orderIndex = 2
-    
-    return GlobalBackground {
-        VStack(spacing: 16) {
-            PourStage(
-                stage: fastStage,
-                progressValue: 50,
-                total: 250,
-            )
-            
-            PourStage(
-                stage: waitStage,
-                progressValue: 50,
-                total: 250,
-            )
-            
-            PourStage(
-                stage: slowStage,
-                progressValue: 250,
-                total: 250,
-            )
-        }
-        .padding()
+    VStack(spacing: 12) {
+        PourStage(
+            stage: StageFormData(from: previewStage(type: "fast", water: 36, seconds: 15)),
+            progressValue: 36,
+            total: 288
+        )
+
+        PourStage(
+            stage: StageFormData(from: previewStage(type: "wait", water: 0, seconds: 30)),
+            progressValue: 36,
+            total: 288
+        )
+
+        PourStage(
+            stage: StageFormData(from: previewStage(type: "slow", water: 100, seconds: 45)),
+            progressValue: 136,
+            total: 288,
+            minimize: true
+        )
     }
+    .padding()
+    .background(BrewerColors.background)
+}
+
+// Helper for preview
+private func previewStage(type: String, water: Int16, seconds: Int16) -> Stage {
+    let context = PersistenceController.preview.container.viewContext
+    let stage = Stage(context: context)
+    stage.type = type
+    stage.waterAmount = water
+    stage.seconds = seconds
+    stage.orderIndex = 0
+    return stage
 }

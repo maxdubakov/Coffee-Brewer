@@ -7,11 +7,10 @@ struct AddRecipe: View {
     @Binding var selectedTab: MainView.Tab
     
     @ObservedObject var viewModel: AddRecipeViewModel
-    @State private var savedRecipe: Recipe?
+    @Binding var navigationPath: NavigationPath
     
     var body: some View {
-        NavigationStack {
-            ScrollView {
+        ScrollView {
                 VStack(alignment: .leading, spacing: 30) {
                     headerSection
                     basicInfoSection
@@ -30,27 +29,6 @@ struct AddRecipe: View {
                     dismissButton: .default(Text("OK"))
                 )
             }
-            .navigationDestination(item: $savedRecipe) { recipe in
-                GlobalBackground {
-                    StagesManagementView(
-                        recipe: recipe,
-                        brewMath: viewModel.brewMath,
-                        selectedTab: $selectedTab
-                    )
-                }
-            }
-            .onChange(of: viewModel.savedRecipeID) { _, recipeID in
-                if let recipeID = recipeID {
-                    // The recipe was already saved in the view model
-                    do {
-                        if let recipe = try viewContext.existingObject(with: recipeID) as? Recipe {
-                            savedRecipe = recipe
-                        }
-                    } catch {
-                        print("Failed to get saved recipe: \(error)")
-                    }
-                }
-            }
             .overlay {
                 if viewModel.isSaving {
                     ProgressView()
@@ -60,7 +38,6 @@ struct AddRecipe: View {
                         .background(Color.black.opacity(0.2))
                 }
             }
-        }
         .onAppear {
             print("AddRecipe appeared")
         }
@@ -223,10 +200,15 @@ struct AddRecipe: View {
         existingRecipe: nil
     )
     
-    return AddRecipe(
-        selectedTab: .constant(.add),
-        viewModel: viewModel
-    )
+    @State var navigationPath = NavigationPath()
+    
+    return NavigationStack {
+        AddRecipe(
+            selectedTab: .constant(.add),
+            viewModel: viewModel,
+            navigationPath: $navigationPath
+        )
+    }
     .environment(\.managedObjectContext, context)
     .background(BrewerColors.background)
 }

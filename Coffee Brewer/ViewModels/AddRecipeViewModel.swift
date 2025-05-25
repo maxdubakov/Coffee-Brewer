@@ -10,7 +10,8 @@ class AddRecipeViewModel: ObservableObject {
     @Published var focusedField: FocusedField?
     @Published var showValidationAlert = false
     @Published var validationMessage = ""
-    @Published var navigateToStages = false
+    // Navigation
+    var onNavigateToStages: ((RecipeFormData, NSManagedObjectID?) -> Void)?
     @Published var isSaving = false
     
     // MARK: - Private Properties
@@ -87,37 +88,14 @@ class AddRecipeViewModel: ObservableObject {
         }
         
         if missingFields.isEmpty {
-            saveAndNavigate()
+            // Navigate to stages with current form data
+            onNavigateToStages?(formData, existingRecipeID)
         } else {
             validationMessage = "Please fill in the following fields: \(missingFields.joined(separator: ", "))"
             showValidationAlert = true
         }
     }
-    
-    func saveRecipe() throws -> Recipe {
-        let recipe: Recipe
-        
-        if let existingID = existingRecipeID,
-           let existing = try? viewContext.existingObject(with: existingID) as? Recipe {
-            recipe = existing
-        } else {
-            recipe = Recipe(context: viewContext)
-            recipe.id = UUID()
-        }
-        
-        // Populate recipe from form data
-        recipe.name = formData.name
-        recipe.roaster = formData.roaster
-        recipe.grinder = formData.grinder
-        recipe.temperature = formData.temperature
-        recipe.grindSize = formData.grindSize
-        recipe.grams = brewMath.grams
-        recipe.ratio = brewMath.ratio
-        recipe.waterAmount = brewMath.water
-        
-        try viewContext.save()
-        return recipe
-    }
+
     
     // MARK: - Private Methods
     private func setupBindings() {
@@ -140,27 +118,7 @@ class AddRecipeViewModel: ObservableObject {
             }
             .store(in: &cancellables)
     }
-    
-    private func saveAndNavigate() {
-        isSaving = true
-        
-        Task {
-            do {
-                let recipe = try saveRecipe()
-                await MainActor.run {
-                    isSaving = false
-                    savedRecipeID = recipe.objectID
-                    navigateToStages = true
-                }
-            } catch {
-                await MainActor.run {
-                    isSaving = false
-                    validationMessage = "Error saving recipe: \(error.localizedDescription)"
-                    showValidationAlert = true
-                }
-            }
-        }
-    }
+
     
     // MARK: - Reset Methods
     func resetToDefaults() {
@@ -173,7 +131,6 @@ class AddRecipeViewModel: ObservableObject {
         focusedField = nil
         showValidationAlert = false
         validationMessage = ""
-        navigateToStages = false
         isSaving = false
         
         print("AddRecipe state reset to defaults")

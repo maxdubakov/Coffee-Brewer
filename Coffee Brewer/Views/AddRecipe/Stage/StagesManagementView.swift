@@ -4,17 +4,20 @@ import CoreData
 struct StagesManagementView: View {
     // MARK: - Bindings
     @Binding var selectedTab: MainView.Tab
+    @Binding var formData: RecipeFormData
     
     // MARK: - View Model
     @StateObject private var viewModel: StagesManagementViewModel
     
     // MARK: - Initialization
-    init(recipe: Recipe, brewMath: BrewMathViewModel, selectedTab: Binding<MainView.Tab>) {
+    init(formData: Binding<RecipeFormData>, brewMath: BrewMathViewModel, selectedTab: Binding<MainView.Tab>, context: NSManagedObjectContext, existingRecipeID: NSManagedObjectID?) {
         _selectedTab = selectedTab
+        _formData = formData
         _viewModel = StateObject(wrappedValue: StagesManagementViewModel(
-            recipe: recipe,
+            formData: formData.wrappedValue,
             brewMath: brewMath,
-            context: recipe.managedObjectContext ?? PersistenceController.shared.container.viewContext
+            context: context,
+            existingRecipeID: existingRecipeID
         ))
     }
     
@@ -48,6 +51,9 @@ struct StagesManagementView: View {
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
                     .background(Color.black.opacity(0.2))
             }
+        }
+        .onChange(of: viewModel.formData) { _, newValue in
+            formData = newValue
         }
         .background(BrewerColors.background)
     }
@@ -217,8 +223,6 @@ struct StagesManagementView: View {
             action: {
                 viewModel.saveRecipe { success in
                     if success {
-                        // Don't change tab here - let the coordinator handle it
-                        // The notification will trigger the proper cleanup and navigation
                     }
                 }
             },
@@ -232,26 +236,27 @@ struct StagesManagementView: View {
 // MARK: - Preview
 #Preview {
     let context = PersistenceController.preview.container.viewContext
-    let recipe = Recipe(context: context)
-    recipe.id = UUID()
-    recipe.name = "Ethiopian Pour Over"
-    recipe.grams = 18
-    recipe.ratio = 16.0
-    recipe.waterAmount = 288
-    recipe.temperature = 94.0
+    @State var formData = RecipeFormData()
+    formData.name = "Ethiopian Pour Over"
+    formData.grams = 18
+    formData.ratio = 16.0
+    formData.waterAmount = 288
+    formData.temperature = 94.0
     
     let brewMath = BrewMathViewModel(
-        grams: recipe.grams,
-        ratio: recipe.ratio,
-        water: recipe.waterAmount
+        grams: formData.grams,
+        ratio: formData.ratio,
+        water: formData.waterAmount
     )
     
     return NavigationStack {
         GlobalBackground {
             StagesManagementView(
-                recipe: recipe,
+                formData: $formData,
                 brewMath: brewMath,
-                selectedTab: .constant(.add)
+                selectedTab: .constant(.add),
+                context: context,
+                existingRecipeID: nil
             )
         }
     }

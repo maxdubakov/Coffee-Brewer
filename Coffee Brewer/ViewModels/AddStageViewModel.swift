@@ -13,10 +13,8 @@ class AddStageViewModel: ObservableObject {
     @Published var focusedField: FocusedField?
     
     // MARK: - Private Properties
-    private let viewContext: NSManagedObjectContext
-    private let recipe: Recipe
-    private let brewMath: BrewMathViewModel
-    private let existingStage: Stage?
+    private let stagesViewModel: StagesManagementViewModel
+    private let existingStage: StageFormData?
     private var cancellables = Set<AnyCancellable>()
     
     // MARK: - Computed Properties
@@ -37,7 +35,7 @@ class AddStageViewModel: ObservableObject {
     }
     
     var totalWaterUsed: Int16 {
-        var amount = recipe.stagesArray.reduce(0) { $0 + $1.waterAmount }
+        var amount = stagesViewModel.formData.stages.reduce(0) { $0 + $1.waterAmount }
         if isEditMode {
             amount -= existingStage?.waterAmount ?? 0
         }
@@ -45,7 +43,7 @@ class AddStageViewModel: ObservableObject {
     }
     
     var remainingWater: Int16 {
-        brewMath.water - totalWaterUsed
+        stagesViewModel.brewMath.water - totalWaterUsed
     }
     
     var availableWater: Int16 {
@@ -61,7 +59,7 @@ class AddStageViewModel: ObservableObject {
     }
     
     var recipeWaterAmount: Int16 {
-        recipe.waterAmount
+        stagesViewModel.formData.waterAmount
     }
     
     var stageTypeDescription: String {
@@ -78,10 +76,27 @@ class AddStageViewModel: ObservableObject {
     }
     
     var durationDescription: String {
-        if selectedType != .wait {
-            return "How long this pour should take"
+        if selectedType == .wait {
+            return "How long to wait before proceeding"
         } else {
-            return "How long to wait before the next stage"
+            return "How long to pour the water"
+        }
+    }
+    
+    var waterDescription: String {
+        "Amount of water to pour during this stage"
+    }
+    
+    var previewDescription: String {
+        switch selectedType {
+        case .fast:
+            return "Pour \(waterAmount)ml in \(seconds) seconds"
+        case .slow:
+            return "Pour \(waterAmount)ml slowly over \(seconds) seconds"
+        case .wait:
+            return "Wait for \(seconds) seconds"
+        default:
+            return ""
         }
     }
     
@@ -90,124 +105,121 @@ class AddStageViewModel: ObservableObject {
     }
     
     var availableWaterText: String {
-        "Available: \(availableWater) ml"
+        "Available: \(availableWater)ml"
     }
     
     var availableWaterColor: Color {
-        waterAmount > availableWater ? Color.red : BrewerColors.textSecondary
+        if waterAmount > availableWater {
+            return .red
+        } else if availableWater < 50 {
+            return .orange
+        } else {
+            return BrewerColors.textSecondary
+        }
     }
     
     var useAllButtonEnabled: Bool {
-        availableWater > 0
+        availableWater > 0 && waterAmount != availableWater
     }
     
     // MARK: - Initialization
-    init(recipe: Recipe, brewMath: BrewMathViewModel, context: NSManagedObjectContext, existingStage: Stage? = nil) {
-        self.recipe = recipe
-        self.brewMath = brewMath
-        self.viewContext = context
+    init(stagesViewModel: StagesManagementViewModel, existingStage: StageFormData? = nil) {
+        self.stagesViewModel = stagesViewModel
         self.existingStage = existingStage
         
         if let stage = existingStage {
-            self.selectedType = StageType.fromString(stage.type ?? "fast") ?? .fast
+            self.selectedType = stage.type
             self.seconds = stage.seconds
             self.waterAmount = stage.waterAmount
+        } else {
+            // Set smart defaults for new stage
+            initializeSmartDefaults()
         }
         
         setupBindings()
-        updateDefaultValues()
     }
     
     // MARK: - Public Methods
+    func saveStage() {
+        guard canSave else {
+            if selectedType == .wait && seconds <= 0 {
+                errorMessage = "Please set a wait duration"
+            } else if waterAmount <= 0 {
+                errorMessage = "Please enter a water amount"
+            } else if waterAmount > availableWater {
+                errorMessage = "Water amount exceeds available water (\(availableWater)ml)"
+            }
+            showSaveError = true
+            return
+        }
+        
+        var stageData = existingStage ?? StageFormData()
+        stageData.type = selectedType
+        stageData.seconds = seconds
+        stageData.waterAmount = selectedType == .wait ? 0 : waterAmount
+        
+        if isEditMode {
+            stagesViewModel.updateStage(stageData)
+        } else {
+            stagesViewModel.addStage(stageData)
+        }
+    }
+    
+    func saveOrUpdateStage(completion: @escaping (Bool) -> Void) {
+        saveStage()
+        completion(!showSaveError)
+    }
+    
     func useAllWater() {
         waterAmount = availableWater
     }
     
-    func saveOrUpdateStage(completion: @escaping (Bool) -> Void) {
-        // Validate before saving
-        if selectedType != .wait && (waterAmount <= 0 || waterAmount > availableWater) {
-            errorMessage = "Water amount must be between 1 and \(availableWater) ml"
-            showSaveError = true
-            completion(false)
-            return
-        }
-        
-        if seconds <= 0 {
-            errorMessage = "Duration must be greater than 0 seconds"
-            showSaveError = true
-            completion(false)
-            return
-        }
-        
-        if let stageToUpdate = existingStage {
-            // Update existing stage
-            stageToUpdate.type = selectedType.id
-            stageToUpdate.seconds = seconds
-            stageToUpdate.waterAmount = selectedType == .wait ? 0 : waterAmount
-        } else {
-            // Create new stage
-            let newStage = Stage(context: viewContext)
-            newStage.id = UUID()
-            newStage.type = selectedType.id
-            newStage.orderIndex = Int16(recipe.stagesArray.count)
-            newStage.seconds = seconds
-            newStage.waterAmount = selectedType == .wait ? 0 : waterAmount
-            recipe.addToStages(newStage)
-        }
-        
-        do {
-            try viewContext.save()
-            
-            // Provide haptic feedback for success
-            let generator = UINotificationFeedbackGenerator()
-            generator.notificationOccurred(.success)
-            
-            completion(true)
-        } catch {
-            errorMessage = "Failed to save stage: \(error.localizedDescription)"
-            showSaveError = true
-            completion(false)
-        }
-    }
-    
-    func createPreviewStage() -> Stage {
-        let previewStage = Stage(context: viewContext)
-        previewStage.id = UUID()
-        previewStage.type = selectedType.id
-        previewStage.waterAmount = selectedType == .wait ? 0 : waterAmount
-        previewStage.seconds = seconds
-        previewStage.orderIndex = existingStage?.orderIndex ?? Int16(recipe.stagesArray.count)
-        return previewStage
+    func createPreviewStage() -> StageFormData {
+        var preview = existingStage ?? StageFormData()
+        preview.type = selectedType
+        preview.seconds = seconds
+        preview.waterAmount = selectedType == .wait ? 0 : waterAmount
+        preview.orderIndex = Int16(stagesViewModel.formData.stages.count)
+        return preview
     }
     
     func previewProgressValue() -> Int16 {
-        recipe.totalStageWater + (selectedType == .wait ? 0 : waterAmount)
+        totalWaterUsed + (selectedType == .wait ? 0 : waterAmount)
     }
     
     // MARK: - Private Methods
     private func setupBindings() {
+        // Reset water amount when switching to wait type
         $selectedType
-            .sink { [weak self] _ in
-                self?.updateDefaultValues()
+            .sink { [weak self] type in
+                if type == .wait {
+                    self?.waterAmount = 0
+                }
             }
             .store(in: &cancellables)
     }
     
-    private func updateDefaultValues() {
-        // Don't override values when in edit mode
-        if existingStage != nil {
-            return
-        }
+    private func initializeSmartDefaults() {
+        let currentStages = stagesViewModel.formData.stages
         
-        switch selectedType.id {
-        case "fast", "slow":
-            if availableWater < waterAmount {
-                waterAmount = availableWater > 0 ? availableWater : 0
-            }
-        case "wait":
+        if currentStages.isEmpty {
+            // First stage - likely bloom
+            selectedType = .fast
+            seconds = 15
+            waterAmount = min(stagesViewModel.brewMath.grams * 2, availableWater)
+        } else if currentStages.count == 1 {
+            // Second stage - often a wait after bloom
+            selectedType = .wait
             seconds = 30
-        default:
-            break
+            waterAmount = 0
+        } else {
+            // Subsequent stages - usually pours
+            selectedType = .slow
+            seconds = 30
+            
+            // Calculate a reasonable water amount
+            let remainingStages = max(1, 4 - currentStages.count)
+            waterAmount = min(availableWater / Int16(remainingStages), availableWater)
         }
     }
 }

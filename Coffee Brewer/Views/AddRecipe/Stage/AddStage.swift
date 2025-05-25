@@ -9,11 +9,9 @@ struct AddStageView: View {
     @StateObject private var viewModel: AddStageViewModel
     
     // MARK: - Initialization
-    init(viewModel: StagesManagementViewModel, existingStage: Stage? = nil) {
+    init(viewModel: StagesManagementViewModel, existingStage: StageFormData? = nil) {
         _viewModel = StateObject(wrappedValue: AddStageViewModel(
-            recipe: viewModel.recipeForStageManagement,
-            brewMath: viewModel.brewMathForStageManagement,
-            context: viewModel.contextForStageManagement,
+            stagesViewModel: viewModel,
             existingStage: existingStage
         ))
     }

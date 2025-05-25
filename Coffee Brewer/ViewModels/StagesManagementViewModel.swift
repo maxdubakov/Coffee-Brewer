@@ -5,18 +5,19 @@ import Combine
 @MainActor
 class StagesManagementViewModel: ObservableObject {
     // MARK: - Published Properties
+    @Published var formData: RecipeFormData
+    @Published var brewMath: BrewMathViewModel
     @Published var focusedField: FocusedField?
     @Published var editMode: EditMode = .inactive
     @Published var isAddingStage = false
-    @Published var stageBeingModified: Stage?
+    @Published var stageBeingModified: StageFormData?
     @Published var showingSaveAlert = false
     @Published var alertMessage = ""
     @Published var isSaving = false
     
     // MARK: - Private Properties
     private let viewContext: NSManagedObjectContext
-    private let recipe: Recipe
-    private let brewMath: BrewMathViewModel
+    private let existingRecipeID: NSManagedObjectID?
     private var cancellables = Set<AnyCancellable>()
     
     // MARK: - Computed Properties
@@ -25,11 +26,11 @@ class StagesManagementViewModel: ObservableObject {
     }
     
     var headerSubtitle: String {
-        recipe.stagesArray.isEmpty ? "Add brewing stages to your recipe" : ""
+        formData.stages.isEmpty ? "Add brewing stages to your recipe" : ""
     }
     
     var hasStages: Bool {
-        !recipe.stagesArray.isEmpty
+        !formData.stages.isEmpty
     }
     
     var editButtonTitle: String {
@@ -37,36 +38,31 @@ class StagesManagementViewModel: ObservableObject {
     }
     
     var currentWater: Int16 {
-        recipe.totalStageWater
+        formData.totalStageWater
     }
     
     var totalWater: Int16 {
         brewMath.water
     }
     
-    var stages: [Stage] {
-        recipe.stagesArray
+    var stages: [StageFormData] {
+        formData.stages
     }
     
-    var recipeForStageManagement: Recipe {
-        recipe
-    }
-    
-    var brewMathForStageManagement: BrewMathViewModel {
-        brewMath
-    }
-    
-    var contextForStageManagement: NSManagedObjectContext {
-        viewContext
+    func progressValue(for stage: StageFormData) -> Int16 {
+        guard let index = formData.stages.firstIndex(where: { $0.id == stage.id }) else { return 0 }
+        return formData.stages[0..<index].reduce(0) { $0 + $1.waterAmount } + stage.waterAmount
     }
 
     // MARK: - Initialization
-    init(recipe: Recipe, brewMath: BrewMathViewModel, context: NSManagedObjectContext) {
-        self.recipe = recipe
+    init(formData: RecipeFormData, brewMath: BrewMathViewModel, context: NSManagedObjectContext, existingRecipeID: NSManagedObjectID?) {
+        self.formData = formData
         self.brewMath = brewMath
         self.viewContext = context
+        self.existingRecipeID = existingRecipeID
         
         setupInitialStage()
+        setupBindings()
     }
     
     // MARK: - Public Methods
@@ -80,75 +76,57 @@ class StagesManagementViewModel: ObservableObject {
         isAddingStage = true
     }
     
-    func editStage(_ stage: Stage) {
+    func editStage(_ stage: StageFormData) {
         if editMode == .inactive {
             stageBeingModified = stage
         }
     }
     
     func moveStages(from source: IndexSet, to destination: Int) {
-        var stages = recipe.stagesArray
-        stages.move(fromOffsets: source, toOffset: destination)
+        formData.stages.move(fromOffsets: source, toOffset: destination)
         
         // Update order indices
-        for (index, stage) in stages.enumerated() {
-            stage.orderIndex = Int16(index)
+        for (index, _) in formData.stages.enumerated() {
+            formData.stages[index].orderIndex = Int16(index)
         }
-        
-        saveContext()
     }
     
     func deleteStages(at offsets: IndexSet) {
-        let stagesToDelete = offsets.map { recipe.stagesArray[$0] }
-
-        for stage in stagesToDelete {
-            viewContext.delete(stage)
-        }
+        formData.stages.remove(atOffsets: offsets)
         
-        saveContext()
-
         // Reindex remaining stages
-        let remainingStages = recipe.stagesArray
-        for (index, remainingStage) in remainingStages.enumerated() {
-            remainingStage.orderIndex = Int16(index)
+        for (index, _) in formData.stages.enumerated() {
+            formData.stages[index].orderIndex = Int16(index)
         }
     }
     
-    func moveStageUp(_ stage: Stage) {
-        guard stage.orderIndex > 0 else { return }
+    func moveStageUp(_ stage: StageFormData) {
+        guard let currentIndex = formData.stages.firstIndex(where: { $0.id == stage.id }),
+              currentIndex > 0 else { return }
         
-        let currentIndex = Int(stage.orderIndex)
-        let newIndex = currentIndex - 1
-        
-        if let stageAbove = recipe.stagesArray.first(where: { $0.orderIndex == Int16(newIndex) }) {
-            stageAbove.orderIndex = Int16(currentIndex)
-            stage.orderIndex = Int16(newIndex)
-            saveContext()
-        }
+        formData.stages.swapAt(currentIndex, currentIndex - 1)
+        updateOrderIndices()
     }
     
-    func moveStageDown(_ stage: Stage) {
-        let currentIndex = Int(stage.orderIndex)
-        let newIndex = currentIndex + 1
+    func moveStageDown(_ stage: StageFormData) {
+        guard let currentIndex = formData.stages.firstIndex(where: { $0.id == stage.id }),
+              currentIndex < formData.stages.count - 1 else { return }
         
-        if let stageBelow = recipe.stagesArray.first(where: { $0.orderIndex == Int16(newIndex) }) {
-            stageBelow.orderIndex = Int16(currentIndex)
-            stage.orderIndex = Int16(newIndex)
-            saveContext()
-        }
+        formData.stages.swapAt(currentIndex, currentIndex + 1)
+        updateOrderIndices()
     }
     
     func saveRecipe(completion: @escaping (Bool) -> Void) {
         // Validate stages before saving
-        if recipe.stagesArray.isEmpty {
+        if formData.stages.isEmpty {
             alertMessage = "Please add at least one brewing stage"
             showingSaveAlert = true
             completion(false)
             return
         }
         
-        if !recipe.isStageWaterBalanced {
-            alertMessage = "Stage water total (\(recipe.totalStageWater)ml) doesn't match recipe water amount (\(brewMath.water)ml). Would you like to adjust the recipe water amount?"
+        if !formData.isStageWaterBalanced {
+            alertMessage = "Stage water total (\(formData.totalStageWater)ml) doesn't match recipe water amount (\(brewMath.water)ml). Would you like to adjust the recipe water amount?"
             showingSaveAlert = true
             completion(false)
             return
@@ -159,15 +137,43 @@ class StagesManagementViewModel: ObservableObject {
         Task {
             await MainActor.run {
                 do {
-                    // If this is a new recipe, set the last brewed date
-                    if recipe.lastBrewedAt == nil {
+                    // Create or update the recipe
+                    let recipe: Recipe
+                    
+                    if let existingID = existingRecipeID,
+                       let existing = try? viewContext.existingObject(with: existingID) as? Recipe {
+                        recipe = existing
+                    } else {
+                        recipe = Recipe(context: viewContext)
+                        recipe.id = UUID()
                         recipe.lastBrewedAt = Date()
                     }
                     
-                    // Update recipe with brew math values
+                    // Update recipe with form data
+                    recipe.name = formData.name
+                    recipe.roaster = formData.roaster
+                    recipe.grinder = formData.grinder
+                    recipe.temperature = formData.temperature
+                    recipe.grindSize = formData.grindSize
                     recipe.grams = brewMath.grams
                     recipe.ratio = brewMath.ratio
                     recipe.waterAmount = brewMath.water
+                    
+                    // Delete existing stages if updating
+                    if existingRecipeID != nil {
+                        recipe.stagesArray.forEach { viewContext.delete($0) }
+                    }
+                    
+                    // Create stages from form data
+                    for (index, stageData) in formData.stages.enumerated() {
+                        let stage = Stage(context: viewContext)
+                        stage.id = UUID()
+                        stage.type = stageData.type.id
+                        stage.seconds = stageData.seconds
+                        stage.waterAmount = stageData.waterAmount
+                        stage.orderIndex = Int16(index)
+                        stage.recipe = recipe
+                    }
                     
                     try viewContext.save()
                     isSaving = false
@@ -190,23 +196,56 @@ class StagesManagementViewModel: ObservableObject {
         }
     }
     
-    func progressValue(for stage: Stage) -> Int16 {
-        recipe.totalStageWaterToStep(stepIndex: Int(stage.orderIndex))
+    // MARK: - Stage Management
+    func addStage(_ stage: StageFormData) {
+        var newStage = stage
+        newStage.orderIndex = Int16(formData.stages.count)
+        formData.stages.append(newStage)
+    }
+    
+    func updateStage(_ updatedStage: StageFormData) {
+        if let index = formData.stages.firstIndex(where: { $0.id == updatedStage.id }) {
+            formData.stages[index] = updatedStage
+        }
     }
     
     // MARK: - Private Methods
     private func setupInitialStage() {
-        if recipe.stagesArray.isEmpty {
-            recipe.createDefaultStage(context: viewContext)
-            saveContext()
+        // If no stages exist and it's a new recipe, create a default bloom stage
+        if formData.stages.isEmpty && existingRecipeID == nil {
+            var bloomStage = StageFormData()
+            bloomStage.type = .fast
+            bloomStage.seconds = 15
+            bloomStage.waterAmount = min(brewMath.grams * 2, brewMath.water)
+            bloomStage.orderIndex = 0
+            formData.stages.append(bloomStage)
         }
     }
     
-    private func saveContext() {
-        do {
-            try viewContext.save()
-        } catch {
-            print("Failed to save context: \(error)")
+    private func setupBindings() {
+        // Sync brew math changes
+        brewMath.$water
+            .sink { [weak self] water in
+                self?.formData.waterAmount = water
+            }
+            .store(in: &cancellables)
+        
+        brewMath.$grams
+            .sink { [weak self] grams in
+                self?.formData.grams = grams
+            }
+            .store(in: &cancellables)
+        
+        brewMath.$ratio
+            .sink { [weak self] ratio in
+                self?.formData.ratio = ratio
+            }
+            .store(in: &cancellables)
+    }
+    
+    private func updateOrderIndices() {
+        for (index, _) in formData.stages.enumerated() {
+            formData.stages[index].orderIndex = Int16(index)
         }
     }
 }

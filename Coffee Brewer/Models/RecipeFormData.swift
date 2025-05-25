@@ -1,7 +1,7 @@
 import Foundation
 import CoreData
 
-struct RecipeFormData {
+struct RecipeFormData: Equatable {
     var name: String = "New Recipe"
     var roaster: Roaster? = nil
     var grinder: Grinder? = nil
@@ -10,6 +10,7 @@ struct RecipeFormData {
     var grams: Int16 = 18
     var ratio: Double = 16.0
     var waterAmount: Int16 = 288
+    var stages: [StageFormData] = []
     
     init() {}
     
@@ -22,9 +23,32 @@ struct RecipeFormData {
         self.grams = recipe.grams
         self.ratio = recipe.ratio
         self.waterAmount = recipe.waterAmount
+        self.stages = recipe.stagesArray.map { StageFormData(from: $0) }
     }
     
     init(selectedRoaster: Roaster?) {
         self.roaster = selectedRoaster
+    }
+    
+    // MARK: - Computed Properties
+    var totalStageWater: Int16 {
+        stages.reduce(0) { $0 + $1.waterAmount }
+    }
+    
+    var isStageWaterBalanced: Bool {
+        totalStageWater == waterAmount
+    }
+    
+    // MARK: - Equatable
+    static func == (lhs: RecipeFormData, rhs: RecipeFormData) -> Bool {
+        lhs.name == rhs.name &&
+        lhs.roaster?.objectID == rhs.roaster?.objectID &&
+        lhs.grinder?.objectID == rhs.grinder?.objectID &&
+        lhs.temperature == rhs.temperature &&
+        lhs.grindSize == rhs.grindSize &&
+        lhs.grams == rhs.grams &&
+        lhs.ratio == rhs.ratio &&
+        lhs.waterAmount == rhs.waterAmount &&
+        lhs.stages == rhs.stages
     }
 }
