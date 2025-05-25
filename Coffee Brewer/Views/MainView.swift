@@ -8,7 +8,7 @@ struct MainView: View {
     
     // MARK: - Environment
     @Environment(\.managedObjectContext) private var viewContext
-    
+
     // MARK: - State
     @State private var selectedTab: Tab = .home
     @State private var selectedRoaster: Roaster? = nil
