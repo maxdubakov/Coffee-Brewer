@@ -109,3 +109,19 @@ struct AddRecipe: View {
         viewModel.resetToDefaults()
     }
 }
+
+#Preview {
+    @Previewable @State var selectedTab = Main.Tab.add
+    @Previewable @State var selectedRoaster: Roaster? = nil
+    let preview = PersistenceController.preview
+    
+    return AddRecipe(
+        selectedTab: $selectedTab,
+        selectedRoaster: $selectedRoaster,
+        context: preview.container.viewContext
+    )
+    .environmentObject(AddRecipeCoordinator())
+    .environment(\.managedObjectContext, preview.container.viewContext)
+}
+
+
