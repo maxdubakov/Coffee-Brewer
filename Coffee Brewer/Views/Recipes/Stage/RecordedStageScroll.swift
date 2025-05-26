@@ -23,52 +23,52 @@ struct RecordedStageScroll: View {
             .frame(height: 200)
             .padding(.horizontal, 18)
         } else {
-            HStack(spacing: 12) {
-                VStack(spacing: 8) {
-                    ForEach(Array(recordedTimestamps.enumerated()), id: \.1.id) { index, _ in
-                        Circle()
-                            .frame(width: 8, height: 8)
-                            .foregroundColor(index == currentIndex ? BrewerColors.amber : BrewerColors.cream.opacity(0.3))
-                            .scaleEffect(index == currentIndex ? 1.2 : 1.0)
-                            .animation(.easeInOut(duration: 0.3), value: currentIndex)
+            ScrollViewReader { proxy in
+                ScrollView(.vertical, showsIndicators: false) {
+                    VStack(spacing: 12) {
+                        ForEach(Array(recordedTimestamps.enumerated()), id: \.1.id) { index, timestamp in
+                            RecordedStageCard(
+                                stageNumber: index + 1,
+                                timestamp: timestamp.time,
+                                stageType: timestamp.type,
+                                previousTimestamp: index > 0 ? recordedTimestamps[index - 1].time : 0,
+                                onRemove: {
+                                    onRemove(index)
+                                }
+                            )
+                            .id(timestamp.id)
+                            .transition(.asymmetric(
+                                insertion: .scale.combined(with: .opacity),
+                                removal: .scale.combined(with: .opacity)
+                            ))
+                            .animation(.spring(response: 0.5, dampingFraction: 0.8).delay(Double(index) * 0.05), value: timestamp.id)
+                        }
+                    }
+                    .padding(.vertical, 8)
+                }
+                .scrollClipDisabled()
+                .mask(
+                    LinearGradient(
+                        gradient: Gradient(stops: [
+                            .init(color: .clear, location: 0),
+                            .init(color: .black, location: 0.05),
+                            .init(color: .black, location: 0.95),
+                            .init(color: .clear, location: 1)
+                        ]),
+                        startPoint: .top,
+                        endPoint: .bottom
+                    )
+                )
+                .onChange(of: recordedTimestamps.count) { oldCount, newCount in
+                    if newCount > oldCount, let lastTimestamp = recordedTimestamps.last {
+                        withAnimation(.spring(response: 0.5, dampingFraction: 0.8)) {
+                            proxy.scrollTo(lastTimestamp.id, anchor: .bottom)
+                        }
                     }
                 }
-                .padding(.top, 8)
-                .padding(.horizontal, 12)
-                
-                ScrollViewReader { proxy in
-                    ScrollView(.vertical) {
-                        VStack(spacing: 0) {
-                            ForEach(Array(recordedTimestamps.enumerated()), id: \.1.id) { index, timestamp in
-                                RecordedStageCard(
-                                    stageNumber: index + 1,
-                                    timestamp: timestamp.time,
-                                    stageType: timestamp.type,
-                                    previousTimestamp: index > 0 ? recordedTimestamps[index - 1].time : 0,
-                                    onRemove: {
-                                        onRemove(index)
-                                    }
-                                )
-                                .id(timestamp.id)
-                                .containerRelativeFrame(.vertical, count: 1, spacing: 0)
-                                .opacity(index == currentIndex ? 1 : 0.25)
-                                .animation(.easeInOut(duration: 0.3), value: currentIndex)
-                            }
-                        }
-                        .scrollTargetLayout()
-                    }
-                    .scrollDisabled(true)
-                    .scrollIndicators(.hidden)
-                    .frame(height: 100)
-                    .contentMargins(.vertical, 8, for: .scrollContent)
-                    .scrollTargetBehavior(.viewAligned)
-                    .scrollPosition(id: $scrollPosition)
-                    .onChange(of: recordedTimestamps.count) { oldCount, newCount in
-                        if newCount > oldCount, let lastTimestamp = recordedTimestamps.last {
-                            withAnimation {
-                                scrollPosition = lastTimestamp.id
-                            }
-                        }
+                .onAppear {
+                    if let lastTimestamp = recordedTimestamps.last {
+                        proxy.scrollTo(lastTimestamp.id, anchor: .bottom)
                     }
                 }
             }
@@ -168,9 +168,9 @@ struct RecordedStageCard: View {
                 HStack(spacing: 6) {
                     // Recording time
                     
-                        Text("Recorded at \(formattedTime)")
-                            .font(.system(size: 14))
-                            .foregroundColor(BrewerColors.textSecondary)
+                    Text("Recorded at \(formattedTime)")
+                        .font(.system(size: 14))
+                        .foregroundColor(BrewerColors.textSecondary)
                     
                     
                     // Duration
@@ -179,7 +179,7 @@ struct RecordedStageCard: View {
                             Image(systemName: "clock")
                                 .font(.system(size: 10))
                                 .foregroundColor(BrewerColors.textSecondary)
-
+                            
                             Text("\(stageDuration)s")
                                 .font(.system(size: 14))
                                 .foregroundColor(BrewerColors.textSecondary)

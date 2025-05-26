@@ -41,7 +41,7 @@ struct RecordStages: View {
     var body: some View {
         VStack(spacing: 0) {
             // Fixed header and timer section
-            VStack(spacing: 24) {
+            VStack(spacing: 12) {
                 timerSection
                 tapArea
             }
@@ -57,17 +57,25 @@ struct RecordStages: View {
                         recordViewModel.removeTimestamp(at: index)
                     }
                 )
-                .frame(height: 300)
+                .frame(height: 250)
             }
             
             Spacer()
             
-            HStack(spacing: 16) {
+            ZStack {
+                // Control panel truly centered
                 controlPanel
-//                doneButton
+                
+                // Done button positioned to the right
+                HStack {
+                    Spacer()
+                        .frame(width: 120 + 80) // Width of control panel + spacing
+                    
+                    doneButton
+                }
             }
             .padding(.top, 20)
-            .padding(.bottom, 30)
+            .padding(.bottom, 90)
         }
         .padding(.horizontal, 18)
         .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -211,6 +219,11 @@ struct RecordStages: View {
     
     private var doneButton: some View {
         Button(action: {
+            // Stop the timer
+            if recordViewModel.isRunning {
+                recordViewModel.toggleTimer()
+            }
+            
             // Generate stages from timestamps and update the form data
             let generatedStages = recordViewModel.generateStagesFromTimestamps()
             var updatedFormData = formData
@@ -218,25 +231,23 @@ struct RecordStages: View {
             stagesViewModel.formData = updatedFormData
             showingStagesManagement = true
         }) {
-            Text("Done")
-                .font(.system(size: 17, weight: .semibold))
+            Image(systemName: "checkmark")
+                .font(.system(size: 20, weight: .medium))
                 .foregroundColor(recordViewModel.recordedTimestamps.isEmpty ? BrewerColors.cream.opacity(0.4) : BrewerColors.cream)
-                .frame(minWidth: 80)
-                .padding(.horizontal, 20)
-                .padding(.vertical, 16)
-                .background(
-                    RoundedRectangle(cornerRadius: 28)
-                        .fill(recordViewModel.recordedTimestamps.isEmpty ? BrewerColors.surface.opacity(0.5) : BrewerColors.caramel)
-                        .overlay(
-                            RoundedRectangle(cornerRadius: 28)
-                                .strokeBorder(
-                                    recordViewModel.recordedTimestamps.isEmpty ? BrewerColors.divider : BrewerColors.caramel.opacity(0.3),
-                                    lineWidth: 1.5
-                                )
-                        )
-                        .shadow(color: Color.black.opacity(0.2), radius: 3, x: 0, y: 1)
-                )
+                .frame(width: 60, height: 56)
         }
+        .background(
+            RoundedRectangle(cornerRadius: 28)
+                .fill(recordViewModel.recordedTimestamps.isEmpty ? BrewerColors.surface.opacity(0.5) : BrewerColors.surface.opacity(0.8))
+                .overlay(
+                    RoundedRectangle(cornerRadius: 28)
+                        .strokeBorder(
+                            recordViewModel.recordedTimestamps.isEmpty ? BrewerColors.divider.opacity(0.5) : BrewerColors.caramel.opacity(0.3),
+                            lineWidth: 1.5
+                        )
+                )
+                .shadow(color: Color.black.opacity(0.2), radius: 3, x: 0, y: 1)
+        )
         .disabled(recordViewModel.recordedTimestamps.isEmpty)
     }
     
