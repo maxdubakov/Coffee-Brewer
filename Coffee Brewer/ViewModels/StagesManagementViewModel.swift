@@ -20,11 +20,6 @@ class StagesManagementViewModel: ObservableObject {
     private let existingRecipeID: NSManagedObjectID?
     private var cancellables = Set<AnyCancellable>()
     
-    // MARK: - Computed Properties
-    var headerTitle: String {
-        "Recipe Stages"
-    }
-    
     var headerSubtitle: String {
         formData.stages.isEmpty ? "Add brewing stages to your recipe" : ""
     }

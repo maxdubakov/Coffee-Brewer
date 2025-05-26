@@ -16,8 +16,6 @@ struct Recipes: View {
     
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
-            SectionHeader(title: "Recipes")
-                .padding(.horizontal, 18)
             ScrollView {
                 VStack {
                     ForEach(roasters) { roaster in
@@ -28,6 +26,7 @@ struct Recipes: View {
             }
             .edgesIgnoringSafeArea(.all)
             .scrollIndicators(.hidden)
+            .padding(.vertical, 20)
         }
     }
 }

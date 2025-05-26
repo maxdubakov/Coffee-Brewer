@@ -17,17 +17,15 @@ struct AddStage: View {
     }
     
     var body: some View {
-        ScrollView {
-            VStack(alignment: .leading, spacing: 20) {
-                headerSection
-                stageTypeSection
-                durationSection
-                waterSection
-                previewSection
-                actionButtons
-            }
-            .padding(EdgeInsets(top: 10, leading: 18, bottom: 40, trailing: 18))
+        VStack(alignment: .leading, spacing: 40) {
+            stageTypeSection
+            durationSection
+            waterSection
+            previewSection
+            Spacer()
+            actionButtons
         }
+        .padding(EdgeInsets(top: 10, leading: 18, bottom: 40, trailing: 18))
         .background(BrewerColors.background)
         .scrollDismissesKeyboard(.immediately)
         .alert(isPresented: $viewModel.showSaveError) {
@@ -36,17 +34,6 @@ struct AddStage: View {
                 message: Text(viewModel.errorMessage),
                 dismissButton: .default(Text("OK"))
             )
-        }
-    }
-    
-    // MARK: - View Components
-    private var headerSection: some View {
-        VStack(alignment: .leading, spacing: 10) {
-            SectionHeader(title: viewModel.headerTitle)
-            
-            Text(viewModel.headerSubtitle)
-                .font(.subheadline)
-                .foregroundColor(BrewerColors.textSecondary)
         }
     }
     
@@ -68,7 +55,6 @@ struct AddStage: View {
                 .foregroundColor(BrewerColors.textSecondary)
                 .padding(.horizontal, 4)
         }
-        .padding(.bottom, 10)
     }
     
     private var durationSection: some View {
@@ -84,13 +70,7 @@ struct AddStage: View {
                 value: $viewModel.seconds,
                 focusedField: $viewModel.focusedField
             )
-            
-            Text(viewModel.durationDescription)
-                .font(.caption)
-                .foregroundColor(BrewerColors.textSecondary)
-                .padding(.horizontal, 4)
         }
-        .padding(.bottom, 30)
     }
     
     @ViewBuilder
@@ -112,7 +92,7 @@ struct AddStage: View {
                 
                 HStack {
                     Text(viewModel.availableWaterText)
-                        .font(.caption)
+                        .font(.system(size: 14))
                         .foregroundColor(viewModel.availableWaterColor)
                     
                     Spacer()
@@ -120,14 +100,13 @@ struct AddStage: View {
                     Button("Use All") {
                         viewModel.useAllWater()
                     }
-                    .font(.caption)
+                    .font(.system(size: 14))
                     .foregroundColor(BrewerColors.caramel)
                     .opacity(viewModel.useAllButtonEnabled ? 1.0 : 0.5)
                     .disabled(!viewModel.useAllButtonEnabled)
                 }
-                .padding(.horizontal, 4)
+                .padding(.horizontal, 2)
             }
-            .padding(.bottom, 10)
         }
     }
     
@@ -141,7 +120,6 @@ struct AddStage: View {
                 progressValue: viewModel.previewProgressValue(),
                 total: viewModel.recipeWaterAmount,
             )
-            .padding(.horizontal, 4)
         }
         .padding(.bottom, 30)
     }
@@ -166,5 +144,6 @@ struct AddStage: View {
                 style: .primary
             )
         }
+        .padding(.bottom, 28)
     }
 }

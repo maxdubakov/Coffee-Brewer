@@ -25,11 +25,6 @@ struct EditRecipe: View {
         NavigationStack(path: $navigationPath) {
             ScrollView {
                 VStack(alignment: .leading, spacing: 30) {
-                    RecipeHeader(
-                        title: viewModel.headerTitle,
-                        subtitle: viewModel.headerSubtitle
-                    )
-                    
                     RecipeForm(
                         formData: $viewModel.formData,
                         brewMath: $viewModel.brewMath,
@@ -41,8 +36,8 @@ struct EditRecipe: View {
                         action: viewModel.validateAndContinue
                     )
                 }
-                .padding(.top, 10)
             }
+            .padding(.vertical, 20)
             .scrollDismissesKeyboard(.immediately)
             .background(BrewerColors.background)
             .navigationBarTitleDisplayMode(.inline)

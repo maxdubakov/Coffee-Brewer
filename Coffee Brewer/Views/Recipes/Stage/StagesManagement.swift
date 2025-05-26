@@ -70,7 +70,7 @@ struct StagesManagement: View {
     // MARK: - View Components
     private var headerSection: some View {
         VStack(alignment: .leading, spacing: 6) {
-            SectionHeader(title: viewModel.headerTitle)
+            SectionHeader(title: "Manage Recipe Stages")
                 .padding(.horizontal, 18)
             
             if !viewModel.headerSubtitle.isEmpty {
@@ -154,20 +154,6 @@ struct StagesManagement: View {
                     .tint(.red)
                 }
                 .contextMenu {
-                    Button {
-                        viewModel.stageBeingModified = stage
-                    } label: {
-                        Label("Edit Stage", systemImage: "pencil")
-                    }
-                    
-                    Button(role: .destructive) {
-                        if let index = viewModel.stages.firstIndex(of: stage) {
-                            viewModel.deleteStages(at: IndexSet([index]))
-                        }
-                    } label: {
-                        Label("Delete Stage", systemImage: "trash")
-                    }
-                    
                     if viewModel.stages.count > 1 {
                         Divider()
                         
@@ -186,6 +172,20 @@ struct StagesManagement: View {
                                 Label("Move Down", systemImage: "arrow.down")
                             }
                         }
+                    }
+
+                    Button {
+                        viewModel.stageBeingModified = stage
+                    } label: {
+                        Label("Edit Stage", systemImage: "pencil")
+                    }
+                    
+                    Button(role: .destructive) {
+                        if let index = viewModel.stages.firstIndex(of: stage) {
+                            viewModel.deleteStages(at: IndexSet([index]))
+                        }
+                    } label: {
+                        Label("Delete Stage", systemImage: "trash")
                     }
                 }
             }

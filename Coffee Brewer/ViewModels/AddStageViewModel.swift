@@ -26,10 +26,6 @@ class AddStageViewModel: ObservableObject {
         isEditMode ? "Edit Stage" : "Add Stage"
     }
     
-    var headerSubtitle: String {
-        "Select the type of brewing stage and define its parameters"
-    }
-    
     var actionButtonTitle: String {
         isEditMode ? "Update Stage" : "Save Stage"
     }
@@ -42,12 +38,8 @@ class AddStageViewModel: ObservableObject {
         return amount
     }
     
-    var remainingWater: Int16 {
-        stagesViewModel.brewMath.water - totalWaterUsed
-    }
-    
     var availableWater: Int16 {
-        remainingWater
+        stagesViewModel.brewMath.water - totalWaterUsed
     }
     
     var canSave: Bool {
@@ -75,18 +67,6 @@ class AddStageViewModel: ObservableObject {
         }
     }
     
-    var durationDescription: String {
-        if selectedType == .wait {
-            return "How long to wait before proceeding"
-        } else {
-            return "How long to pour the water"
-        }
-    }
-    
-    var waterDescription: String {
-        "Amount of water to pour during this stage"
-    }
-    
     var previewDescription: String {
         switch selectedType {
         case .fast:
@@ -111,8 +91,6 @@ class AddStageViewModel: ObservableObject {
     var availableWaterColor: Color {
         if waterAmount > availableWater {
             return .red
-        } else if availableWater < 50 {
-            return .orange
         } else {
             return BrewerColors.textSecondary
         }

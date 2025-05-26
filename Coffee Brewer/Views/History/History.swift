@@ -14,9 +14,7 @@ struct History: View {
     
     var body: some View {
         GlobalBackground {
-            VStack(alignment: .leading, spacing: 0) {
-                SectionHeader(title: "Brew History")
-                
+            VStack(alignment: .leading, spacing: 0) {                
                 if brews.isEmpty {
                     emptyStateView
                 } else {
