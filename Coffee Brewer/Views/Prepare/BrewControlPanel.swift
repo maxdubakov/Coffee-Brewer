@@ -8,8 +8,46 @@ struct BrewControlPanel: View {
     let totalStages: Int
     let onTogglePlay: () -> Void
     let onRestart: () -> Void
-    let onSkipForward: () -> Void
-    let onSkipBackward: () -> Void
+    let onSkipForward: (() -> Void)?
+    let onSkipBackward: (() -> Void)?
+    let showSkipButtons: Bool
+    
+    // MARK: - Initializers
+    init(
+        isRunning: Binding<Bool>,
+        currentStageIndex: Binding<Int>,
+        totalStages: Int,
+        onTogglePlay: @escaping () -> Void,
+        onRestart: @escaping () -> Void,
+        onSkipForward: (() -> Void)? = nil,
+        onSkipBackward: (() -> Void)? = nil,
+        showSkipButtons: Bool = true
+    ) {
+        self._isRunning = isRunning
+        self._currentStageIndex = currentStageIndex
+        self.totalStages = totalStages
+        self.onTogglePlay = onTogglePlay
+        self.onRestart = onRestart
+        self.onSkipForward = onSkipForward
+        self.onSkipBackward = onSkipBackward
+        self.showSkipButtons = showSkipButtons
+    }
+    
+    // Convenience initializer for when skip buttons aren't needed
+    init(
+        isRunning: Binding<Bool>,
+        onTogglePlay: @escaping () -> Void,
+        onRestart: @escaping () -> Void
+    ) {
+        self._isRunning = isRunning
+        self._currentStageIndex = .constant(0)
+        self.totalStages = 1
+        self.onTogglePlay = onTogglePlay
+        self.onRestart = onRestart
+        self.onSkipForward = nil
+        self.onSkipBackward = nil
+        self.showSkipButtons = false
+    }
     
     // MARK: - Body
     var body: some View {
@@ -46,27 +84,29 @@ struct BrewControlPanel: View {
             }
             .frame(width: 120, height: 56)
             
-            HStack(spacing: 0) {
-                Button(action: onSkipBackward) {
-                    Image(systemName: "chevron.backward")
-                        .font(.system(size: 16, weight: .semibold))
-                        .foregroundColor(currentStageIndex > 0 ? BrewerColors.cream : BrewerColors.cream.opacity(0.4))
-                        .frame(width: 32, height: 24)
+            if showSkipButtons {
+                HStack(spacing: 0) {
+                    Button(action: { onSkipBackward?() }) {
+                        Image(systemName: "chevron.backward")
+                            .font(.system(size: 16, weight: .semibold))
+                            .foregroundColor(currentStageIndex > 0 ? BrewerColors.cream : BrewerColors.cream.opacity(0.4))
+                            .frame(width: 32, height: 24)
+                    }
+                    .disabled(currentStageIndex <= 0)
+                    
+                    Spacer()
+                        .frame(width: 150)
+                    
+                    Button(action: { onSkipForward?() }) {
+                        Image(systemName: "chevron.forward")
+                            .font(.system(size: 16, weight: .semibold))
+                            .foregroundColor(currentStageIndex < totalStages - 1 ? BrewerColors.cream : BrewerColors.cream.opacity(0.4))
+                            .frame(width: 32, height: 24)
+                    }
+                    .disabled(currentStageIndex >= totalStages - 1)
                 }
-                .disabled(currentStageIndex <= 0)
-                
-                Spacer()
-                    .frame(width: 150)
-                
-                Button(action: onSkipForward) {
-                    Image(systemName: "chevron.forward")
-                        .font(.system(size: 16, weight: .semibold))
-                        .foregroundColor(currentStageIndex < totalStages - 1 ? BrewerColors.cream : BrewerColors.cream.opacity(0.4))
-                        .frame(width: 32, height: 24)
-                }
-                .disabled(currentStageIndex >= totalStages - 1)
+                .frame(maxWidth: .infinity)
             }
-            .frame(maxWidth: .infinity)
         }
     }
 }
@@ -84,6 +124,7 @@ struct BrewControlPanelPreview: PreviewProvider {
                    BrewerColors.background.edgesIgnoringSafeArea(.all)
                    
                    VStack(spacing: 40) {
+                       // With skip buttons
                        BrewControlPanel(
                            isRunning: $isRunning,
                            currentStageIndex: $currentStageIndex,
@@ -99,7 +140,15 @@ struct BrewControlPanelPreview: PreviewProvider {
                                if currentStageIndex > 0 {
                                    currentStageIndex -= 1
                                }
-                           }
+                           },
+                           showSkipButtons: true
+                       )
+                       
+                       // Without skip buttons
+                       BrewControlPanel(
+                           isRunning: $isRunning,
+                           onTogglePlay: { isRunning.toggle() },
+                           onRestart: { isRunning = false }
                        )
                        
                        Text("Current Stage: \(currentStageIndex + 1)")

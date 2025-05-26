@@ -78,6 +78,8 @@ struct EditRecipe: View {
             }
             .navigationDestination(for: AddRecipeNavigation.self) { destination in
                 switch destination {
+                case .stageChoice(_, _):
+                    Text("Do nothing")
                 case .stages(let formData, let existingRecipeID):
                     GlobalBackground {
                         StagesManagement(
@@ -94,6 +96,8 @@ struct EditRecipe: View {
                             }
                         )
                     }
+                case .recordStages(_, _):
+                    Text("Do nothing")
                 }
             }
         }

@@ -59,6 +59,17 @@ struct AddRecipe: View {
             }
             .navigationDestination(for: AddRecipeNavigation.self) { destination in
                 switch destination {
+                case .stageChoice(let formData, let existingRecipeID):
+                    GlobalBackground {
+                        StageCreationChoice(
+                            onManualChoice: {
+                                navigationPath.append(AddRecipeNavigation.stages(formData: formData, existingRecipeID: existingRecipeID))
+                            },
+                            onRecordChoice: {
+                                navigationPath.append(AddRecipeNavigation.recordStages(formData: formData, existingRecipeID: existingRecipeID))
+                            }
+                        )
+                    }
                 case .stages(let formData, _):
                     GlobalBackground {
                         StagesManagement(
@@ -70,6 +81,16 @@ struct AddRecipe: View {
                             onFormDataUpdate: { updatedFormData in
                                 viewModel.formData = updatedFormData
                             }
+                        )
+                    }
+                case .recordStages(let formData, let existingRecipeID):
+                    GlobalBackground {
+                        RecordStages(
+                            formData: formData,
+                            brewMath: viewModel.brewMath,
+                            selectedTab: $selectedTab,
+                            context: viewContext,
+                            existingRecipeID: existingRecipeID
                         )
                     }
                 }
@@ -94,7 +115,7 @@ struct AddRecipe: View {
         .onAppear {
             // Set navigation callback
             viewModel.onNavigateToStages = { formData, _ in
-                navigationPath.append(AddRecipeNavigation.stages(formData: formData, existingRecipeID: nil))
+                navigationPath.append(AddRecipeNavigation.stageChoice(formData: formData, existingRecipeID: nil))
             }
             // Register viewModel with coordinator
             coordinator.setViewModel(viewModel)
