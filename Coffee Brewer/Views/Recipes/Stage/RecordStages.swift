@@ -12,6 +12,8 @@ struct RecordStages: View {
     
     // MARK: - State
     @State private var showingStagesManagement = false
+    @State private var showingDemo = true
+    @State private var demoStep = 0
     
     // MARK: - Properties
     let formData: RecipeFormData
@@ -43,12 +45,15 @@ struct RecordStages: View {
             // Fixed header and timer section
             VStack(spacing: 12) {
                 timerSection
+                    .opacity(showingDemo && demoStep < 1 ? 0.1 : 1.0)
                 tapArea
+                    .opacity(showingDemo && demoStep < 1 ? 0.1 : 1.0)
             }
             .padding(.bottom, 30)
             
             VStack(alignment: .leading, spacing: 12) {
                 SecondaryHeader(title: "Recorded Stages")
+                    .padding(.horizontal, 15)
                 
                 RecordedStageScroll(
                     recordedTimestamps: recordViewModel.recordedTimestamps,
@@ -59,12 +64,14 @@ struct RecordStages: View {
                 )
                 .frame(height: 250)
             }
+            .opacity(showingDemo && demoStep < 3 ? 0.0 : 1.0)
             
             Spacer()
             
             ZStack {
                 // Control panel truly centered
                 controlPanel
+                    .opacity(showingDemo && demoStep < 0 ? 0.0: 1.0)
                 
                 // Done button positioned to the right
                 HStack {
@@ -72,6 +79,7 @@ struct RecordStages: View {
                         .frame(width: 120 + 80) // Width of control panel + spacing
                     
                     doneButton
+                        .opacity(showingDemo && demoStep < 2 ? 0.1 : 1.0)
                 }
             }
             .padding(.top, 20)
@@ -80,6 +88,9 @@ struct RecordStages: View {
         .padding(.horizontal, 18)
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background(BrewerColors.background.ignoresSafeArea())
+        .overlay(
+            showingDemo ? demoOverlay : nil
+        )
         .navigationDestination(isPresented: $showingStagesManagement) {
             StagesManagement(
                 formData: stagesViewModel.formData,
@@ -233,12 +244,12 @@ struct RecordStages: View {
         }) {
             Image(systemName: "checkmark")
                 .font(.system(size: 20, weight: .medium))
-                .foregroundColor(recordViewModel.recordedTimestamps.isEmpty ? BrewerColors.cream.opacity(0.4) : BrewerColors.cream)
+                .foregroundColor(recordViewModel.recordedTimestamps.isEmpty && !showingDemo ? BrewerColors.cream.opacity(0.4) : BrewerColors.cream)
                 .frame(width: 60, height: 56)
         }
         .background(
             RoundedRectangle(cornerRadius: 28)
-                .fill(recordViewModel.recordedTimestamps.isEmpty ? BrewerColors.surface.opacity(0.5) : BrewerColors.surface.opacity(0.8))
+                .fill(recordViewModel.recordedTimestamps.isEmpty && !showingDemo ? BrewerColors.surface.opacity(0.5) : BrewerColors.surface.opacity(0.8))
                 .overlay(
                     RoundedRectangle(cornerRadius: 28)
                         .strokeBorder(
@@ -256,6 +267,215 @@ struct RecordStages: View {
         let minutes = Int(timeInSeconds) / 60
         let seconds = Int(timeInSeconds) % 60
         return String(format: "%d:%02d", minutes, seconds)
+    }
+    
+    // MARK: - Demo Overlay
+    private var demoOverlay: some View {
+        ZStack {
+            // Dark background
+            Color.black.opacity(0.1)
+                .ignoresSafeArea()
+            
+            VStack(spacing: 40) {
+                // Skip button
+                HStack {
+                    Spacer()
+                    Button("Skip") {
+                        withAnimation(.easeOut(duration: 0.3)) {
+                            showingDemo = false
+                        }
+                    }
+                    .font(.system(size: 16, weight: .medium))
+                    .foregroundColor(BrewerColors.cream)
+                    .padding(.horizontal, 20)
+                    .padding(.vertical, 10)
+                    .background(
+                        Capsule()
+                            .fill(BrewerColors.surface.opacity(0.3))
+                            .overlay(
+                                Capsule()
+                                    .strokeBorder(BrewerColors.cream.opacity(0.3), lineWidth: 1)
+                            )
+                    )
+                }
+                .padding(.horizontal, 20)
+                
+                Spacer()
+                
+                // Demo content based on step
+                Group {
+                    switch demoStep {
+                    case 0:
+                        demoStep1
+                    case 1:
+                        demoStep2
+                    case 2:
+                        demoStep3
+                    default:
+                        EmptyView()
+                    }
+                }
+                
+                Spacer()
+                
+                // Progress dots
+                HStack(spacing: 8) {
+                    ForEach(0..<3) { index in
+                        Circle()
+                            .fill(index == demoStep ? BrewerColors.amber : BrewerColors.cream.opacity(0.3))
+                            .frame(width: 8, height: 8)
+                            .scaleEffect(index == demoStep ? 1.2 : 1.0)
+                            .animation(.easeInOut(duration: 0.3), value: demoStep)
+                    }
+                }
+                .padding(.bottom, 70)
+            }
+            .contentShape(Rectangle()) // Make entire area tappable
+            .onTapGesture {
+                advanceDemo()
+            }
+        }
+        .transition(.opacity)
+    }
+    
+    private var demoStep1: some View {
+        GeometryReader { geometry in
+            VStack {
+                Spacer()
+                
+                VStack(spacing: 20) {
+                    Text("Start the timer")
+                        .font(.system(size: 24, weight: .semibold))
+                        .foregroundColor(BrewerColors.cream)
+                    
+                    Text("Tap the play button to begin timing your brew")
+                        .font(.system(size: 16))
+                        .foregroundColor(BrewerColors.cream.opacity(0.8))
+                        .multilineTextAlignment(.center)
+                        .padding(.horizontal, 40)
+                    
+                    Image(systemName: "arrow.down")
+                        .font(.system(size: 40, weight: .medium))
+                        .foregroundColor(BrewerColors.amber)
+                        .modifier(BounceAnimation())
+                }
+                .frame(maxWidth: .infinity)
+            }
+        }
+    }
+    
+    private var demoStep2: some View {
+        GeometryReader { geometry in
+            VStack {
+                VStack(spacing: 20) {
+                    Image(systemName: "arrow.up")
+                        .font(.system(size: 30, weight: .medium))
+                        .foregroundColor(BrewerColors.amber)
+                        .modifier(BounceAnimation())
+
+                    Text("Record your stages")
+                        .font(.system(size: 24, weight: .semibold))
+                        .foregroundColor(BrewerColors.cream)
+                    
+                    Text("The timer is running and your first stage has begun.\n\nWhen you finish a stage (complete a pour or finish waiting), tap Fast, Slow, or Wait to record it.")
+                        .font(.system(size: 16))
+                        .foregroundColor(BrewerColors.cream.opacity(0.8))
+                        .multilineTextAlignment(.center)
+                        .padding(.horizontal, 40)
+                }
+                .frame(maxWidth: .infinity)
+                .padding(.top, geometry.size.height * 0.40) // Relative positioning
+                
+                Spacer()
+            }
+        }
+    }
+    
+    private var demoStep3: some View {
+        GeometryReader { geometry in
+            VStack {
+                Spacer()
+                
+                VStack(spacing: 20) {
+                    Image(systemName: "checkmark.circle.fill")
+                        .font(.system(size: 60))
+                        .foregroundColor(BrewerColors.amber)
+                        .modifier(ScaleAnimation())
+                    
+                    Text("Finish recording")
+                        .font(.system(size: 24, weight: .semibold))
+                        .foregroundColor(BrewerColors.cream)
+                    
+                    Text("Tap Done when you've recorded all stages")
+                        .font(.system(size: 16))
+                        .foregroundColor(BrewerColors.cream.opacity(0.8))
+                        .multilineTextAlignment(.center)
+                    
+                    Text("You can then adjust water amounts and timing for each stage")
+                        .font(.system(size: 14))
+                        .foregroundColor(BrewerColors.cream.opacity(0.6))
+                        .multilineTextAlignment(.center)
+                        .padding(.horizontal, 40)
+                }
+                .frame(maxWidth: .infinity)
+                .padding(.top, geometry.size.height * 0.35) // Relative positioning
+                
+                Spacer()
+            }
+        }
+    }
+    
+    private func advanceDemo() {
+        withAnimation(.easeInOut(duration: 0.3)) {
+            if demoStep < 2 {
+                demoStep += 1
+            } else {
+                showingDemo = false
+            }
+        }
+    }
+}
+
+// MARK: - Animation Modifiers
+struct BounceAnimation: ViewModifier {
+    @State private var offset: CGFloat = 0
+    
+    func body(content: Content) -> some View {
+        content
+            .offset(y: offset)
+            .onAppear {
+                withAnimation(.easeInOut(duration: 0.8).repeatForever(autoreverses: true)) {
+                    offset = -10
+                }
+            }
+    }
+}
+
+struct PulseAnimation: ViewModifier {
+    @State private var scale: CGFloat = 1.0
+    
+    func body(content: Content) -> some View {
+        content
+            .scaleEffect(scale)
+            .onAppear {
+                withAnimation(.easeInOut(duration: 1.0).repeatForever(autoreverses: true)) {
+                    scale = 1.05
+                }
+            }
+    }
+}
+
+struct ScaleAnimation: ViewModifier {
+    @State private var scale: CGFloat = 0.8
+    
+    func body(content: Content) -> some View {
+        content
+            .scaleEffect(scale)
+            .onAppear {
+                withAnimation(.spring(response: 0.5, dampingFraction: 0.6)) {
+                    scale = 1.0
+                }
+            }
     }
 }
 
