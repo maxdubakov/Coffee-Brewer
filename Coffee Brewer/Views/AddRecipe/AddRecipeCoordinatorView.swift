@@ -7,7 +7,7 @@ struct AddRecipeCoordinatorView: View {
     let context: NSManagedObjectContext
     @Binding var selectedTab: MainView.Tab
     
-    @State private var addRecipeView: AddRecipeView?
+    @State private var addRecipeView: AddRecipe?
     
     var body: some View {
         Group {
@@ -16,7 +16,7 @@ struct AddRecipeCoordinatorView: View {
             } else {
                 Color.clear
                     .onAppear {
-                        let view = AddRecipeView(
+                        let view = AddRecipe(
                             selectedTab: $selectedTab,
                             selectedRoaster: $selectedRoaster,
                             context: context

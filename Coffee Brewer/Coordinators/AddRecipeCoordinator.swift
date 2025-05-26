@@ -3,10 +3,10 @@ import CoreData
 
 @MainActor
 class AddRecipeCoordinator: ObservableObject {
-    private var addRecipeView: AddRecipeView?
+    private var addRecipeView: AddRecipe?
     private var isRecipeSaved = false
     
-    func setAddRecipeView(_ view: AddRecipeView) {
+    func setAddRecipeView(_ view: AddRecipe) {
         addRecipeView = view
     }
     
