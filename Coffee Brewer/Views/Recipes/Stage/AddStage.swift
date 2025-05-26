@@ -55,7 +55,7 @@ struct AddStage: View {
             SecondaryHeader(title: "Stage Type")
                 .padding(.bottom, 4)
             
-            FormTypePicker(
+            FormTypePickerField(
                 title: "Stage Type",
                 field: .stageType,
                 options: StageType.allTypes,

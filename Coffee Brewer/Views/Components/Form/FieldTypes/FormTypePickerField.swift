@@ -1,7 +1,6 @@
 import SwiftUI
 
-// MARK: - Main SegmentedFormTypePicker Component
-struct FormTypePicker<T: Identifiable & CustomStringConvertible & Hashable>: View {
+struct FormTypePickerField<T: Identifiable & CustomStringConvertible & Hashable>: View {
     // MARK: - Public Properties
     let title: String
     let field: FocusedField
@@ -72,7 +71,7 @@ struct SegmentedFormTypePickerPreview: View {
     var body: some View {
         GlobalBackground {
             VStack(spacing: 24) {
-                FormTypePicker(
+                FormTypePickerField(
                     title: "Stage Type",
                     field: .grindSize,
                     options: StageType.allTypes,

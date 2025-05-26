@@ -1,6 +1,6 @@
 import SwiftUI
 
-struct SearchGrinderPicker: View {
+struct SearchGrinderPickerField: View {
     // MARK: - Environment
     @Environment(\.managedObjectContext) private var viewContext
     

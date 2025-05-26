@@ -1,6 +1,6 @@
 import SwiftUI
 
-struct SearchRoasterPicker: View {
+struct SearchRoasterPickerField: View {
     // MARK: - Environment
     @Environment(\.managedObjectContext) private var viewContext
 

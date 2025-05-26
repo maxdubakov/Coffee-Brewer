@@ -26,7 +26,7 @@ struct RecipeForm: View {
             .padding(.horizontal, 20)
 
             FormGroup {
-                SearchRoasterPicker(
+                SearchRoasterPickerField(
                     selectedRoaster: $formData.roaster,
                     focusedField: $focusedField
                 )
@@ -118,7 +118,7 @@ struct RecipeForm: View {
             .padding(.horizontal, 20)
             
             FormGroup {
-                SearchGrinderPicker(
+                SearchGrinderPickerField(
                     selectedGrinder: $formData.grinder,
                     focusedField: $focusedField
                 )
