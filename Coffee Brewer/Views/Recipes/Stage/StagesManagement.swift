@@ -1,9 +1,9 @@
 import SwiftUI
 import CoreData
 
-struct StagesManagementView: View {
+struct StagesManagement: View {
     // MARK: - Bindings
-    @Binding var selectedTab: MainView.Tab
+    @Binding var selectedTab: Main.Tab
     
     // MARK: - State
     @State private var formData: RecipeFormData
@@ -16,7 +16,7 @@ struct StagesManagementView: View {
     let onFormDataUpdate: ((RecipeFormData) -> Void)?
     
     // MARK: - Initialization
-    init(formData: RecipeFormData, brewMath: BrewMathViewModel, selectedTab: Binding<MainView.Tab>, context: NSManagedObjectContext, existingRecipeID: NSManagedObjectID?, onSaveComplete: (() -> Void)? = nil, onFormDataUpdate: ((RecipeFormData) -> Void)? = nil) {
+    init(formData: RecipeFormData, brewMath: BrewMathViewModel, selectedTab: Binding<Main.Tab>, context: NSManagedObjectContext, existingRecipeID: NSManagedObjectID?, onSaveComplete: (() -> Void)? = nil, onFormDataUpdate: ((RecipeFormData) -> Void)? = nil) {
         _selectedTab = selectedTab
         _formData = State(initialValue: formData)
         _viewModel = StateObject(wrappedValue: StagesManagementViewModel(
@@ -39,10 +39,10 @@ struct StagesManagementView: View {
             saveButton
         }
         .navigationDestination(isPresented: $viewModel.isAddingStage) {
-            AddStageView(viewModel: viewModel)
+            AddStage(viewModel: viewModel)
         }
         .navigationDestination(item: $viewModel.stageBeingModified) { stage in
-            AddStageView(viewModel: viewModel, existingStage: stage)
+            AddStage(viewModel: viewModel, existingStage: stage)
         }
         .alert(isPresented: $viewModel.showingSaveAlert) {
             Alert(
@@ -262,7 +262,7 @@ struct StagesManagementView: View {
     
     return NavigationStack {
         GlobalBackground {
-            StagesManagementView(
+            StagesManagement(
                 formData: formData,
                 brewMath: brewMath,
                 selectedTab: .constant(.add),

@@ -7,7 +7,7 @@ struct Coffee_BrewerApp: App {
   var body: some Scene {
     WindowGroup {
       GlobalBackground {
-        MainView()
+        Main()
           .environment(\.managedObjectContext, persistenceController.container.viewContext)
           .preferredColorScheme(.dark)
       }

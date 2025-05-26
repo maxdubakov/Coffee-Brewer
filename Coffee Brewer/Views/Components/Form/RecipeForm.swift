@@ -1,6 +1,6 @@
 import SwiftUI
 
-struct RecipeFormView: View {
+struct RecipeForm: View {
     @Binding var formData: RecipeFormData
     @Binding var brewMath: BrewMathViewModel
     @Binding var focusedField: FocusedField?

@@ -1,6 +1,6 @@
 import SwiftUI
 
-struct RecipeHeaderView: View {
+struct RecipeHeader: View {
     let title: String
     let subtitle: String
     

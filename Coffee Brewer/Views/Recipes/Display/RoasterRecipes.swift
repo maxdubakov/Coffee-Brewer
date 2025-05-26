@@ -6,7 +6,7 @@ struct RoasterRecipes: View {
     @Environment(\.managedObjectContext) private var viewContext
     
     // MARK: - Bindings
-    @Binding var selectedTab: MainView.Tab
+    @Binding var selectedTab: Main.Tab
     @Binding var selectedRoaster: Roaster?
     
     // MARK: - Observed Objects
@@ -22,7 +22,7 @@ struct RoasterRecipes: View {
     @State private var recipeToDelete: Recipe?
     @State private var editingRecipe: Recipe?
     
-    init(roaster: Roaster, selectedTab: Binding<MainView.Tab>, selectedRoaster: Binding<Roaster?>) {
+    init(roaster: Roaster, selectedTab: Binding<Main.Tab>, selectedRoaster: Binding<Roaster?>) {
         self.roaster = roaster
         _recipes = FetchRequest(
             entity: Recipe.entity(),
@@ -66,7 +66,7 @@ struct RoasterRecipes: View {
         .navigationDestination(isPresented: $showBrewScreen) {
             if let id = selectedRecipeID,
                let brewRecipe = viewContext.object(with: id) as? Recipe {
-                BrewRecipeView(recipe: brewRecipe)
+                BrewRecipe(recipe: brewRecipe)
             }
         }
         .onChange(of: showBrewScreen) { oldValue, newValue in
@@ -88,7 +88,7 @@ struct RoasterRecipes: View {
         }
         .sheet(item: $editingRecipe) { recipe in
             NavigationStack {
-                EditRecipeView(recipe: recipe, isPresented: $editingRecipe)
+                EditRecipe(recipe: recipe, isPresented: $editingRecipe)
                     .environment(\.managedObjectContext, viewContext)
             }
         }

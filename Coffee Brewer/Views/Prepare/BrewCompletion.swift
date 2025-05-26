@@ -1,7 +1,7 @@
 import SwiftUI
 import CoreData
 
-struct BrewCompletionView: View {
+struct BrewCompletion: View {
     // MARK: - Properties
     var recipe: Recipe
     
@@ -211,7 +211,7 @@ struct BrewCompletionView: View {
 }
 
 // MARK: - Preview
-struct BrewCompletionViewPreview: PreviewProvider {
+struct BrewCompletionPreview: PreviewProvider {
     static var previews: some View {
         let context = PersistenceController.preview.container.viewContext
         
@@ -230,7 +230,7 @@ struct BrewCompletionViewPreview: PreviewProvider {
         testRecipe.roaster = testRoaster
         
         return GlobalBackground {
-            BrewCompletionView(recipe: testRecipe, actualElapsedTime: 10)
+            BrewCompletion(recipe: testRecipe, actualElapsedTime: 10)
                 .environment(\.managedObjectContext, context)
         }
     }

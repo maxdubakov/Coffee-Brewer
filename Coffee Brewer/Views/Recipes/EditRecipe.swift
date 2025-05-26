@@ -1,37 +1,36 @@
 import SwiftUI
 import CoreData
 
-struct AddRecipe: View {
+struct EditRecipe: View {
     @Environment(\.managedObjectContext) private var viewContext
-    @EnvironmentObject private var coordinator: AddRecipeCoordinator
+    @Environment(\.dismiss) private var dismiss
     
-    @Binding var selectedTab: MainView.Tab
-    @Binding var selectedRoaster: Roaster?
+    let recipe: Recipe
+    @Binding var isPresented: Recipe?
     
-    @StateObject private var viewModel: AddRecipeViewModel
+    @StateObject private var viewModel: EditRecipeViewModel
     @State private var navigationPath = NavigationPath()
+    @State private var showDiscardAlert = false
     
-    init(selectedTab: Binding<MainView.Tab>, selectedRoaster: Binding<Roaster?>, context: NSManagedObjectContext) {
-        self._selectedTab = selectedTab
-        self._selectedRoaster = selectedRoaster
+    init(recipe: Recipe, isPresented: Binding<Recipe?>) {
+        self.recipe = recipe
+        self._isPresented = isPresented
         
-        let vm = AddRecipeViewModel(
-            selectedRoaster: selectedRoaster.wrappedValue,
-            context: context
-        )
-        self._viewModel = StateObject(wrappedValue: vm)
+        // Create view model
+        let context = recipe.managedObjectContext ?? PersistenceController.shared.container.viewContext
+        self._viewModel = StateObject(wrappedValue: EditRecipeViewModel(recipe: recipe, context: context))
     }
     
     var body: some View {
         NavigationStack(path: $navigationPath) {
             ScrollView {
                 VStack(alignment: .leading, spacing: 30) {
-                    RecipeHeaderView(
+                    RecipeHeader(
                         title: viewModel.headerTitle,
                         subtitle: viewModel.headerSubtitle
                     )
                     
-                    RecipeFormView(
+                    RecipeForm(
                         formData: $viewModel.formData,
                         brewMath: $viewModel.brewMath,
                         focusedField: $viewModel.focusedField
@@ -46,12 +45,32 @@ struct AddRecipe: View {
             }
             .scrollDismissesKeyboard(.immediately)
             .background(BrewerColors.background)
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .navigationBarLeading) {
+                    Button("Cancel") {
+                        if viewModel.hasUnsavedChanges() {
+                            showDiscardAlert = true
+                        } else {
+                            dismiss()
+                        }
+                    }
+                }
+            }
             .alert(isPresented: $viewModel.showValidationAlert) {
                 Alert(
                     title: Text("Incomplete Information"),
                     message: Text(viewModel.validationMessage),
                     dismissButton: .default(Text("OK"))
                 )
+            }
+            .alert("Discard Changes?", isPresented: $showDiscardAlert) {
+                Button("Cancel", role: .cancel) {}
+                Button("Discard", role: .destructive) {
+                    dismiss()
+                }
+            } message: {
+                Text("You have unsaved changes. Are you sure you want to discard them?")
             }
             .overlay {
                 if viewModel.isSaving {
@@ -64,14 +83,17 @@ struct AddRecipe: View {
             }
             .navigationDestination(for: AddRecipeNavigation.self) { destination in
                 switch destination {
-                case .stages(let formData, _):
+                case .stages(let formData, let existingRecipeID):
                     GlobalBackground {
-                        StagesManagementView(
+                        StagesManagement(
                             formData: formData,
                             brewMath: viewModel.brewMath,
-                            selectedTab: $selectedTab,
+                            selectedTab: .constant(.home),
                             context: viewContext,
-                            existingRecipeID: nil,
+                            existingRecipeID: existingRecipeID,
+                            onSaveComplete: {
+                                isPresented = nil
+                            },
                             onFormDataUpdate: { updatedFormData in
                                 viewModel.formData = updatedFormData
                             }
@@ -80,37 +102,20 @@ struct AddRecipe: View {
                 }
             }
         }
-        .onChange(of: selectedTab) { _, newTab in
-            // Clear navigation when leaving the tab
-            if newTab != .add && !navigationPath.isEmpty {
-                navigationPath.removeLast(navigationPath.count)
-            }
-        }
-        .onChange(of: selectedRoaster) { _, newValue in
-            // Update viewModel when selectedRoaster changes externally
-            viewModel.updateSelectedRoaster(newValue)
-        }
-        .onReceive(NotificationCenter.default.publisher(for: .recipeSaved)) { _ in
-            // Clear navigation after saving
-            if !navigationPath.isEmpty {
-                navigationPath.removeLast(navigationPath.count)
-            }
-        }
         .onAppear {
-            // Set navigation callback
-            viewModel.onNavigateToStages = { formData, _ in
-                navigationPath.append(AddRecipeNavigation.stages(formData: formData, existingRecipeID: nil))
+            viewModel.onNavigateToStages = { formData, recipeID in
+                navigationPath.append(AddRecipeNavigation.stages(formData: formData, existingRecipeID: recipeID))
             }
-            // Register viewModel with coordinator
-            coordinator.setViewModel(viewModel)
         }
     }
+}
+
+// MARK: - Preview
+#Preview {
+    let context = PersistenceController.preview.container.viewContext
+    let recipe = PersistenceController.sampleRecipe
     
-    func hasUnsavedChanges() -> Bool {
-        return viewModel.hasUnsavedChanges()
-    }
-    
-    func resetIfNeeded() {
-        viewModel.resetToDefaults()
-    }
+    return EditRecipe(recipe: recipe, isPresented: .constant(recipe))
+        .environment(\.managedObjectContext, context)
+        .background(BrewerColors.background)
 }

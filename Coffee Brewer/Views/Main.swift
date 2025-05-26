@@ -1,6 +1,6 @@
 import SwiftUI
 
-struct MainView: View {
+struct Main: View {
     // MARK: - Nested Types
     enum Tab {
         case home, add, history
@@ -139,7 +139,7 @@ struct MainView: View {
 
 #Preview {
     GlobalBackground {
-        MainView()
+        Main()
             .environment(\.managedObjectContext, PersistenceController.preview.container.viewContext)
     }
 }

@@ -1,7 +1,7 @@
 import SwiftUI
 import CoreData
 
-struct BrewRecipeView: View {
+struct BrewRecipe: View {
     // MARK: - Environment
     @Environment(\.managedObjectContext) private var viewContext
     @Environment(\.dismiss) private var dismiss
@@ -93,7 +93,7 @@ struct BrewRecipeView: View {
         }
         .fullScreenCover(isPresented: $showCompletionView) {
             GlobalBackground {
-                BrewCompletionView(recipe: recipe, actualElapsedTime: timerViewModel.elapsedTime)
+                BrewCompletion(recipe: recipe, actualElapsedTime: timerViewModel.elapsedTime)
             }
         }
         .onReceive(NotificationCenter.default.publisher(for: .brewingCompleted)) { _ in
@@ -154,7 +154,7 @@ extension Notification.Name {
 }
 
 // MARK: - Preview
-struct BrewRecipeViewPreview: PreviewProvider {
+struct BrewRecipePreview: PreviewProvider {
     static var previews: some View {
         let context = PersistenceController.preview.container.viewContext
         
@@ -188,7 +188,7 @@ struct BrewRecipeViewPreview: PreviewProvider {
         createStage("fast", 100, 40, 3)
         
         return GlobalBackground {
-            BrewRecipeView(recipe: testRecipe)
+            BrewRecipe(recipe: testRecipe)
                 .environment(\.managedObjectContext, context)
         }
     }

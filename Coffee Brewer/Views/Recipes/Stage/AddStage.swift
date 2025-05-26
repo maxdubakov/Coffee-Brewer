@@ -1,7 +1,7 @@
 import SwiftUI
 import CoreData
 
-struct AddStageView: View {
+struct AddStage: View {
     // MARK: - Environment
     @Environment(\.dismiss) private var dismiss
     

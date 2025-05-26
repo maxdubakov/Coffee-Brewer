@@ -2,7 +2,7 @@ import SwiftUI
 import CoreData
 
 struct Recipes: View {
-    @Binding var selectedTab: MainView.Tab
+    @Binding var selectedTab: Main.Tab
     @Binding var selectedRoaster: Roaster?
     
     // MARK: - Fetch Requests
