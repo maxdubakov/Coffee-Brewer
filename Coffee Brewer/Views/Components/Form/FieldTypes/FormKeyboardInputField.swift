@@ -27,30 +27,30 @@ struct FormKeyboardInputField<Value>: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
             FormField {
-                if isActive {
-                    ZStack(alignment: .leading) {
-                        if internalText.isEmpty {
-                            FormPlaceholderText(value: title)
-                        }
-
-                        TextField("", text: $internalText)
-                            .focused($isFocused)
-                            .keyboardType(keyboardType)
-                            .font(.system(size: 17, weight: .medium))
-                            .foregroundStyle(BrewerColors.cream)
-                            .multilineTextAlignment(.leading)
-                            .onChange(of: internalText) { _, newValue in
-                                if let newVal = stringToValue(newValue) {
-                                    value = newVal
-                                }
-                            }
+                ZStack(alignment: .leading) {
+                    // Always show placeholder when not active or when active but empty
+                    if !isActive || (isActive && internalText.isEmpty) {
+                        FormPlaceholderText(value: title)
                     }
-                } else {
-                    FormPlaceholderText(value: title)
+                    
+                    // Always render TextField but make it invisible when not active
+                    TextField("", text: $internalText)
+                        .focused($isFocused)
+                        .keyboardType(keyboardType)
+                        .font(.system(size: 17, weight: .medium))
+                        .foregroundStyle(BrewerColors.cream)
+                        .multilineTextAlignment(.leading)
+                        .opacity(isActive ? 1 : 0)
+                        .allowsHitTesting(isActive)
+                        .onChange(of: internalText) { _, newValue in
+                            if let newVal = stringToValue(newValue) {
+                                value = newVal
+                            }
+                        }
                 }
-
+                
                 Spacer()
-
+                
                 if !isActive && !valueToString(value).isEmpty {
                     FormValueText(value: valueToString(value))
                 }
