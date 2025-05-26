@@ -4,25 +4,29 @@ import CoreData
 struct StagesManagementView: View {
     // MARK: - Bindings
     @Binding var selectedTab: MainView.Tab
-    @Binding var formData: RecipeFormData
+    
+    // MARK: - State
+    @State private var formData: RecipeFormData
     
     // MARK: - View Model
     @StateObject private var viewModel: StagesManagementViewModel
     
     // MARK: - Callbacks
     let onSaveComplete: (() -> Void)?
+    let onFormDataUpdate: ((RecipeFormData) -> Void)?
     
     // MARK: - Initialization
-    init(formData: Binding<RecipeFormData>, brewMath: BrewMathViewModel, selectedTab: Binding<MainView.Tab>, context: NSManagedObjectContext, existingRecipeID: NSManagedObjectID?, onSaveComplete: (() -> Void)? = nil) {
+    init(formData: RecipeFormData, brewMath: BrewMathViewModel, selectedTab: Binding<MainView.Tab>, context: NSManagedObjectContext, existingRecipeID: NSManagedObjectID?, onSaveComplete: (() -> Void)? = nil, onFormDataUpdate: ((RecipeFormData) -> Void)? = nil) {
         _selectedTab = selectedTab
-        _formData = formData
+        _formData = State(initialValue: formData)
         _viewModel = StateObject(wrappedValue: StagesManagementViewModel(
-            formData: formData.wrappedValue,
+            formData: formData,
             brewMath: brewMath,
             context: context,
             existingRecipeID: existingRecipeID
         ))
         self.onSaveComplete = onSaveComplete
+        self.onFormDataUpdate = onFormDataUpdate
     }
     
     var body: some View {
@@ -58,6 +62,7 @@ struct StagesManagementView: View {
         }
         .onChange(of: viewModel.formData) { _, newValue in
             formData = newValue
+            onFormDataUpdate?(newValue)
         }
         .background(BrewerColors.background)
     }
@@ -241,7 +246,8 @@ struct StagesManagementView: View {
 // MARK: - Preview
 #Preview {
     let context = PersistenceController.preview.container.viewContext
-    @State var formData = RecipeFormData()
+    
+    var formData = RecipeFormData()
     formData.name = "Ethiopian Pour Over"
     formData.grams = 18
     formData.ratio = 16.0
@@ -257,7 +263,7 @@ struct StagesManagementView: View {
     return NavigationStack {
         GlobalBackground {
             StagesManagementView(
-                formData: $formData,
+                formData: formData,
                 brewMath: brewMath,
                 selectedTab: .constant(.add),
                 context: context,

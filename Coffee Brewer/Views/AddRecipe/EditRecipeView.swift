@@ -85,17 +85,17 @@ struct EditRecipeView: View {
                 switch destination {
                 case .stages(let formData, let existingRecipeID):
                     GlobalBackground {
-                        StagesManagementViewWrapper(
-                            initialFormData: formData,
+                        StagesManagementView(
+                            formData: formData,
                             brewMath: viewModel.brewMath,
                             selectedTab: .constant(.home),
                             context: viewContext,
                             existingRecipeID: existingRecipeID,
-                            onFormDataUpdate: { updatedFormData in
-                                viewModel.formData = updatedFormData
-                            },
                             onSaveComplete: {
                                 isPresented = nil
+                            },
+                            onFormDataUpdate: { updatedFormData in
+                                viewModel.formData = updatedFormData
                             }
                         )
                     }

@@ -53,13 +53,13 @@ struct AddRecipe: View {
 
 // MARK: - Preview
 #Preview {
+    @Previewable @State var navigationPath = NavigationPath()
+    
     let context = PersistenceController.preview.container.viewContext
     let viewModel = AddRecipeViewModel(
         selectedRoaster: nil,
-        context: context,
+        context: context
     )
-    
-    @State var navigationPath = NavigationPath()
     
     return NavigationStack {
         AddRecipe(
