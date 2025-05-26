@@ -3,16 +3,16 @@ import CoreData
 
 @MainActor
 class AddRecipeCoordinator: ObservableObject {
-    private var addRecipeView: AddRecipe?
+    weak var addRecipeViewModel: AddRecipeViewModel?
     private var isRecipeSaved = false
     
-    func setAddRecipeView(_ view: AddRecipe) {
-        addRecipeView = view
+    func setViewModel(_ viewModel: AddRecipeViewModel) {
+        self.addRecipeViewModel = viewModel
     }
     
     func resetIfNeeded() {
         if !isRecipeSaved {
-            addRecipeView?.resetIfNeeded()
+            addRecipeViewModel?.resetToDefaults()
         }
         isRecipeSaved = false
     }
@@ -21,11 +21,11 @@ class AddRecipeCoordinator: ObservableObject {
         if isRecipeSaved {
             return false
         }
-        return addRecipeView?.hasUnsavedChanges() ?? false
+        return addRecipeViewModel?.hasUnsavedChanges() ?? false
     }
     
     func markRecipeAsSaved() {
         isRecipeSaved = true
-        addRecipeView?.resetIfNeeded()
+        addRecipeViewModel?.resetToDefaults()
     }
 }

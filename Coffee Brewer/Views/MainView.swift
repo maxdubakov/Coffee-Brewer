@@ -35,12 +35,12 @@ struct MainView: View {
             }
             .tag(Tab.home)
 
-            AddRecipeCoordinatorView(
-                coordinator: addRecipeCoordinator,
+            AddRecipe(
+                selectedTab: $selectedTab,
                 selectedRoaster: $selectedRoaster,
-                context: viewContext,
-                selectedTab: $selectedTab
+                context: viewContext
             )
+            .environmentObject(addRecipeCoordinator)
             .background(BrewerColors.background)
             .tabItem {
                 TabIcon(imageName: "add.recipe", label: "Add")

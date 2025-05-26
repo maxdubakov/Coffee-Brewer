@@ -3,6 +3,7 @@ import CoreData
 
 struct AddRecipe: View {
     @Environment(\.managedObjectContext) private var viewContext
+    @EnvironmentObject private var coordinator: AddRecipeCoordinator
     
     @Binding var selectedTab: MainView.Tab
     @Binding var selectedRoaster: Roaster?
@@ -100,6 +101,8 @@ struct AddRecipe: View {
             viewModel.onNavigateToStages = { formData, _ in
                 navigationPath.append(AddRecipeNavigation.stages(formData: formData, existingRecipeID: nil))
             }
+            // Register viewModel with coordinator
+            coordinator.setViewModel(viewModel)
         }
     }
     
