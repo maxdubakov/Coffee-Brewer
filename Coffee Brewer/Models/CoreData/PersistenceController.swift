@@ -44,6 +44,8 @@ struct PersistenceController {
         let madHeads = Roaster(context: viewContext)
         madHeads.id = UUID()
         madHeads.name = "Mad Heads"
+        madHeads.location = "Ukraine"
+        madHeads.foundedYear = 2000
         
         let ethioRoaster = Roaster(context: viewContext)
         ethioRoaster.id = UUID()

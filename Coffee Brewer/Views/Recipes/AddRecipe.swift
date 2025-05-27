@@ -60,16 +60,7 @@ struct AddRecipe: View {
             .navigationDestination(for: AddRecipeNavigation.self) { destination in
                 switch destination {
                 case .stageChoice(let formData, let existingRecipeID):
-                    GlobalBackground {
-                        StageCreationChoice(
-                            onManualChoice: {
-                                navigationPath.append(AddRecipeNavigation.stages(formData: formData, existingRecipeID: existingRecipeID))
-                            },
-                            onRecordChoice: {
-                                navigationPath.append(AddRecipeNavigation.recordStages(formData: formData, existingRecipeID: existingRecipeID))
-                            }
-                        )
-                    }
+                    StageCreationChoice(formData: formData, existingRecipeID: existingRecipeID)
                 case .stages(let formData, _):
                     GlobalBackground {
                         StagesManagement(

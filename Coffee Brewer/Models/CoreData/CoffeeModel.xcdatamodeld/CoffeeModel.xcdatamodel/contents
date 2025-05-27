@@ -34,8 +34,12 @@
         <relationship name="stages" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="Stage" inverseName="recipe" inverseEntity="Stage"/>
     </entity>
     <entity name="Roaster" representedClassName="Roaster" syncable="YES" codeGenerationType="class">
+        <attribute name="foundedYear" optional="YES" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES"/>
         <attribute name="id" optional="YES" attributeType="UUID" usesScalarValueType="NO"/>
+        <attribute name="location" optional="YES" attributeType="String"/>
         <attribute name="name" optional="YES" attributeType="String"/>
+        <attribute name="notes" optional="YES" attributeType="String"/>
+        <attribute name="website" optional="YES" attributeType="String"/>
         <relationship name="recipes" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="Recipe" inverseName="roaster" inverseEntity="Recipe"/>
     </entity>
     <entity name="Stage" representedClassName="Stage" syncable="YES" codeGenerationType="class">

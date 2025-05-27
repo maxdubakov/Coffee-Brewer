@@ -35,12 +35,13 @@ struct Main: View {
             }
             .tag(Tab.home)
 
-            AddRecipe(
-                selectedTab: $selectedTab,
-                selectedRoaster: $selectedRoaster,
-                context: viewContext
-            )
-            .environmentObject(addRecipeCoordinator)
+            NavigationStack {
+                AddChoice(
+                    selectedTab: $selectedTab,
+                    selectedRoaster: $selectedRoaster
+                )
+                .environmentObject(addRecipeCoordinator)
+            }
             .background(BrewerColors.background)
             .tabItem {
                 TabIcon(imageName: "add.recipe", label: "Add")
@@ -107,6 +108,7 @@ struct Main: View {
         } else if oldTab != .add && newTab == .add && selectedRoaster == nil && !showingDiscardAlert {
             // Entering Add tab without a recipe or roaster selected - ensure clean state
             // Don't reset if we're showing the discard alert
+            // Only reset if we're not already in a navigation flow
             addRecipeCoordinator.resetIfNeeded()
         }
     }
