@@ -15,28 +15,24 @@ struct FormRichTextField: View {
                 .background(Color.clear)
                 .frame(minHeight: minHeight)
                 .foregroundColor(BrewerColors.textPrimary)
-                .font(.system(size: 16))
+                .font(.system(size: 17, weight: .medium))
                 .padding(.horizontal, 0) // Remove horizontal padding
                 .padding(.vertical, 0)   // Remove vertical padding
-            
-            // Placeholder with precise positioning
+
             if notes.isEmpty {
                 Text(placeholder)
-                    .font(.system(size: 16))
-                    .foregroundColor(BrewerColors.textSecondary.opacity(0.7))
+                    .font(.system(size: 17, weight: .light))
+                    .foregroundColor(BrewerColors.cream.opacity(0.6))
                     .padding(.horizontal, 5) // Match TextEditor's internal padding
                     .padding(.vertical, 8)   // Match TextEditor's internal padding
                     .allowsHitTesting(false)
             }
         }
-        .padding(12) // Apply padding to the ZStack instead
+        .padding(12)
         .background(
-            RoundedRectangle(cornerRadius: 12)
+            RoundedRectangle(cornerRadius: 16)
                 .fill(BrewerColors.surface.opacity(0.6))
-                .overlay(
-                    RoundedRectangle(cornerRadius: 12)
-                        .strokeBorder(BrewerColors.divider, lineWidth: 1)
-                )
+                .shadow(color: Color.black.opacity(0.1), radius: 2, x: 0, y: 1)
         )
     }
 }

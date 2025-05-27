@@ -7,24 +7,13 @@ struct RoasterForm: View {
     var body: some View {
         ScrollView {
             VStack(spacing: 0) {
-                VStack(spacing: 8) {
-                    Text("New Roaster")
-                        .font(.system(size: 32, weight: .bold))
-                        .foregroundColor(BrewerColors.textPrimary)
-                    
-                    Text("Add a coffee roaster to your collection")
-                        .font(.system(size: 16))
-                        .foregroundColor(BrewerColors.textSecondary)
-                }
-                .padding(.bottom, 24)
-                
                 VStack(spacing: 30) {
                     basicInfoSection
                     detailsSection
                     notesSection
                 }
             }
-            .padding(.horizontal, 16)
+//            .padding(.horizontal, 16)
             .padding(.bottom, 100)
         }
         .scrollDismissesKeyboard(.interactively)
@@ -38,7 +27,7 @@ struct RoasterForm: View {
                     .foregroundColor(BrewerColors.caramel)
                     .font(.system(size: 16))
                 
-                SecondaryHeader(title: "Basic Information")
+                SecondaryHeader(title: "Basics")
             }
             .padding(.horizontal, 20)
 
@@ -116,14 +105,12 @@ struct RoasterForm: View {
                 
                 SecondaryHeader(title: "Notes")
             }
-            .padding(.horizontal, 20)
 
-            FormGroup {
-                FormRichTextField(
-                    notes: $formData.notes,
-                    placeholder: "Add any additional information about this roaster"
-                )
-            }
+            FormRichTextField(
+                notes: $formData.notes,
+                placeholder: "Add any additional notes here..."
+            )
         }
+        .padding(.horizontal, 20)
     }
 }

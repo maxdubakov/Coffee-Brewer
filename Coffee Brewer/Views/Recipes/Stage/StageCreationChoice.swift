@@ -10,17 +10,8 @@ struct StageCreationChoice: View {
         GlobalBackground {
             VStack(spacing: 0) {
                 // Header
-                VStack(alignment: .leading, spacing: 12) {
-                    SecondaryHeader(title: "Create Brewing Stages")
-                    
-                    Text("Choose how you'd like to create your brewing stages")
-                        .font(.subheadline)
-                        .foregroundColor(BrewerColors.textSecondary)
-                }
-                .frame(maxWidth: .infinity, alignment: .leading)
-                .padding(.horizontal, 18)
-                .padding(.top, 20)
-                .padding(.bottom, 40)
+                PageTitleH2("Add Brewing Stages", subtitle: "Choose how you'd like to create your brewing stages")
+                    .padding(.vertical, 20)
                 
                 // Choice cards
                 VStack(spacing: 20) {

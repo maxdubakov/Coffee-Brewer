@@ -15,10 +15,14 @@ struct AddRoaster: View {
     var body: some View {
         FixedBottomLayout(
             content: {
-                RoasterForm(
-                    formData: $viewModel.formData,
-                    focusedField: $viewModel.focusedField
-                )
+                VStack(spacing: 16) {
+                    PageTitleH2("Add Roaster", subtitle: "Add a coffee roaster to your collection")
+
+                    RoasterForm(
+                        formData: $viewModel.formData,
+                        focusedField: $viewModel.focusedField
+                    )
+                }
             },
             actions: {
                 StandardButton(

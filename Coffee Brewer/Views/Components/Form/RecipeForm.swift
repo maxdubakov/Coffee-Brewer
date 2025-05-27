@@ -21,7 +21,7 @@ struct RecipeForm: View {
                     .foregroundColor(BrewerColors.caramel)
                     .font(.system(size: 16))
                 
-                SecondaryHeader(title: "Basic Info")
+                SecondaryHeader(title: "Basics")
             }
             .padding(.horizontal, 20)
 

@@ -62,10 +62,6 @@ class AddRecipeViewModel: ObservableObject {
             missingFields.append("Roaster")
         }
         
-        if formData.grinder == nil {
-            missingFields.append("Grinder")
-        }
-        
         if missingFields.isEmpty {
             onNavigateToStages?(formData, nil)
         } else {

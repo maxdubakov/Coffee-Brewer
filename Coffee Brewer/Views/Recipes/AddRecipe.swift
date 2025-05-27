@@ -23,11 +23,15 @@ struct AddRecipe: View {
     var body: some View {
         FixedBottomLayout(
                 content: {
-                    RecipeForm(
-                        formData: $viewModel.formData,
-                        brewMath: $viewModel.brewMath,
-                        focusedField: $viewModel.focusedField
-                    )
+                    VStack(spacing: 16) {
+                        PageTitleH2("Add Recipe", subtitle: "Create a custom coffee brewing recipe")
+
+                        RecipeForm(
+                            formData: $viewModel.formData,
+                            brewMath: $viewModel.brewMath,
+                            focusedField: $viewModel.focusedField
+                        )
+                    }
                 },
                 actions: {
                     StandardButton(

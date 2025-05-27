@@ -31,7 +31,8 @@ struct StagesManagement: View {
             contentPadding: EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0),
             content: {
                 VStack(alignment: .leading, spacing: 0) {
-                    headerSection
+                    PageTitleH2("Manage Recipe Stages", subtitle: "Add brewing stages to your recipe")
+                        .padding(.vertical, 20)
                     editButtonSection
                     addStageButton
                     stagesContent
@@ -81,41 +82,26 @@ struct StagesManagement: View {
         .background(BrewerColors.background)
     }
     
-    // MARK: - View Components
-    private var headerSection: some View {
-        VStack(alignment: .leading, spacing: 6) {
-            SectionHeader(title: "Manage Recipe Stages")
-                .padding(.horizontal, 18)
-            
-            if !viewModel.headerSubtitle.isEmpty {
-                Text(viewModel.headerSubtitle)
-                    .font(.subheadline)
-                    .foregroundColor(BrewerColors.textSecondary)
-                    .padding(.horizontal, 18)
-            }
-        }
-    }
-    
     private var editButtonSection: some View {
         Group {
-            if viewModel.hasStages {
-                HStack {
-                    WaterBalanceIndicator(
-                        currentWater: viewModel.currentWater,
-                        totalWater: viewModel.totalWater
-                    )
-                    .padding(.horizontal, 18)
-
-                    Spacer()
-
-                    Button(action: viewModel.toggleEditMode) {
-                        Text(viewModel.editButtonTitle)
-                            .font(.system(size: 16, weight: .medium))
-                            .foregroundColor(BrewerColors.caramel)
-                    }
-                    .padding(.horizontal, 18)
+            
+            HStack {
+                WaterBalanceIndicator(
+                    currentWater: viewModel.currentWater,
+                    totalWater: viewModel.totalWater
+                )
+                .padding(.horizontal, 18)
+                
+                Spacer()
+                
+                Button(action: viewModel.toggleEditMode) {
+                    Text(viewModel.editButtonTitle)
+                        .font(.system(size: 16, weight: .medium))
+                        .foregroundColor(BrewerColors.caramel)
                 }
+                .padding(.horizontal, 18)
             }
+            
         }
     }
     
@@ -133,7 +119,7 @@ struct StagesManagement: View {
             if viewModel.stages.isEmpty {
                 emptyStageView
                     .padding(.horizontal, 18)
-                    .padding(.vertical, 40)
+                    .padding(.vertical, 16)
             } else {
                 stagesList
                     .padding(.top, 8)
@@ -187,7 +173,7 @@ struct StagesManagement: View {
                             }
                         }
                     }
-
+                    
                     Button {
                         viewModel.stageBeingModified = stage
                     } label: {
@@ -212,7 +198,7 @@ struct StagesManagement: View {
     }
     
     private var emptyStageView: some View {
-        VStack(spacing: 16) {
+        VStack(alignment: .center, spacing: 16) {
             Spacer(minLength: 30)
             Image(systemName: "drop.fill")
                 .font(.system(size: 40))
