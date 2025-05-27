@@ -32,6 +32,13 @@ struct RoasterForm: View {
             .padding(.horizontal, 20)
 
             FormGroup {
+                SearchCountryPickerField(
+                    selectedCountry: $formData.country,
+                    focusedField: $focusedField
+                )
+                
+                Divider()
+                
                 FormKeyboardInputField(
                     title: "Name",
                     field: .name,
@@ -39,18 +46,6 @@ struct RoasterForm: View {
                     valueToString: { $0 },
                     stringToValue: { $0 },
                     value: $formData.name,
-                    focusedField: $focusedField
-                )
-                
-                Divider()
-                
-                FormKeyboardInputField(
-                    title: "Location",
-                    field: .location,
-                    keyboardType: .default,
-                    valueToString: { $0 },
-                    stringToValue: { $0 },
-                    value: $formData.location,
                     focusedField: $focusedField
                 )
             }

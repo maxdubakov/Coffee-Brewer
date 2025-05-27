@@ -24,7 +24,12 @@ struct SearchRoasterPickerField: View {
                 Spacer()
 
                 if let roaster = selectedRoaster {
-                    FormValueText(value: roaster.name ?? "")
+                    FormValueText(value: roaster.name ?? "") {
+                        if let country = roaster.country, let flag = country.flag {
+                            Text(flag)
+                                .font(.system(size: 17))
+                        }
+                    }
                 } else {
                     FormPlaceholderText(value: "Select")
                 }
@@ -38,7 +43,13 @@ struct SearchRoasterPickerField: View {
             SearchablePickerSheet(
                 label: "Roaster",
                 items: Array(roasters),
-                displayName: { $0.name ?? "" },
+                displayName: { roaster in
+                    let name = roaster.name ?? ""
+                    if let country = roaster.country, let flag = country.flag {
+                        return "\(flag) \(name)"
+                    }
+                    return name
+                },
                 onSelect: { selectedRoaster = $0 },
                 createNewItem: { name in
                     let roaster = Roaster(context: viewContext)

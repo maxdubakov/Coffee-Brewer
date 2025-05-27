@@ -12,9 +12,16 @@ struct PersistenceController {
             container.persistentStoreDescriptions.first?.url = URL(fileURLWithPath: "/dev/null")
         }
         
-        container.loadPersistentStores { description, error in
+        container.loadPersistentStores { [weak container] description, error in
             if let error = error {
                 fatalError("Error loading Core Data stores: \(error.localizedDescription)")
+            }
+            
+            // Only populate countries for real app, not preview
+            if !inMemory, let container = container {
+                // Use a background context for population
+                let backgroundContext = container.newBackgroundContext()
+                CountryDataManager.shared.populateCountriesIfNeeded(in: backgroundContext)
             }
         }
         
@@ -40,16 +47,27 @@ struct PersistenceController {
         // Create sample data
         let viewContext = controller.container.viewContext
         
+        // Populate countries for preview
+        CountryDataManager.shared.populateCountriesForPreview(in: viewContext)
+        
+        // Fetch some countries for roasters
+        let countryFetchRequest: NSFetchRequest<Country> = Country.fetchRequest()
+        let countries = try? viewContext.fetch(countryFetchRequest)
+        let ukraineCountry = countries?.first(where: { $0.name == "Ukraine" })
+        let ethiopiaCountry = countries?.first(where: { $0.name == "Ethiopia" })
+        
         // Create roasters
         let madHeads = Roaster(context: viewContext)
         madHeads.id = UUID()
         madHeads.name = "Mad Heads"
-        madHeads.location = "Ukraine"
+        madHeads.country = ukraineCountry
+        madHeads.location = "Kyiv"
         madHeads.foundedYear = 2000
         
         let ethioRoaster = Roaster(context: viewContext)
         ethioRoaster.id = UUID()
         ethioRoaster.name = "Ethio Coffee Co."
+        ethioRoaster.country = ethiopiaCountry
         
         // Create grinders
         let niche = Grinder(context: viewContext)

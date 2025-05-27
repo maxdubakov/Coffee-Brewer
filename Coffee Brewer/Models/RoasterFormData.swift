@@ -2,14 +2,11 @@ import Foundation
 
 struct RoasterFormData {
     var name: String = ""
+    var country: Country?
     var location: String = ""
     var website: String = ""
     var notes: String = ""
     var foundedYear: String = ""
-    
-    var isValid: Bool {
-        !name.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
-    }
     
     var websiteURL: URL? {
         guard !website.isEmpty else { return nil }

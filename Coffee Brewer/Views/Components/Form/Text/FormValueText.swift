@@ -1,6 +1,6 @@
 import SwiftUI
 
-struct FormValueText: View {
+struct FormValueText<Leading: View>: View {
     // MARK: - Private Properties
     private let value: String
     private let placeholder: String
@@ -10,14 +10,25 @@ struct FormValueText: View {
     private let fontSize: CGFloat = 17.0
     private let fontWeight: Font.Weight = .medium
     private let foregroundColor: Color = BrewerColors.cream
+    private let leadingView: Leading?
     
     // MARK: - Initializers
-    init(value: String) {
+    init(value: String, @ViewBuilder leading: () -> Leading) {
         self.value = value
         self.placeholder = ""
         self.onCommit = nil
         self.textBinding = nil
         self.isFocusedBinding = nil
+        self.leadingView = leading()
+    }
+    
+    init(value: String) where Leading == EmptyView {
+        self.value = value
+        self.placeholder = ""
+        self.onCommit = nil
+        self.textBinding = nil
+        self.isFocusedBinding = nil
+        self.leadingView = nil
     }
 
     init(
@@ -25,12 +36,13 @@ struct FormValueText: View {
         textBinding: Binding<String>,
         isFocused: FocusState<Bool>.Binding? = nil,
         onCommit: (() -> Void)? = nil
-    ) {
+    ) where Leading == EmptyView {
         self.value = textBinding.wrappedValue
         self.placeholder = placeholder
         self.onCommit = onCommit
         self.textBinding = textBinding
         self.isFocusedBinding = isFocused
+        self.leadingView = nil
     }
 
     var body: some View {
@@ -53,12 +65,17 @@ struct FormValueText: View {
                     .keyboardType(.default)
                 }
             } else {
-                Text(value)
-                    .font(.system(size: fontSize, weight: fontWeight))
-                    .foregroundColor(foregroundColor)
-                    .lineLimit(1)
-                    .truncationMode(.tail)
-                    .frame(maxWidth: 220, alignment: .trailing)
+                HStack(spacing: 6) {
+                    if let leading = leadingView {
+                        leading
+                    }
+                    Text(value)
+                        .font(.system(size: fontSize, weight: fontWeight))
+                        .foregroundColor(foregroundColor)
+                        .lineLimit(1)
+                        .truncationMode(.tail)
+                }
+                .frame(maxWidth: 220, alignment: .trailing)
             }
         }
     }

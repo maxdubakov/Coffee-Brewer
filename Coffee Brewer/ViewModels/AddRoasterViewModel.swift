@@ -24,11 +24,22 @@ class AddRoasterViewModel: ObservableObject {
     }
     
     func validateAndSave() -> Bool {
-        guard formData.isValid else {
-            validationMessage = "Please enter a roaster name"
+        var missingFields: [String] = []
+        
+        if formData.name.isEmpty {
+            missingFields.append("Roaster Name")
+        }
+        
+        if formData.country == nil {
+            missingFields.append("Country")
+        }
+        
+        if !missingFields.isEmpty {
+            validationMessage = "Please, fill in \(missingFields[0])"
             showValidationAlert = true
             return false
         }
+        
         
         if let foundedYear = formData.foundedYearInt {
             let currentYear = Calendar.current.component(.year, from: Date())
@@ -54,6 +65,7 @@ class AddRoasterViewModel: ObservableObject {
         let roaster = Roaster(context: viewContext)
         roaster.id = UUID()
         roaster.name = formData.name.trimmingCharacters(in: .whitespacesAndNewlines)
+        roaster.country = formData.country
         roaster.location = formData.location.trimmingCharacters(in: .whitespacesAndNewlines)
         roaster.website = formData.website.trimmingCharacters(in: .whitespacesAndNewlines)
         roaster.notes = formData.notes.trimmingCharacters(in: .whitespacesAndNewlines)
@@ -86,6 +98,7 @@ class AddRoasterViewModel: ObservableObject {
     
     func hasUnsavedChanges() -> Bool {
         !formData.name.isEmpty ||
+        formData.country != nil ||
         !formData.location.isEmpty ||
         !formData.website.isEmpty ||
         !formData.notes.isEmpty ||

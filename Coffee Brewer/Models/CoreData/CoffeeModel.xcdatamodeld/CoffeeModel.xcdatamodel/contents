@@ -14,6 +14,12 @@
         <attribute name="tds" optional="YES" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES"/>
         <relationship name="recipe" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="Recipe" inverseName="brews" inverseEntity="Recipe"/>
     </entity>
+    <entity name="Country" representedClassName="Country" syncable="YES" codeGenerationType="class">
+        <attribute name="flag" optional="YES" attributeType="String"/>
+        <attribute name="id" optional="YES" attributeType="UUID" usesScalarValueType="NO"/>
+        <attribute name="name" optional="YES" attributeType="String"/>
+        <relationship name="roasters" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="Roaster" inverseName="country" inverseEntity="Roaster"/>
+    </entity>
     <entity name="Grinder" representedClassName="Grinder" syncable="YES" codeGenerationType="class">
         <attribute name="id" optional="YES" attributeType="UUID" usesScalarValueType="NO"/>
         <attribute name="name" optional="YES" attributeType="String"/>
@@ -40,6 +46,7 @@
         <attribute name="name" optional="YES" attributeType="String"/>
         <attribute name="notes" optional="YES" attributeType="String"/>
         <attribute name="website" optional="YES" attributeType="String"/>
+        <relationship name="country" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="Country" inverseName="roasters" inverseEntity="Country"/>
         <relationship name="recipes" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="Recipe" inverseName="roaster" inverseEntity="Recipe"/>
     </entity>
     <entity name="Stage" representedClassName="Stage" syncable="YES" codeGenerationType="class">
