@@ -30,8 +30,6 @@ struct SecondaryButtonStyle: ButtonStyle {
                     )
             )
             .cornerRadius(12)
-            .scaleEffect(configuration.isPressed ? 0.98 : 1.0)
-            .opacity(configuration.isPressed ? 0.9 : 1.0)
-            .animation(.easeInOut(duration: 0.2), value: configuration.isPressed)
+            .buttonPressAnimation(isPressed: configuration.isPressed)
     }
 }

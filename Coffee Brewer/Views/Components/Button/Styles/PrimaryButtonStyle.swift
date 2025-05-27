@@ -19,8 +19,6 @@ struct PrimaryButtonStyle: ButtonStyle {
             )
             .cornerRadius(12)
             .shadow(color: BrewerColors.buttonShadow, radius: 4, x: 0, y: 2)
-            .scaleEffect(configuration.isPressed ? 0.98 : 1.0)
-            .opacity(configuration.isPressed ? 0.9 : 1.0)
-            .animation(.easeInOut(duration: 0.2), value: configuration.isPressed)
+            .buttonPressAnimation(isPressed: configuration.isPressed)
     }
 }

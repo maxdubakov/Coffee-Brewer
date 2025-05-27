@@ -19,8 +19,6 @@ struct DestructiveButtonStyle: ButtonStyle {
             )
             .cornerRadius(12)
             .shadow(color: Color.black.opacity(0.2), radius: 3, x: 0, y: 1)
-            .scaleEffect(configuration.isPressed ? 0.98 : 1.0)
-            .opacity(configuration.isPressed ? 0.9 : 1.0)
-            .animation(.easeInOut(duration: 0.2), value: configuration.isPressed)
+            .buttonPressAnimation(isPressed: configuration.isPressed)
     }
 }

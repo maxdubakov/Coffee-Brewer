@@ -357,7 +357,7 @@ struct RecordStages: View {
                     Image(systemName: "arrow.down")
                         .font(.system(size: 40, weight: .medium))
                         .foregroundColor(BrewerColors.amber)
-                        .modifier(BounceAnimation())
+                        .bounceAnimation()
                 }
                 .frame(maxWidth: .infinity)
             }
@@ -371,7 +371,7 @@ struct RecordStages: View {
                     Image(systemName: "arrow.up")
                         .font(.system(size: 30, weight: .medium))
                         .foregroundColor(BrewerColors.amber)
-                        .modifier(BounceAnimation())
+                        .bounceAnimation()
 
                     Text("Record your stages")
                         .font(.system(size: 24, weight: .semibold))
@@ -400,7 +400,7 @@ struct RecordStages: View {
                     Image(systemName: "checkmark.circle.fill")
                         .font(.system(size: 60))
                         .foregroundColor(BrewerColors.amber)
-                        .modifier(ScaleAnimation())
+                        .scaleAnimation()
                     
                     Text("Finish recording")
                         .font(.system(size: 24, weight: .semibold))
@@ -436,48 +436,6 @@ struct RecordStages: View {
     }
 }
 
-// MARK: - Animation Modifiers
-struct BounceAnimation: ViewModifier {
-    @State private var offset: CGFloat = 0
-    
-    func body(content: Content) -> some View {
-        content
-            .offset(y: offset)
-            .onAppear {
-                withAnimation(.easeInOut(duration: 0.8).repeatForever(autoreverses: true)) {
-                    offset = -10
-                }
-            }
-    }
-}
-
-struct PulseAnimation: ViewModifier {
-    @State private var scale: CGFloat = 1.0
-    
-    func body(content: Content) -> some View {
-        content
-            .scaleEffect(scale)
-            .onAppear {
-                withAnimation(.easeInOut(duration: 1.0).repeatForever(autoreverses: true)) {
-                    scale = 1.05
-                }
-            }
-    }
-}
-
-struct ScaleAnimation: ViewModifier {
-    @State private var scale: CGFloat = 0.8
-    
-    func body(content: Content) -> some View {
-        content
-            .scaleEffect(scale)
-            .onAppear {
-                withAnimation(.spring(response: 0.5, dampingFraction: 0.6)) {
-                    scale = 1.0
-                }
-            }
-    }
-}
 
 // MARK: - Preview
 #Preview {
