@@ -52,6 +52,16 @@ struct BrewCompletion: View {
         brew.tds = 0.0
         brew.recipe = recipe
         brew.actualDurationSeconds = Int16(actualElapsedTime)
+        
+        // Copy recipe data for historical preservation
+        brew.recipeName = recipe.name
+        brew.recipeGrams = recipe.grams
+        brew.recipeWaterAmount = recipe.waterAmount
+        brew.recipeRatio = recipe.ratio
+        brew.recipeTemperature = recipe.temperature
+        brew.recipeGrindSize = recipe.grindSize
+        brew.roasterName = recipe.roaster?.name
+        brew.grinderName = recipe.grinder?.name
     }
     
     var body: some View {

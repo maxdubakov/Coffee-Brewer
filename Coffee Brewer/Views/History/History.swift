@@ -88,11 +88,21 @@ struct BrewHistoryCard: View {
     }
     
     private var recipeName: String {
-        brew.recipe?.name ?? "Unknown Recipe"
+        // Use snapshot data if recipe is deleted
+        if let recipe = brew.recipe {
+            return recipe.name ?? "Unknown Recipe"
+        } else {
+            return brew.recipeName ?? "Deleted Recipe"
+        }
     }
     
     private var roasterName: String {
-        brew.recipe?.roaster?.name ?? "Unknown Roaster"
+        // Use snapshot data if recipe is deleted
+        if let recipe = brew.recipe {
+            return recipe.roaster?.name ?? "Unknown Roaster"
+        } else {
+            return brew.roasterName ?? "Unknown Roaster"
+        }
     }
     
     var body: some View {
@@ -129,31 +139,34 @@ struct BrewHistoryCard: View {
             
             // Recipe details in small format
             HStack(spacing: 12) {
-                if let recipe = brew.recipe {
-                    RecipeDetailTag(
-                        icon: "scalemass",
-                        value: "\(recipe.grams)g",
-                        color: BrewerColors.caramel
-                    )
-                    
-                    RecipeDetailTag(
-                        icon: "drop",
-                        value: "\(recipe.waterAmount)ml",
-                        color: BrewerColors.caramel
-                    )
-                    
-                    RecipeDetailTag(
-                        icon: "thermometer",
-                        value: "\(Int(recipe.temperature))°C",
-                        color: BrewerColors.caramel
-                    )
-                    
-                    RecipeDetailTag(
-                        icon: "timer",
-                        value: "\(Int(brew.actualDurationSeconds))s",
-                        color: BrewerColors.caramel
-                    )
-                }
+                // Use recipe data if available, otherwise use snapshot
+                let grams = brew.recipe?.grams ?? brew.recipeGrams
+                let waterAmount = brew.recipe?.waterAmount ?? brew.recipeWaterAmount
+                let temperature = brew.recipe?.temperature ?? brew.recipeTemperature
+                
+                RecipeDetailTag(
+                    icon: "scalemass",
+                    value: "\(grams)g",
+                    color: BrewerColors.caramel
+                )
+                
+                RecipeDetailTag(
+                    icon: "drop",
+                    value: "\(waterAmount)ml",
+                    color: BrewerColors.caramel
+                )
+                
+                RecipeDetailTag(
+                    icon: "thermometer",
+                    value: "\(Int(temperature))°C",
+                    color: BrewerColors.caramel
+                )
+                
+                RecipeDetailTag(
+                    icon: "timer",
+                    value: "\(Int(brew.actualDurationSeconds))s",
+                    color: BrewerColors.caramel
+                )
             }
             .padding(.top, 12)
             .padding(.horizontal, 16)
