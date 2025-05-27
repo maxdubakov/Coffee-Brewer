@@ -11,6 +11,13 @@ struct RecipeForm: View {
             brewingParametersSection
             grindSection
         }
+        .contentShape(Rectangle())
+        .onTapGesture {
+            // Dismiss any active field when tapping outside
+            withAnimation(.spring()) {
+                focusedField = nil
+            }
+        }
     }
     
     // MARK: - Basic Info Section

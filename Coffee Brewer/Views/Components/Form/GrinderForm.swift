@@ -19,6 +19,12 @@ struct GrinderForm: View {
             .padding(.bottom, 100)
         }
         .scrollDismissesKeyboard(.interactively)
+        .onTapGesture {
+            // Dismiss any active field when tapping outside
+            withAnimation(.spring()) {
+                focusedField = nil
+            }
+        }
     }
     
     // MARK: - Basic Info Section

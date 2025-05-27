@@ -26,6 +26,13 @@ struct AddStage: View {
                     waterSection
                     previewSection
                 }
+                .contentShape(Rectangle())
+                .onTapGesture {
+                    // Dismiss any active field when tapping outside
+                    withAnimation(.spring()) {
+                        viewModel.focusedField = nil
+                    }
+                }
             },
             actions: {
                 HStack(spacing: 16) {
