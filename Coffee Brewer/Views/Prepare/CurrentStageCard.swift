@@ -24,8 +24,8 @@ struct CurrentStageCard: View {
         StageCardString(
             stageNumber: stageNumber,
             stageType: stageType,
-            size: .large
-        ) {
+            size: .large,
+            content: {
             VStack(alignment: .leading, spacing: 8) {
                 StageInfo(
                     icon: stageType.stageIcon,
@@ -50,7 +50,8 @@ struct CurrentStageCard: View {
                     )
                     .padding(.top, 8)
             }.frame(height: 80)
-        }
+            }
+        )
         .shadow(color: Color.black.opacity(0.2), radius: 4, x: 0, y: 2)
     }
 }

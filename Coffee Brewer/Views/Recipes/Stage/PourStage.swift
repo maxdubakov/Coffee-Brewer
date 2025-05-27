@@ -30,76 +30,76 @@ struct PourStage: View {
             stageNumber: Int(stage.orderIndex) + 1,
             stageType: pourType,
             size: minimize ? .small : .normal,
-            showBorder: true
-        ) {
-            // Stage details
-            VStack(alignment: .leading, spacing: 4) {
-                StageInfo(
-                    icon: pourType.stageIcon,
-                    title: pourType.stageDisplayName,
-                    color: pourType.stageColor
-                )
-                
-                HStack(spacing: 6) {
-                    // Detail text (water amount or duration)
-                    HStack(spacing: 4) {
-                        if pourType != "wait" {
-                            Image(systemName: "drop")
-                                .font(.system(size: 10))
-                                .foregroundColor(BrewerColors.textSecondary)
-                        } else {
-                            Image(systemName: "clock")
-                                .font(.system(size: 10))
-                                .foregroundColor(BrewerColors.textSecondary)
-                        }
-                        
-                        Text(detailText)
-                            .font(.system(size: 14))
-                            .foregroundColor(BrewerColors.textSecondary)
-                    }
+            showBorder: true,
+            content: {
+                // Stage details
+                VStack(alignment: .leading, spacing: 4) {
+                    StageInfo(
+                        icon: pourType.stageIcon,
+                        title: pourType.stageDisplayName,
+                        color: pourType.stageColor
+                    )
                     
-                    // Duration for pour stages
-                    if pourType != "wait" && stage.seconds > 0 && !minimize {
+                    HStack(spacing: 6) {
+                        // Detail text (water amount or duration)
                         HStack(spacing: 4) {
-                            Image(systemName: "clock")
-                                .font(.system(size: 10))
-                                .foregroundColor(BrewerColors.textSecondary)
-
-                            Text("\(stage.seconds)s")
+                            if pourType != "wait" {
+                                Image(systemName: "drop")
+                                    .font(.system(size: 10))
+                                    .foregroundColor(BrewerColors.textSecondary)
+                            } else {
+                                Image(systemName: "clock")
+                                    .font(.system(size: 10))
+                                    .foregroundColor(BrewerColors.textSecondary)
+                            }
+                            
+                            Text(detailText)
                                 .font(.system(size: 14))
                                 .foregroundColor(BrewerColors.textSecondary)
                         }
-                    }
-                    
-                    // Progress visualization - only show when not minimized
-                    if pourType != "wait" && !minimize {
-                        Spacer()
-                        ZStack(alignment: .leading) {
-                            Capsule()
-                                .fill(BrewerColors.inputBackground)
-                                .frame(width: 80, height: 6)
-                            
-                            Capsule()
-                                .fill(LinearGradient(
-                                    gradient: Gradient(colors: [pourType.stageColor.opacity(0.7), pourType.stageColor]),
-                                    startPoint: .leading,
-                                    endPoint: .trailing
-                                ))
-                                .frame(width: relativeProgressValue * 80, height: 6)
+                        
+                        // Duration for pour stages
+                        if pourType != "wait" && stage.seconds > 0 && !minimize {
+                            HStack(spacing: 4) {
+                                Image(systemName: "clock")
+                                    .font(.system(size: 10))
+                                    .foregroundColor(BrewerColors.textSecondary)
+
+                                Text("\(stage.seconds)s")
+                                    .font(.system(size: 14))
+                                    .foregroundColor(BrewerColors.textSecondary)
+                            }
+                        }
+                        
+                        // Progress visualization - only show when not minimized
+                        if pourType != "wait" && !minimize {
+                            Spacer()
+                            ZStack(alignment: .leading) {
+                                Capsule()
+                                    .fill(BrewerColors.inputBackground)
+                                    .frame(width: 80, height: 6)
+                                
+                                Capsule()
+                                    .fill(LinearGradient(
+                                        gradient: Gradient(colors: [pourType.stageColor.opacity(0.7), pourType.stageColor]),
+                                        startPoint: .leading,
+                                        endPoint: .trailing
+                                    ))
+                                    .frame(width: relativeProgressValue * 80, height: 6)
+                            }
                         }
                     }
                 }
+            },
+            trailing: {
+                // Edit indicator (only when not in edit mode)
+                if !minimize {
+                    Image(systemName: "chevron.right")
+                        .font(.system(size: 14, weight: .semibold))
+                        .foregroundColor(BrewerColors.textSecondary.opacity(0.6))
+                }
             }
-            
-            Spacer()
-            
-            // Edit indicator (only when not in edit mode)
-            if !minimize {
-                Image(systemName: "chevron.right")
-                    .font(.system(size: 14, weight: .semibold))
-                    .foregroundColor(BrewerColors.textSecondary.opacity(0.6))
-            }
-        }
+        )
     }
 }
 

@@ -95,8 +95,10 @@ struct RecordedStageCard: View {
     }
     
     var body: some View {
-        StageCard(stageNumber: stageNumber, stageType: stageType) {
-            HStack {
+        StageCard(
+            stageNumber: stageNumber,
+            stageType: stageType,
+            content: {
                 // Stage details
                 VStack(alignment: .leading, spacing: 4) {
                     StageInfo(
@@ -125,9 +127,8 @@ struct RecordedStageCard: View {
                         }
                     }
                 }
-                
-                Spacer()
-                
+            },
+            trailing: {
                 // Remove button
                 Button(action: onRemove) {
                     Image(systemName: "xmark.circle.fill")
@@ -135,7 +136,7 @@ struct RecordedStageCard: View {
                         .foregroundColor(BrewerColors.textSecondary.opacity(0.6))
                 }
             }
-        }
+        )
     }
 }
 

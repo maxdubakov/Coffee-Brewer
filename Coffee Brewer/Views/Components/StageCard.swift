@@ -1,19 +1,21 @@
 import SwiftUI
 
 // MARK: - Stage Card Base View
-struct StageCard<Content: View>: View {
+struct StageCard<Content: View, Trailing: View>: View {
     let stageNumber: Int
     let stageType: StageType
     var size: StageCardSize = .normal
     var showBorder: Bool = true
     let content: () -> Content
+    let trailing: () -> Trailing
     
-    init(stageNumber: Int, stageType: StageType, size: StageCardSize = .normal, showBorder: Bool = true, @ViewBuilder content: @escaping () -> Content) {
+    init(stageNumber: Int, stageType: StageType, size: StageCardSize = .normal, showBorder: Bool = true, @ViewBuilder content: @escaping () -> Content, @ViewBuilder trailing: @escaping () -> Trailing = { EmptyView() }) {
         self.stageNumber = stageNumber
         self.stageType = stageType
         self.size = size
         self.showBorder = showBorder
         self.content = content
+        self.trailing = trailing
     }
     
     var body: some View {
@@ -28,10 +30,14 @@ struct StageCard<Content: View>: View {
             // Custom content
             content()
             
-            Spacer()
+            Spacer(minLength: 0)
+
+            // Trailing content inside the card
+            trailing()
         }
         .padding(.vertical, size.verticalPadding)
-        .padding(.horizontal, size.horizontalPadding)
+        .padding(.leading, size.horizontalPadding)
+        .padding(.trailing, size.trailingPadding)
         .background(
             RoundedRectangle(cornerRadius: size.cornerRadius)
                 .fill(BrewerColors.surface.opacity(0.6))
@@ -45,19 +51,21 @@ struct StageCard<Content: View>: View {
 }
 
 // MARK: - Stage Card with String Type
-struct StageCardString<Content: View>: View {
+struct StageCardString<Content: View, Trailing: View>: View {
     let stageNumber: Int
     let stageType: String
     var size: StageCardSize = .normal
     var showBorder: Bool = true
     let content: () -> Content
+    let trailing: () -> Trailing
     
-    init(stageNumber: Int, stageType: String, size: StageCardSize = .normal, showBorder: Bool = true, @ViewBuilder content: @escaping () -> Content) {
+    init(stageNumber: Int, stageType: String, size: StageCardSize = .normal, showBorder: Bool = true, @ViewBuilder content: @escaping () -> Content, @ViewBuilder trailing: @escaping () -> Trailing = { EmptyView() }) {
         self.stageNumber = stageNumber
         self.stageType = stageType
         self.size = size
         self.showBorder = showBorder
         self.content = content
+        self.trailing = trailing
     }
     
     var body: some View {
@@ -72,10 +80,14 @@ struct StageCardString<Content: View>: View {
             // Custom content
             content()
             
-            Spacer()
+            Spacer(minLength: 0)
+
+            // Trailing content inside the card
+            trailing()
         }
         .padding(.vertical, size.verticalPadding)
-        .padding(.horizontal, size.horizontalPadding)
+        .padding(.leading, size.horizontalPadding)
+        .padding(.trailing, size.trailingPadding)
         .background(
             RoundedRectangle(cornerRadius: size.cornerRadius)
                 .fill(BrewerColors.surface.opacity(0.6))
@@ -171,6 +183,14 @@ enum StageCardSize {
         case .small: return 12
         case .normal: return 16
         case .large: return 16
+        }
+    }
+    
+    var trailingPadding: CGFloat {
+        switch self {
+        case .small: return 12
+        case .normal: return 16
+        case .large: return 20
         }
     }
     
