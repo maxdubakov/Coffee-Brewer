@@ -170,6 +170,16 @@ class NavigationCoordinator: ObservableObject {
                 self?.handleRoasterSaved()
             }
         }
+        
+        NotificationCenter.default.addObserver(
+            forName: .grinderSaved,
+            object: nil,
+            queue: .main
+        ) { [weak self] _ in
+            Task { @MainActor in
+                self?.handleGrinderSaved()
+            }
+        }
     }
     
     private func handleRecipeSaved() {
@@ -180,6 +190,11 @@ class NavigationCoordinator: ObservableObject {
     }
     
     private func handleRoasterSaved() {
+        popToRoot(for: .add)
+        _selectedTab = .home
+    }
+    
+    private func handleGrinderSaved() {
         popToRoot(for: .add)
         _selectedTab = .home
     }

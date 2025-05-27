@@ -87,10 +87,7 @@ struct Main: View {
             AddRoaster(context: viewContext)
             
         case .addGrinder:
-            GlobalBackground {
-                Text("Add Grinder - Coming Soon")
-                    .foregroundColor(BrewerColors.textSecondary)
-            }
+            AddGrinder(context: viewContext)
             
         case .stageChoice(let formData, let existingRecipeID):
             StageCreationChoice(formData: formData, existingRecipeID: existingRecipeID)

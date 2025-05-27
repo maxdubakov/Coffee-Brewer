@@ -1,19 +1,21 @@
 import SwiftUI
 
-struct RoasterForm: View {
-    @Binding var formData: RoasterFormData
+struct GrinderForm: View {
+    @Binding var formData: GrinderFormData
     @Binding var focusedField: FocusedField?
+    
+    let burrTypes = ["Conical", "Flat"]
+    let grinderTypes = ["Manual", "Electric"]
+    let dosingTypes = ["Single Dose", "Hopper Fed", "Doserless", "Timer Based"]
     
     var body: some View {
         ScrollView {
             VStack(spacing: 0) {
                 VStack(spacing: 30) {
                     basicInfoSection
-                    detailsSection
-                    notesSection
+                    burrSection
                 }
             }
-//            .padding(.horizontal, 16)
             .padding(.bottom, 100)
         }
         .scrollDismissesKeyboard(.interactively)
@@ -33,7 +35,7 @@ struct RoasterForm: View {
 
             FormGroup {
                 FormKeyboardInputField(
-                    title: "Roaster Name",
+                    title: "Grinder Name",
                     field: .name,
                     keyboardType: .default,
                     valueToString: { $0 },
@@ -43,71 +45,64 @@ struct RoasterForm: View {
                 )
                 
                 Divider()
-
-                SearchCountryPickerField(
-                    selectedCountry: $formData.country,
+                
+                FormExpandableStringField(
+                    title: "Type",
+                    items: grinderTypes,
+                    field: .grinderType,
+                    allowEmpty: false,
+                    selectedItem: $formData.type,
                     focusedField: $focusedField
                 )
                 
-            
+                Divider()
+                
+                FormExpandableStringField(
+                    title: "Dosing Type",
+                    items: dosingTypes,
+                    field: .dosingType,
+                    allowEmpty: true,
+                    selectedItem: $formData.dosingType,
+                    focusedField: $focusedField
+                )
             }
         }
     }
     
-    // MARK: - Details Section
-    private var detailsSection: some View {
+    // MARK: - Specifications Section
+    private var burrSection: some View {
         VStack(alignment: .leading, spacing: 18) {
             HStack(spacing: 8) {
-                Image(systemName: "doc.text.fill")
+                Image(systemName: "gearshape.2.fill")
                     .foregroundColor(BrewerColors.caramel)
                     .font(.system(size: 16))
                 
-                SecondaryHeader(title: "Details")
+                SecondaryHeader(title: "Burr")
             }
             .padding(.horizontal, 20)
 
             FormGroup {
-                FormKeyboardInputField(
-                    title: "Website",
-                    field: .website,
-                    keyboardType: .URL,
-                    valueToString: { $0 },
-                    stringToValue: { $0 },
-                    value: $formData.website,
+                FormExpandableStringField(
+                    title: "Burr Type",
+                    items: burrTypes,
+                    field: .burrType,
+                    allowEmpty: false,
+                    selectedItem: $formData.burrType,
                     focusedField: $focusedField
                 )
                 
                 Divider()
                 
                 FormKeyboardInputField(
-                    title: "Founded Year",
-                    field: .foundedYear,
+                    title: "Burr Size (mm)",
+                    field: .burrSize,
                     keyboardType: .numberPad,
                     valueToString: { $0 },
                     stringToValue: { $0 },
-                    value: $formData.foundedYear,
+                    value: $formData.burrSize,
                     focusedField: $focusedField
                 )
             }
         }
-    }
-    
-    // MARK: - Notes Section
-    private var notesSection: some View {
-        VStack(alignment: .leading, spacing: 18) {
-            HStack(spacing: 8) {
-                Image(systemName: "note.text")
-                    .foregroundColor(BrewerColors.caramel)
-                    .font(.system(size: 16))
-                
-                SecondaryHeader(title: "Notes")
-            }
-
-            FormRichTextField(
-                notes: $formData.notes,
-                placeholder: "Add any additional notes here..."
-            )
-        }
-        .padding(.horizontal, 20)
     }
 }

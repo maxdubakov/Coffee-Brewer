@@ -26,13 +26,6 @@ struct RecipeForm: View {
             .padding(.horizontal, 20)
 
             FormGroup {
-                SearchRoasterPickerField(
-                    selectedRoaster: $formData.roaster,
-                    focusedField: $focusedField
-                )
-
-                Divider()
-                
                 FormKeyboardInputField(
                     title: "Recipe Name",
                     field: .name,
@@ -40,6 +33,13 @@ struct RecipeForm: View {
                     valueToString: { $0 },
                     stringToValue: { $0 },
                     value: $formData.name,
+                    focusedField: $focusedField
+                )
+                
+                Divider()
+                
+                SearchRoasterPickerField(
+                    selectedRoaster: $formData.roaster,
                     focusedField: $focusedField
                 )
             }

@@ -21,8 +21,12 @@
         <relationship name="roasters" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="Roaster" inverseName="country" inverseEntity="Roaster"/>
     </entity>
     <entity name="Grinder" representedClassName="Grinder" syncable="YES" codeGenerationType="class">
+        <attribute name="burrSize" optional="YES" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="burrType" optional="YES" attributeType="String"/>
+        <attribute name="dosingType" optional="YES" attributeType="String"/>
         <attribute name="id" optional="YES" attributeType="UUID" usesScalarValueType="NO"/>
         <attribute name="name" optional="YES" attributeType="String"/>
+        <attribute name="type" optional="YES" attributeType="String"/>
         <relationship name="recipes" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="Recipe" inverseName="grinder" inverseEntity="Recipe"/>
     </entity>
     <entity name="Recipe" representedClassName="Recipe" syncable="YES" codeGenerationType="class">
