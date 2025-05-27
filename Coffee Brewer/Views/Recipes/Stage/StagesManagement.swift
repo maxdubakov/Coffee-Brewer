@@ -30,14 +30,32 @@ struct StagesManagement: View {
     }
     
     var body: some View {
-        VStack(alignment: .leading, spacing: 0) {
-            headerSection
-            editButtonSection
-            addStageButton
-            stagesContent
-            Spacer()
-            saveButton
-        }
+        FixedBottomLayout(
+            scrollable: false,
+            contentPadding: EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0),
+            content: {
+                VStack(alignment: .leading, spacing: 0) {
+                    headerSection
+                    editButtonSection
+                    addStageButton
+                    stagesContent
+                }
+            },
+            actions: {
+                StandardButton(
+                    title: "Save Recipe",
+                    iconName: "checkmark.circle.fill",
+                    action: {
+                        viewModel.saveRecipe { success in
+                            if success {
+                                onSaveComplete?()
+                            }
+                        }
+                    },
+                    style: .primary
+                )
+            }
+        )
         .navigationDestination(isPresented: $viewModel.isAddingStage) {
             AddStage(viewModel: viewModel)
         }
@@ -223,23 +241,6 @@ struct StagesManagement: View {
                         .strokeBorder(BrewerColors.divider, lineWidth: 0.5)
                 )
         )
-    }
-    
-    private var saveButton: some View {
-        StandardButton(
-            title: "Save Recipe",
-            iconName: "checkmark.circle.fill",
-            action: {
-                viewModel.saveRecipe { success in
-                    if success {
-                        onSaveComplete?()
-                    }
-                }
-            },
-            style: .primary
-        )
-        .padding(.horizontal, 18)
-        .padding(.bottom, 28)
     }
 }
 

@@ -62,10 +62,14 @@ class AddRecipeViewModel: ObservableObject {
             missingFields.append("Roaster")
         }
         
+        if formData.grinder == nil {
+            missingFields.append("Grinder")
+        }
+        
         if missingFields.isEmpty {
             onNavigateToStages?(formData, nil)
         } else {
-            validationMessage = "Please fill in the following fields: \(missingFields.joined(separator: ", "))"
+            validationMessage = "Please, fill in \(missingFields[0])"
             showValidationAlert = true
         }
     }

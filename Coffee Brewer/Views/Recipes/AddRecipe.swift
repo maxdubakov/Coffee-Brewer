@@ -24,23 +24,23 @@ struct AddRecipe: View {
     
     var body: some View {
         NavigationStack(path: $navigationPath) {
-            ScrollView {
-                VStack(alignment: .leading, spacing: 30) {
+            FixedBottomLayout(
+                content: {
                     RecipeForm(
                         formData: $viewModel.formData,
                         brewMath: $viewModel.brewMath,
                         focusedField: $viewModel.focusedField
                     )
-                    
-                    RecipeContinueButton(
+                },
+                actions: {
+                    StandardButton(
                         title: viewModel.continueButtonTitle,
-                        action: viewModel.validateAndContinue
+                        iconName: "arrow.right.circle.fill",
+                        action: viewModel.validateAndContinue,
+                        style: .primary
                     )
                 }
-            }
-            .padding(.vertical, 20)
-            .scrollDismissesKeyboard(.immediately)
-            .background(BrewerColors.background)
+            )
             .alert(isPresented: $viewModel.showValidationAlert) {
                 Alert(
                     title: Text("Incomplete Information"),

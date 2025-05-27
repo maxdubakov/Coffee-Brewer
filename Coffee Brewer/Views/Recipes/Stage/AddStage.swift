@@ -17,17 +17,38 @@ struct AddStage: View {
     }
     
     var body: some View {
-        VStack(alignment: .leading, spacing: 40) {
-            stageTypeSection
-            durationSection
-            waterSection
-            previewSection
-            Spacer()
-            actionButtons
-        }
-        .padding(EdgeInsets(top: 10, leading: 18, bottom: 40, trailing: 18))
-        .background(BrewerColors.background)
-        .scrollDismissesKeyboard(.immediately)
+        FixedBottomLayout(
+            contentPadding: EdgeInsets(top: 10, leading: 18, bottom: 0, trailing: 18),
+            content: {
+                VStack(alignment: .leading, spacing: 40) {
+                    stageTypeSection
+                    durationSection
+                    waterSection
+                    previewSection
+                }
+            },
+            actions: {
+                HStack(spacing: 16) {
+                    StandardButton(
+                        title: "Cancel",
+                        action: { dismiss() },
+                        style: .secondary
+                    )
+        
+                    StandardButton(
+                        title: viewModel.actionButtonTitle,
+                        action: {
+                            viewModel.saveOrUpdateStage { success in
+                                if success {
+                                    dismiss()
+                                }
+                            }
+                        },
+                        style: .primary
+                    )
+                }
+            }
+        )
         .alert(isPresented: $viewModel.showSaveError) {
             Alert(
                 title: Text("Cannot Save Stage"),
@@ -122,28 +143,5 @@ struct AddStage: View {
             )
         }
         .padding(.bottom, 30)
-    }
-    
-    private var actionButtons: some View {
-        HStack(spacing: 16) {
-            StandardButton(
-                title: "Cancel",
-                action: { dismiss() },
-                style: .secondary
-            )
-
-            StandardButton(
-                title: viewModel.actionButtonTitle,
-                action: {
-                    viewModel.saveOrUpdateStage { success in
-                        if success {
-                            dismiss()
-                        }
-                    }
-                },
-                style: .primary
-            )
-        }
-        .padding(.bottom, 28)
     }
 }

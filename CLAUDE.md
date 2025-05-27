@@ -1,0 +1,1 @@
+- For swift, put reusable components in Views/Components folder
