@@ -91,6 +91,7 @@ struct RoasterRecipes: View {
                 EditRecipe(recipe: recipe, isPresented: $editingRecipe)
                     .environment(\.managedObjectContext, viewContext)
             }
+            .tint(BrewerColors.cream)
         }
     }
     

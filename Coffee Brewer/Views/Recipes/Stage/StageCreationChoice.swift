@@ -8,8 +8,8 @@ struct StageCreationChoice: View {
     var body: some View {
         VStack(spacing: 0) {
             // Header
-            VStack(alignment: .leading, spacing: 6) {
-                SectionHeader(title: "Create Brewing Stages")
+            VStack(alignment: .leading, spacing: 12) {
+                SecondaryHeader(title: "Create Brewing Stages")
                 
                 Text("Choose how you'd like to create your brewing stages")
                     .font(.subheadline)
