@@ -104,7 +104,7 @@ struct RecordStages: View {
     
     private var timerSection: some View {
         VStack(spacing: 8) {
-            Text(formatTime(recordViewModel.elapsedTime))
+            Text(recordViewModel.elapsedTime.formattedTime)
                 .font(.system(size: 80, weight: .ultraLight, design: .rounded))
                 .monospacedDigit()
                 .foregroundColor(BrewerColors.textPrimary)
@@ -262,12 +262,6 @@ struct RecordStages: View {
         .disabled(recordViewModel.recordedTimestamps.isEmpty)
     }
     
-    // MARK: - Helper Methods
-    private func formatTime(_ timeInSeconds: Double) -> String {
-        let minutes = Int(timeInSeconds) / 60
-        let seconds = Int(timeInSeconds) % 60
-        return String(format: "%d:%02d", minutes, seconds)
-    }
     
     // MARK: - Demo Overlay
     private var demoOverlay: some View {

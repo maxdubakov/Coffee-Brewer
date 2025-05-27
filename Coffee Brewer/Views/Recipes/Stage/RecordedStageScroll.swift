@@ -89,9 +89,7 @@ struct RecordedStageCard: View {
     
     
     private var formattedTime: String {
-        let minutes = Int(timestamp) / 60
-        let seconds = Int(timestamp) % 60
-        return String(format: "%d:%02d", minutes, seconds)
+        timestamp.formattedTime
     }
     
     var body: some View {

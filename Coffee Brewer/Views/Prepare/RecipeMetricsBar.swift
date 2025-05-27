@@ -4,10 +4,7 @@ struct RecipeMetricsBar: View {
     var recipe: Recipe
 
     private var formattedTotalTime: String {
-        let totalTime = getTotalTime()
-        let minutes = totalTime / 60
-        let seconds = totalTime % 60
-        return String(format: "%d:%02d", minutes, seconds)
+        getTotalTime().formattedTime
     }
 
     var body: some View {

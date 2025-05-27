@@ -18,11 +18,11 @@ struct BrewTimer: View {
     }
     
     private var formattedElapsedTime: String {
-        formatTime(elapsedTime)
+        elapsedTime.formattedTime
     }
     
     private var formattedTotalTime: String {
-        formatTime(totalTime)
+        totalTime.formattedTime
     }
     
     var body: some View {
@@ -41,12 +41,6 @@ struct BrewTimer: View {
             }
     }
     
-    // MARK: - Helper Methods
-    private func formatTime(_ timeInSeconds: Double) -> String {
-        let minutes = Int(timeInSeconds) / 60
-        let seconds = Int(timeInSeconds) % 60
-        return String(format: "%d:%02d", minutes, seconds)
-    }
 }
 
 // MARK: - Preview
