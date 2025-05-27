@@ -2,9 +2,6 @@ import SwiftUI
 import CoreData
 
 struct StagesManagement: View {
-    // MARK: - Bindings
-    @Binding var selectedTab: Main.Tab
-    
     // MARK: - State
     @State private var formData: RecipeFormData
     
@@ -16,8 +13,7 @@ struct StagesManagement: View {
     let onFormDataUpdate: ((RecipeFormData) -> Void)?
     
     // MARK: - Initialization
-    init(formData: RecipeFormData, brewMath: BrewMathViewModel, selectedTab: Binding<Main.Tab>, context: NSManagedObjectContext, existingRecipeID: NSManagedObjectID?, onSaveComplete: (() -> Void)? = nil, onFormDataUpdate: ((RecipeFormData) -> Void)? = nil) {
-        _selectedTab = selectedTab
+    init(formData: RecipeFormData, brewMath: BrewMathViewModel, context: NSManagedObjectContext, existingRecipeID: NSManagedObjectID?, onSaveComplete: (() -> Void)? = nil, onFormDataUpdate: ((RecipeFormData) -> Void)? = nil) {
         _formData = State(initialValue: formData)
         _viewModel = StateObject(wrappedValue: StagesManagementViewModel(
             formData: formData,
@@ -266,7 +262,6 @@ struct StagesManagement: View {
             StagesManagement(
                 formData: formData,
                 brewMath: brewMath,
-                selectedTab: .constant(.add),
                 context: context,
                 existingRecipeID: nil
             )

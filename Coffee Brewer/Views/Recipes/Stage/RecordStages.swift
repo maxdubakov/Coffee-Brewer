@@ -4,7 +4,6 @@ import CoreData
 struct RecordStages: View {
     // MARK: - Environment & Bindings
     @Environment(\.managedObjectContext) private var viewContext
-    @Binding var selectedTab: Main.Tab
     
     // MARK: - View Model
     @StateObject private var recordViewModel: RecordStagesViewModel
@@ -21,8 +20,7 @@ struct RecordStages: View {
     let existingRecipeID: NSManagedObjectID?
     
     // MARK: - Initialization
-    init(formData: RecipeFormData, brewMath: BrewMathViewModel, selectedTab: Binding<Main.Tab>, context: NSManagedObjectContext, existingRecipeID: NSManagedObjectID?) {
-        self._selectedTab = selectedTab
+    init(formData: RecipeFormData, brewMath: BrewMathViewModel, context: NSManagedObjectContext, existingRecipeID: NSManagedObjectID?) {
         self.formData = formData
         self.brewMath = brewMath
         self.existingRecipeID = existingRecipeID
@@ -95,7 +93,6 @@ struct RecordStages: View {
             StagesManagement(
                 formData: stagesViewModel.formData,
                 brewMath: brewMath,
-                selectedTab: $selectedTab,
                 context: viewContext,
                 existingRecipeID: existingRecipeID
             )
@@ -452,7 +449,6 @@ struct RecordStages: View {
         RecordStages(
             formData: formData,
             brewMath: brewMath,
-            selectedTab: .constant(.add),
             context: context,
             existingRecipeID: nil
         )

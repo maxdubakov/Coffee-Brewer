@@ -5,11 +5,9 @@ struct AddRoaster: View {
     @Environment(\.managedObjectContext) private var viewContext
     @Environment(\.dismiss) private var dismiss
     
-    @Binding var selectedTab: Main.Tab
     @StateObject private var viewModel: AddRoasterViewModel
     
-    init(selectedTab: Binding<Main.Tab>, context: NSManagedObjectContext? = nil) {
-        self._selectedTab = selectedTab
+    init(context: NSManagedObjectContext? = nil) {
         let ctx = context ?? PersistenceController.shared.container.viewContext
         self._viewModel = StateObject(wrappedValue: AddRoasterViewModel(context: ctx))
     }
@@ -51,18 +49,13 @@ struct AddRoaster: View {
                     .background(Color.black.opacity(0.2))
             }
         }
-        .onReceive(NotificationCenter.default.publisher(for: .roasterSaved)) { _ in
-            selectedTab = .home
-        }
     }
 }
 
 #Preview {
-    @Previewable @State var selectedTab = Main.Tab.add
-    
     GlobalBackground {
         NavigationStack {
-            AddRoaster(selectedTab: $selectedTab, context: PersistenceController.preview.container.viewContext)
+            AddRoaster(context: PersistenceController.preview.container.viewContext)
                 .environment(\.managedObjectContext, PersistenceController.preview.container.viewContext)
         }
     }

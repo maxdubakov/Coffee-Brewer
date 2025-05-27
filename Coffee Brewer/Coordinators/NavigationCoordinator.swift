@@ -23,7 +23,18 @@ enum AppDestination: Hashable {
 @MainActor
 class NavigationCoordinator: ObservableObject {
     // MARK: - Tab Management
-    @Published var selectedTab: Main.Tab = .home
+    @Published private var _selectedTab: Main.Tab = .home
+    @Published var showingDiscardAlert = false
+    private var pendingTab: Main.Tab?
+    
+    var selectedTab: Binding<Main.Tab> {
+        Binding(
+            get: { self._selectedTab },
+            set: { newValue in
+                self.handleTabSelection(newValue)
+            }
+        )
+    }
     
     // MARK: - Navigation Paths
     @Published var homePath = NavigationPath()
@@ -41,9 +52,6 @@ class NavigationCoordinator: ObservableObject {
     // MARK: - Existing Coordinators
     let addRecipeCoordinator = AddRecipeCoordinator()
     
-    // MARK: - Tab Change Handling
-    private var pendingTab: Main.Tab?
-    
     init() {
         setupNotificationListeners()
     }
@@ -51,19 +59,19 @@ class NavigationCoordinator: ObservableObject {
     // MARK: - Navigation Methods
     func navigateToAddRecipe(roaster: Roaster? = nil) {
         selectedRoaster = roaster
-        selectedTab = .add
+        _selectedTab = .add
         if roaster != nil {
             addPath.append(AppDestination.addRecipe(roaster: roaster))
         }
     }
     
     func navigateToAddRoaster() {
-        selectedTab = .add
+        _selectedTab = .add
         addPath.append(AppDestination.addRoaster)
     }
     
     func navigateToAddGrinder() {
-        selectedTab = .add
+        _selectedTab = .add
         addPath.append(AppDestination.addGrinder)
     }
     
@@ -99,30 +107,39 @@ class NavigationCoordinator: ObservableObject {
     }
     
     // MARK: - Tab Change Handling
-    func handleTabChange(from oldTab: Main.Tab, to newTab: Main.Tab) -> Bool {
-        // Check if leaving add tab with unsaved changes
-        if oldTab == .add && newTab != .add {
+    private func handleTabSelection(_ newTab: Main.Tab) {
+        let currentTab = _selectedTab
+        
+        // Check if we should block the change
+        if currentTab == .add && newTab != .add {
             if addRecipeCoordinator.hasUnsavedChanges() {
                 pendingTab = newTab
-                return false // Will show alert, don't change tab yet
-            } else {
-                performTabChangeCleanup()
+                showingDiscardAlert = true
+                return // Don't change tab
             }
         }
         
-        selectedTab = newTab
-        return true
+        // Allow the change
+        performTabChange(to: newTab)
+    }
+    
+    private func performTabChange(to tab: Main.Tab) {
+        if _selectedTab == .add && tab != .add {
+            performTabChangeCleanup()
+        }
+        _selectedTab = tab
     }
     
     func confirmTabChange() {
         guard let pendingTab = pendingTab else { return }
-        performTabChangeCleanup()
-        selectedTab = pendingTab
+        performTabChange(to: pendingTab)
         self.pendingTab = nil
+        showingDiscardAlert = false
     }
     
     func cancelTabChange() {
         pendingTab = nil
+        showingDiscardAlert = false
     }
     
     
@@ -159,12 +176,12 @@ class NavigationCoordinator: ObservableObject {
         addRecipeCoordinator.markRecipeAsSaved()
         popToRoot(for: .add)
         selectedRoaster = nil
-        selectedTab = .home
+        _selectedTab = .home
     }
     
     private func handleRoasterSaved() {
         popToRoot(for: .add)
-        selectedTab = .home
+        _selectedTab = .home
     }
     
     deinit {

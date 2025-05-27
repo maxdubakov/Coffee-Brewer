@@ -6,13 +6,11 @@ struct AddRecipe: View {
     @EnvironmentObject private var coordinator: AddRecipeCoordinator
     @EnvironmentObject private var navigationCoordinator: NavigationCoordinator
     
-    @Binding var selectedTab: Main.Tab
     @Binding var selectedRoaster: Roaster?
     
     @StateObject private var viewModel: AddRecipeViewModel
     
-    init(selectedTab: Binding<Main.Tab>, selectedRoaster: Binding<Roaster?>, context: NSManagedObjectContext) {
-        self._selectedTab = selectedTab
+    init(selectedRoaster: Binding<Roaster?>, context: NSManagedObjectContext) {
         self._selectedRoaster = selectedRoaster
         
         let vm = AddRecipeViewModel(
@@ -80,16 +78,15 @@ struct AddRecipe: View {
 }
 
 #Preview {
-    @Previewable @State var selectedTab = Main.Tab.add
     @Previewable @State var selectedRoaster: Roaster? = nil
     let preview = PersistenceController.preview
     
     return AddRecipe(
-        selectedTab: $selectedTab,
         selectedRoaster: $selectedRoaster,
         context: preview.container.viewContext
     )
     .environmentObject(AddRecipeCoordinator())
+    .environmentObject(NavigationCoordinator())
     .environment(\.managedObjectContext, preview.container.viewContext)
 }
 

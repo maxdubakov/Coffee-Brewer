@@ -85,7 +85,6 @@ struct EditRecipe: View {
                         StagesManagement(
                             formData: formData,
                             brewMath: viewModel.brewMath,
-                            selectedTab: .constant(.home),
                             context: viewContext,
                             existingRecipeID: existingRecipeID,
                             onSaveComplete: {

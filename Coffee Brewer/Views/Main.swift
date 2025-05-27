@@ -11,7 +11,6 @@ struct Main: View {
 
     // MARK: - Navigation
     @StateObject private var navigationCoordinator = NavigationCoordinator()
-    @State private var showingDiscardAlert = false
     
     init() {
         let appearance = UITabBarAppearance()
@@ -21,7 +20,7 @@ struct Main: View {
     }
 
     var body: some View {
-        TabView(selection: $navigationCoordinator.selectedTab) {
+        TabView(selection: navigationCoordinator.selectedTab) {
             NavigationStack(path: $navigationCoordinator.homePath) {
                 Recipes(navigationCoordinator: navigationCoordinator)
                     .background(BrewerColors.background)
@@ -59,13 +58,7 @@ struct Main: View {
             .tag(Tab.history)
         }
         .accentColor(BrewerColors.cream)
-        .onChange(of: navigationCoordinator.selectedTab) { oldTab, newTab in
-            let shouldChange = navigationCoordinator.handleTabChange(from: oldTab, to: newTab)
-            if !shouldChange {
-                showingDiscardAlert = true
-            }
-        }
-        .alert("Discard Recipe?", isPresented: $showingDiscardAlert) {
+        .alert("Discard Recipe?", isPresented: $navigationCoordinator.showingDiscardAlert) {
             Button("Cancel", role: .cancel) {
                 navigationCoordinator.cancelTabChange()
             }
@@ -84,7 +77,6 @@ struct Main: View {
         switch destination {
         case .addRecipe(_):
             AddRecipe(
-                selectedTab: $navigationCoordinator.selectedTab,
                 selectedRoaster: $navigationCoordinator.selectedRoaster,
                 context: viewContext
             )
@@ -92,7 +84,7 @@ struct Main: View {
             .environmentObject(navigationCoordinator)
             
         case .addRoaster:
-            AddRoaster(selectedTab: $navigationCoordinator.selectedTab, context: viewContext)
+            AddRoaster(context: viewContext)
             
         case .addGrinder:
             GlobalBackground {
@@ -109,7 +101,6 @@ struct Main: View {
                 StagesManagement(
                     formData: formData,
                     brewMath: BrewMathViewModel(grams: formData.grams, ratio: formData.ratio, water: formData.waterAmount),
-                    selectedTab: $navigationCoordinator.selectedTab,
                     context: viewContext,
                     existingRecipeID: existingRecipeID,
                     onFormDataUpdate: { _ in }
@@ -121,7 +112,6 @@ struct Main: View {
                 RecordStages(
                     formData: formData,
                     brewMath: BrewMathViewModel(grams: formData.grams, ratio: formData.ratio, water: formData.waterAmount),
-                    selectedTab: $navigationCoordinator.selectedTab,
                     context: viewContext,
                     existingRecipeID: existingRecipeID
                 )
