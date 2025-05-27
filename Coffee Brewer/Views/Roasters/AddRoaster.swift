@@ -59,12 +59,11 @@ struct AddRoaster: View {
 
 #Preview {
     @Previewable @State var selectedTab = Main.Tab.add
-    let previewContext = PersistenceController.preview.container.viewContext
     
-    return GlobalBackground {
+    GlobalBackground {
         NavigationStack {
-            AddRoaster(selectedTab: $selectedTab, context: previewContext)
-                .environment(\.managedObjectContext, previewContext)
+            AddRoaster(selectedTab: $selectedTab, context: PersistenceController.preview.container.viewContext)
+                .environment(\.managedObjectContext, PersistenceController.preview.container.viewContext)
         }
     }
 }

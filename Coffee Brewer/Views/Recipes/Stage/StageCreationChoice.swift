@@ -4,6 +4,7 @@ import CoreData
 struct StageCreationChoice: View {
     let formData: RecipeFormData
     let existingRecipeID: NSManagedObjectID?
+    @EnvironmentObject var navigationCoordinator: NavigationCoordinator
     
     var body: some View {
         GlobalBackground {
@@ -24,7 +25,9 @@ struct StageCreationChoice: View {
                 // Choice cards
                 VStack(spacing: 20) {
                     // Record option
-                    NavigationLink(value: AddRecipeNavigation.recordStages(formData: formData, existingRecipeID: existingRecipeID)) {
+                    Button(action: {
+                        navigationCoordinator.addPath.append(AppDestination.recordStages(formData: formData, existingRecipeID: existingRecipeID))
+                    }) {
                         RecordChoiceCard()
                     }
                     .buttonStyle(ScaleButtonStyle())
@@ -46,7 +49,9 @@ struct StageCreationChoice: View {
                     .padding(.vertical, 8)
                     
                     // Manual option
-                    NavigationLink(value: AddRecipeNavigation.stages(formData: formData, existingRecipeID: existingRecipeID)) {
+                    Button(action: {
+                        navigationCoordinator.addPath.append(AppDestination.stagesManagement(formData: formData, existingRecipeID: existingRecipeID))
+                    }) {
                         ManualChoiceCard()
                     }
                     .buttonStyle(ScaleButtonStyle())

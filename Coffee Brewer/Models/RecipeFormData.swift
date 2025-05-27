@@ -1,7 +1,7 @@
 import Foundation
 import CoreData
 
-struct RecipeFormData: Equatable {
+struct RecipeFormData: Equatable, Hashable {
     var name: String = "New Recipe"
     var roaster: Roaster? = nil
     var grinder: Grinder? = nil
@@ -50,5 +50,18 @@ struct RecipeFormData: Equatable {
         lhs.ratio == rhs.ratio &&
         lhs.waterAmount == rhs.waterAmount &&
         lhs.stages == rhs.stages
+    }
+    
+    // MARK: - Hashable
+    func hash(into hasher: inout Hasher) {
+        hasher.combine(name)
+        hasher.combine(roaster?.objectID)
+        hasher.combine(grinder?.objectID)
+        hasher.combine(temperature)
+        hasher.combine(grindSize)
+        hasher.combine(grams)
+        hasher.combine(ratio)
+        hasher.combine(waterAmount)
+        hasher.combine(stages)
     }
 }

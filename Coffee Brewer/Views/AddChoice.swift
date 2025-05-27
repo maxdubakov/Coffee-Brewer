@@ -1,20 +1,16 @@
 import SwiftUI
 
 struct AddChoice: View {
-    @Binding var selectedTab: Main.Tab
-    @Binding var selectedRoaster: Roaster?
-    @EnvironmentObject var addRecipeCoordinator: AddRecipeCoordinator
+    @ObservedObject var navigationCoordinator: NavigationCoordinator
     @Environment(\.managedObjectContext) private var viewContext
     
-    enum Destination: Hashable {
-        case recipe
-        case roaster
-        case grinder
+    init(navigationCoordinator: NavigationCoordinator) {
+        self.navigationCoordinator = navigationCoordinator
     }
     
     var body: some View {
         VStack(spacing: 24) {
-                VStack(spacing: 8) {
+            VStack(spacing: 8) {
                     Text("Add New")
                         .font(.system(size: 32, weight: .bold))
                         .foregroundColor(BrewerColors.textPrimary)
@@ -26,14 +22,9 @@ struct AddChoice: View {
                 .padding(.horizontal, 16)
                 
                 VStack(spacing: 16) {
-                    NavigationLink(destination: 
-                        AddRecipe(
-                            selectedTab: $selectedTab,
-                            selectedRoaster: $selectedRoaster,
-                            context: viewContext
-                        )
-                        .environmentObject(addRecipeCoordinator)
-                    ) {
+                    Button(action: {
+                        navigationCoordinator.addPath.append(AppDestination.addRecipe(roaster: navigationCoordinator.selectedRoaster))
+                    }) {
                         ChoiceCardContent(
                             title: "Recipe",
                             description: "Create a new coffee brewing recipe",
@@ -42,9 +33,9 @@ struct AddChoice: View {
                     }
                     .buttonStyle(PlainButtonStyle())
                     
-                    NavigationLink(destination: 
-                        AddRoaster(selectedTab: $selectedTab, context: viewContext)
-                    ) {
+                    Button(action: {
+                        navigationCoordinator.addPath.append(AppDestination.addRoaster)
+                    }) {
                         ChoiceCardContent(
                             title: "Roaster",
                             description: "Add a new coffee roaster",
@@ -53,12 +44,9 @@ struct AddChoice: View {
                     }
                     .buttonStyle(PlainButtonStyle())
                     
-                    NavigationLink(destination:
-                        GlobalBackground {
-                            Text("Add Grinder - Coming Soon")
-                                .foregroundColor(BrewerColors.textSecondary)
-                        }
-                    ) {
+                    Button(action: {
+                        navigationCoordinator.addPath.append(AppDestination.addGrinder)
+                    }) {
                         ChoiceCardContent(
                             title: "Grinder",
                             description: "Add a new coffee grinder",
@@ -115,12 +103,8 @@ struct ChoiceCardContent: View {
     @Previewable @State var selectedTab = Main.Tab.add
     @Previewable @State var selectedRoaster: Roaster? = nil
     
-    return GlobalBackground {
-        AddChoice(
-            selectedTab: $selectedTab,
-            selectedRoaster: $selectedRoaster
-        )
-        .environmentObject(AddRecipeCoordinator())
-        .environment(\.managedObjectContext, PersistenceController.preview.container.viewContext)
+    GlobalBackground {
+        AddChoice(navigationCoordinator: NavigationCoordinator())
+            .environment(\.managedObjectContext, PersistenceController.preview.container.viewContext)
     }
 }

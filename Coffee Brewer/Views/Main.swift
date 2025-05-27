@@ -9,13 +9,9 @@ struct Main: View {
     // MARK: - Environment
     @Environment(\.managedObjectContext) private var viewContext
 
-    // MARK: - State
-    @State private var selectedTab: Tab = .home
-    @State private var selectedRoaster: Roaster? = nil
-    @State private var pendingTab: Tab? = nil
+    // MARK: - Navigation
+    @StateObject private var navigationCoordinator = NavigationCoordinator()
     @State private var showingDiscardAlert = false
-    @State private var isHandlingTabChange = false
-    @StateObject private var addRecipeCoordinator = AddRecipeCoordinator()
     
     init() {
         let appearance = UITabBarAppearance()
@@ -25,103 +21,126 @@ struct Main: View {
     }
 
     var body: some View {
-        TabView(selection: $selectedTab) {
-            NavigationStack {
-                Recipes(selectedTab: $selectedTab, selectedRoaster: $selectedRoaster)
+        TabView(selection: $navigationCoordinator.selectedTab) {
+            NavigationStack(path: $navigationCoordinator.homePath) {
+                Recipes(navigationCoordinator: navigationCoordinator)
                     .background(BrewerColors.background)
+                    .navigationDestination(for: AppDestination.self) { destination in
+                        destinationView(for: destination)
+                    }
             }
             .tabItem {
                 TabIcon(imageName: "home", label: "Home")
             }
             .tag(Tab.home)
 
-            NavigationStack {
-                AddChoice(
-                    selectedTab: $selectedTab,
-                    selectedRoaster: $selectedRoaster
-                )
-                .environmentObject(addRecipeCoordinator)
+            NavigationStack(path: $navigationCoordinator.addPath) {
+                AddChoice(navigationCoordinator: navigationCoordinator)
+                    .background(BrewerColors.background)
+                    .navigationDestination(for: AppDestination.self) { destination in
+                        destinationView(for: destination)
+                    }
             }
-            .background(BrewerColors.background)
             .tabItem {
                 TabIcon(imageName: "add.recipe", label: "Add")
             }
             .tag(Tab.add)
 
-            History()
-                .background(BrewerColors.background)
-                .tabItem {
-                    TabIcon(imageName: "history", label: "History")
-                }
-                .tag(Tab.history)
+            NavigationStack(path: $navigationCoordinator.historyPath) {
+                History()
+                    .background(BrewerColors.background)
+                    .navigationDestination(for: AppDestination.self) { destination in
+                        destinationView(for: destination)
+                    }
+            }
+            .tabItem {
+                TabIcon(imageName: "history", label: "History")
+            }
+            .tag(Tab.history)
         }
         .accentColor(BrewerColors.cream)
-        .onChange(of: selectedTab) { oldTab, newTab in
-            handleTabChange(from: oldTab, to: newTab)
-        }
-        .onReceive(NotificationCenter.default.publisher(for: .recipeSaved)) { _ in
-            handleRecipeSaved()
+        .onChange(of: navigationCoordinator.selectedTab) { oldTab, newTab in
+            let shouldChange = navigationCoordinator.handleTabChange(from: oldTab, to: newTab)
+            if !shouldChange {
+                showingDiscardAlert = true
+            }
         }
         .alert("Discard Recipe?", isPresented: $showingDiscardAlert) {
             Button("Cancel", role: .cancel) {
-                selectedTab = .add
-                pendingTab = nil
+                navigationCoordinator.cancelTabChange()
             }
             Button("Discard", role: .destructive) {
-                if let pendingTab = pendingTab {
-                    selectedTab = pendingTab
-                    performTabChangeCleanup()
-                }
-                pendingTab = nil
+                navigationCoordinator.confirmTabChange()
             }
         } message: {
             Text("You have unsaved changes. Are you sure you want to leave?")
         }
+        .environmentObject(navigationCoordinator)
     }
     
-    private func performTabChangeCleanup() {
-        selectedRoaster = nil
-        // This will call resetAndDiscardChanges() which WILL delete the recipe
-        addRecipeCoordinator.resetIfNeeded()
-    }
-    
-    // MARK: - Tab Change Handler
-    private func handleTabChange(from oldTab: Tab, to newTab: Tab) {
-        // Prevent recursive handling
-        guard !isHandlingTabChange else { return }
-        
-        // Check if leaving add tab with unsaved changes
-        if oldTab == .add && newTab != .add {
-            if addRecipeCoordinator.hasUnsavedChanges() {
-                isHandlingTabChange = true
-                // Store where the user wants to go
-                pendingTab = newTab
-                // Revert the tab selection (will be changed if user confirms)
-                selectedTab = .add
-                // Show the alert
-                showingDiscardAlert = true
-                isHandlingTabChange = false
-            } else {
-                // No unsaved changes, proceed with immediate cleanup
-                performTabChangeCleanup()
+    // MARK: - Navigation Destination Handler
+    @ViewBuilder
+    private func destinationView(for destination: AppDestination) -> some View {
+        switch destination {
+        case .addRecipe(_):
+            AddRecipe(
+                selectedTab: $navigationCoordinator.selectedTab,
+                selectedRoaster: $navigationCoordinator.selectedRoaster,
+                context: viewContext
+            )
+            .environmentObject(navigationCoordinator.addRecipeCoordinator)
+            .environmentObject(navigationCoordinator)
+            
+        case .addRoaster:
+            AddRoaster(selectedTab: $navigationCoordinator.selectedTab, context: viewContext)
+            
+        case .addGrinder:
+            GlobalBackground {
+                Text("Add Grinder - Coming Soon")
+                    .foregroundColor(BrewerColors.textSecondary)
             }
-        } else if oldTab != .add && newTab == .add && selectedRoaster == nil && !showingDiscardAlert {
-            // Entering Add tab without a recipe or roaster selected - ensure clean state
-            // Don't reset if we're showing the discard alert
-            // Only reset if we're not already in a navigation flow
-            addRecipeCoordinator.resetIfNeeded()
+            
+        case .stageChoice(let formData, let existingRecipeID):
+            StageCreationChoice(formData: formData, existingRecipeID: existingRecipeID)
+                .environmentObject(navigationCoordinator)
+            
+        case .stagesManagement(let formData, let existingRecipeID):
+            GlobalBackground {
+                StagesManagement(
+                    formData: formData,
+                    brewMath: BrewMathViewModel(grams: formData.grams, ratio: formData.ratio, water: formData.waterAmount),
+                    selectedTab: $navigationCoordinator.selectedTab,
+                    context: viewContext,
+                    existingRecipeID: existingRecipeID,
+                    onFormDataUpdate: { _ in }
+                )
+            }
+            
+        case .recordStages(let formData, let existingRecipeID):
+            GlobalBackground {
+                RecordStages(
+                    formData: formData,
+                    brewMath: BrewMathViewModel(grams: formData.grams, ratio: formData.ratio, water: formData.waterAmount),
+                    selectedTab: $navigationCoordinator.selectedTab,
+                    context: viewContext,
+                    existingRecipeID: existingRecipeID
+                )
+            }
+            
+        case .brewRecipe(let recipeID):
+            if let recipe = try? viewContext.existingObject(with: recipeID) as? Recipe {
+                BrewRecipe(recipe: recipe)
+            } else {
+                Text("Recipe not found")
+            }
+            
+        case .editRecipe(let recipe):
+            EditRecipe(recipe: recipe, isPresented: $navigationCoordinator.editingRecipe)
+                .environment(\.managedObjectContext, viewContext)
+            
+        case .brewDetail:
+            Text("Brew Detail - Coming Soon")
         }
-    }
-    
-    private func handleRecipeSaved() {
-        // Mark recipe as saved in coordinator
-        addRecipeCoordinator.markRecipeAsSaved()
-        
-        // Clear selected states
-        selectedRoaster = nil
-        
-        // Navigate to home tab
-        selectedTab = .home
     }
 
     struct TabIcon: View {

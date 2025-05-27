@@ -5,9 +5,8 @@ struct RoasterRecipes: View {
     // MARK: - Environment
     @Environment(\.managedObjectContext) private var viewContext
     
-    // MARK: - Bindings
-    @Binding var selectedTab: Main.Tab
-    @Binding var selectedRoaster: Roaster?
+    // MARK: - Navigation
+    @ObservedObject var navigationCoordinator: NavigationCoordinator
     
     // MARK: - Observed Objects
     @ObservedObject var roaster: Roaster
@@ -16,28 +15,22 @@ struct RoasterRecipes: View {
     @FetchRequest private var recipes: FetchedResults<Recipe>
     
     // MARK: - State
-    @State private var selectedRecipeID: NSManagedObjectID?
-    @State private var showBrewScreen = false
     @State private var showDeleteAlert = false
     @State private var recipeToDelete: Recipe?
-    @State private var editingRecipe: Recipe?
     
-    init(roaster: Roaster, selectedTab: Binding<Main.Tab>, selectedRoaster: Binding<Roaster?>) {
+    init(roaster: Roaster, navigationCoordinator: NavigationCoordinator) {
         self.roaster = roaster
+        self.navigationCoordinator = navigationCoordinator
         _recipes = FetchRequest(
             entity: Recipe.entity(),
             sortDescriptors: [NSSortDescriptor(keyPath: \Recipe.lastBrewedAt, ascending: false)],
             predicate: NSPredicate(format: "roaster == %@", roaster),
             animation: .default
         )
-        _selectedTab = selectedTab
-        _selectedRoaster = selectedRoaster
-        
     }
     
     private func brew(recipe: Recipe) -> Void {
-        selectedRecipeID = recipe.objectID
-        showBrewScreen = true
+        navigationCoordinator.navigateToBrewRecipe(recipe: recipe)
     }
     
     private func deleteRecipe() {
@@ -63,18 +56,6 @@ struct RoasterRecipes: View {
                 recipeScroll
             }
         }
-        .navigationDestination(isPresented: $showBrewScreen) {
-            if let id = selectedRecipeID,
-               let brewRecipe = viewContext.object(with: id) as? Recipe {
-                BrewRecipe(recipe: brewRecipe)
-            }
-        }
-        .onChange(of: showBrewScreen) { oldValue, newValue in
-            if !newValue {
-                // Reset selectedRecipeID when sheet is dismissed
-                selectedRecipeID = nil
-            }
-        }
         .alert("Delete Recipe", isPresented: $showDeleteAlert) {
             Button("Cancel", role: .cancel) {
                 recipeToDelete = nil
@@ -86,9 +67,9 @@ struct RoasterRecipes: View {
         } message: {
             Text("Are you sure you want to delete \(recipeToDelete?.name ?? "this recipe")?")
         }
-        .sheet(item: $editingRecipe) { recipe in
+        .sheet(item: $navigationCoordinator.editingRecipe) { recipe in
             NavigationStack {
-                EditRecipe(recipe: recipe, isPresented: $editingRecipe)
+                EditRecipe(recipe: recipe, isPresented: $navigationCoordinator.editingRecipe)
                     .environment(\.managedObjectContext, viewContext)
             }
             .tint(BrewerColors.cream)
@@ -101,8 +82,7 @@ struct RoasterRecipes: View {
             SecondaryHeader(title: roaster.name ?? "Unknown Roaster")
             Spacer()
             Button(action: {
-                selectedRoaster = roaster
-                selectedTab = .add
+                navigationCoordinator.navigateToAddRecipe(roaster: roaster)
             }) {
                 Image(systemName: "plus.circle")
                     .foregroundColor(BrewerColors.textPrimary)
@@ -123,7 +103,7 @@ struct RoasterRecipes: View {
                             brew(recipe: recipe)
                         },
                         onEditTapped: {
-                            editingRecipe = recipe
+                            navigationCoordinator.presentEditRecipe(recipe)
                         },
                         onDeleteTapped: {
                             recipeToDelete = recipe
@@ -143,8 +123,7 @@ struct RoasterRecipes: View {
     GlobalBackground {
         RoasterRecipes(
             roaster: PersistenceController.sampleRoaster,
-            selectedTab: .constant(.home),
-            selectedRoaster: .constant(nil)
+            navigationCoordinator: NavigationCoordinator()
         )
             .environment(\.managedObjectContext, PersistenceController.preview.container.viewContext)
     }

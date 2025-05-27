@@ -4,12 +4,12 @@ import CoreData
 struct AddRecipe: View {
     @Environment(\.managedObjectContext) private var viewContext
     @EnvironmentObject private var coordinator: AddRecipeCoordinator
+    @EnvironmentObject private var navigationCoordinator: NavigationCoordinator
     
     @Binding var selectedTab: Main.Tab
     @Binding var selectedRoaster: Roaster?
     
     @StateObject private var viewModel: AddRecipeViewModel
-    @State private var navigationPath = NavigationPath()
     
     init(selectedTab: Binding<Main.Tab>, selectedRoaster: Binding<Roaster?>, context: NSManagedObjectContext) {
         self._selectedTab = selectedTab
@@ -23,8 +23,7 @@ struct AddRecipe: View {
     }
     
     var body: some View {
-        NavigationStack(path: $navigationPath) {
-            FixedBottomLayout(
+        FixedBottomLayout(
                 content: {
                     RecipeForm(
                         formData: $viewModel.formData,
@@ -57,56 +56,14 @@ struct AddRecipe: View {
                         .background(Color.black.opacity(0.2))
                 }
             }
-            .navigationDestination(for: AddRecipeNavigation.self) { destination in
-                switch destination {
-                case .stageChoice(let formData, let existingRecipeID):
-                    StageCreationChoice(formData: formData, existingRecipeID: existingRecipeID)
-                case .stages(let formData, _):
-                    GlobalBackground {
-                        StagesManagement(
-                            formData: formData,
-                            brewMath: viewModel.brewMath,
-                            selectedTab: $selectedTab,
-                            context: viewContext,
-                            existingRecipeID: nil,
-                            onFormDataUpdate: { updatedFormData in
-                                viewModel.formData = updatedFormData
-                            }
-                        )
-                    }
-                case .recordStages(let formData, let existingRecipeID):
-                    GlobalBackground {
-                        RecordStages(
-                            formData: formData,
-                            brewMath: viewModel.brewMath,
-                            selectedTab: $selectedTab,
-                            context: viewContext,
-                            existingRecipeID: existingRecipeID
-                        )
-                    }
-                }
-            }
-        }
-        .onChange(of: selectedTab) { _, newTab in
-            // Clear navigation when leaving the tab
-            if newTab != .add && !navigationPath.isEmpty {
-                navigationPath.removeLast(navigationPath.count)
-            }
-        }
         .onChange(of: selectedRoaster) { _, newValue in
             // Update viewModel when selectedRoaster changes externally
             viewModel.updateSelectedRoaster(newValue)
         }
-        .onReceive(NotificationCenter.default.publisher(for: .recipeSaved)) { _ in
-            // Clear navigation after saving
-            if !navigationPath.isEmpty {
-                navigationPath.removeLast(navigationPath.count)
-            }
-        }
         .onAppear {
-            // Set navigation callback
-            viewModel.onNavigateToStages = { formData, _ in
-                navigationPath.append(AddRecipeNavigation.stageChoice(formData: formData, existingRecipeID: nil))
+            // Set navigation callback to use NavigationCoordinator
+            viewModel.onNavigateToStages = { formData, existingRecipeID in
+                navigationCoordinator.addPath.append(AppDestination.stageChoice(formData: formData, existingRecipeID: existingRecipeID))
             }
             // Register viewModel with coordinator
             coordinator.setViewModel(viewModel)

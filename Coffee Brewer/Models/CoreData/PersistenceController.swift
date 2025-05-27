@@ -99,10 +99,10 @@ struct PersistenceController {
         
         // Add stages to Ethiopian recipe (Bloom-Rest-Pour-Pour sequence)
         createStage(recipe: defaultRecipe, type: "fast", waterAmount: 60, seconds: 10, orderIndex: 0) // Bloom
-        createStage(recipe: ethiopianRecipe, type: "fast", waterAmount: 60, seconds: 0, orderIndex: 0) // Bloom
+        createStage(recipe: ethiopianRecipe, type: "fast", waterAmount: 60, seconds: 10, orderIndex: 0) // Bloom
         createStage(recipe: ethiopianRecipe, type: "wait", waterAmount: 0, seconds: 45, orderIndex: 1) // Rest
-        createStage(recipe: ethiopianRecipe, type: "slow", waterAmount: 140, seconds: 0, orderIndex: 2) // Slow pour
-        createStage(recipe: ethiopianRecipe, type: "fast", waterAmount: 100, seconds: 0, orderIndex: 3) // Final pour
+        createStage(recipe: ethiopianRecipe, type: "slow", waterAmount: 140, seconds: 10, orderIndex: 2) // Slow pour
+        createStage(recipe: ethiopianRecipe, type: "fast", waterAmount: 100, seconds: 10, orderIndex: 3) // Final pour
         
         // Create a third recipe
         let guatemalaRecipe = Recipe(context: viewContext)
@@ -118,7 +118,7 @@ struct PersistenceController {
         guatemalaRecipe.grinder = niche
         
         // Simple stage for espresso
-        createStage(recipe: guatemalaRecipe, type: "slow", waterAmount: 36, seconds: 0, orderIndex: 0)
+        createStage(recipe: guatemalaRecipe, type: "slow", waterAmount: 36, seconds: 10, orderIndex: 0)
         
         let nordRoaster = Roaster(context: viewContext)
         nordRoaster.id = UUID()
@@ -141,9 +141,9 @@ struct PersistenceController {
         nordKenya.roaster = nordRoaster
         nordKenya.grinder = commandante
 
-        createStage(recipe: nordKenya, type: "fast", waterAmount: 50, seconds: 0, orderIndex: 0)
+        createStage(recipe: nordKenya, type: "fast", waterAmount: 50, seconds: 10, orderIndex: 0)
         createStage(recipe: nordKenya, type: "wait", waterAmount: 0, seconds: 30, orderIndex: 1)
-        createStage(recipe: nordKenya, type: "slow", waterAmount: 245, seconds: 0, orderIndex: 2)
+        createStage(recipe: nordKenya, type: "slow", waterAmount: 245, seconds: 10, orderIndex: 2)
 
         let nordDecaf = Recipe(context: viewContext)
         nordDecaf.id = UUID()
@@ -157,8 +157,8 @@ struct PersistenceController {
         nordDecaf.roaster = nordRoaster
         nordDecaf.grinder = niche
 
-        createStage(recipe: nordDecaf, type: "fast", waterAmount: 60, seconds: 0, orderIndex: 0)
-        createStage(recipe: nordDecaf, type: "slow", waterAmount: 212, seconds: 0, orderIndex: 1)
+        createStage(recipe: nordDecaf, type: "fast", waterAmount: 60, seconds: 10, orderIndex: 0)
+        createStage(recipe: nordDecaf, type: "slow", waterAmount: 212, seconds: 10, orderIndex: 1)
 
         // Bright Bean Recipes
         let brightBlend = Recipe(context: viewContext)
@@ -173,9 +173,9 @@ struct PersistenceController {
         brightBlend.roaster = brightBean
         brightBlend.grinder = commandante
 
-        createStage(recipe: brightBlend, type: "fast", waterAmount: 40, seconds: 0, orderIndex: 0)
+        createStage(recipe: brightBlend, type: "fast", waterAmount: 40, seconds: 10, orderIndex: 0)
         createStage(recipe: brightBlend, type: "wait", waterAmount: 0, seconds: 20, orderIndex: 1)
-        createStage(recipe: brightBlend, type: "slow", waterAmount: 200, seconds: 0, orderIndex: 2)
+        createStage(recipe: brightBlend, type: "slow", waterAmount: 200, seconds: 10, orderIndex: 2)
 
         let brightEspresso = Recipe(context: viewContext)
         brightEspresso.id = UUID()
@@ -189,7 +189,7 @@ struct PersistenceController {
         brightEspresso.roaster = brightBean
         brightEspresso.grinder = niche
 
-        createStage(recipe: brightEspresso, type: "slow", waterAmount: 40, seconds: 0, orderIndex: 0)
+        createStage(recipe: brightEspresso, type: "fast", waterAmount: 40, seconds: 5, orderIndex: 0)
         
         // Create sample brews for the preview
        let createSampleBrew = { (recipe: Recipe, rating: Int16, date: Date, notes: String?) in

@@ -2,8 +2,11 @@ import SwiftUI
 import CoreData
 
 struct Recipes: View {
-    @Binding var selectedTab: Main.Tab
-    @Binding var selectedRoaster: Roaster?
+    @ObservedObject var navigationCoordinator: NavigationCoordinator
+    
+    init(navigationCoordinator: NavigationCoordinator) {
+        self.navigationCoordinator = navigationCoordinator
+    }
     
     // MARK: - Fetch Requests
     @FetchRequest(
@@ -19,7 +22,7 @@ struct Recipes: View {
             ScrollView {
                 VStack {
                     ForEach(roasters) { roaster in
-                        RoasterRecipes(roaster: roaster, selectedTab: $selectedTab, selectedRoaster: $selectedRoaster)
+                        RoasterRecipes(roaster: roaster, navigationCoordinator: navigationCoordinator)
                     }
                     Spacer().frame(height: 80)
                 }
@@ -33,7 +36,7 @@ struct Recipes: View {
 
 #Preview {
     GlobalBackground {
-        Recipes(selectedTab: .constant(.home), selectedRoaster: .constant(nil))
+        Recipes(navigationCoordinator: NavigationCoordinator())
             .environment(\.managedObjectContext, PersistenceController.preview.container.viewContext)
     }
 }
