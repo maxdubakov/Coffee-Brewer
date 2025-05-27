@@ -87,44 +87,6 @@ struct RecordedStageCard: View {
         Int16(timestamp - previousTimestamp)
     }
     
-    private var stageTypeText: String {
-        switch stageType {
-        case .fast:
-            return "Fast Pour"
-        case .slow:
-            return "Slow Pour"
-        case .wait:
-            return "Wait"
-        default:
-            return stageType.name
-        }
-    }
-    
-    private var stageIcon: String {
-        switch stageType {
-        case .fast:
-            return "drop.fill"
-        case .slow:
-            return "drop.fill"
-        case .wait:
-            return "hourglass"
-        default:
-            return "drop.fill"
-        }
-    }
-    
-    private var stageColor: Color {
-        switch stageType {
-        case .fast:
-            return BrewerColors.caramel
-        case .slow:
-            return BrewerColors.caramel
-        case .wait:
-            return BrewerColors.amber
-        default:
-            return BrewerColors.caramel
-        }
-    }
     
     private var formattedTime: String {
         let minutes = Int(timestamp) / 60
@@ -133,81 +95,47 @@ struct RecordedStageCard: View {
     }
     
     var body: some View {
-        HStack(spacing: 16) {
-            // Stage number circle
-            ZStack {
-                Circle()
-                    .fill(LinearGradient(
-                        gradient: Gradient(colors: [BrewerColors.espresso, stageColor.opacity(0.6)]),
-                        startPoint: .topLeading,
-                        endPoint: .bottomTrailing
-                    ))
-                    .overlay(
-                        Circle()
-                            .strokeBorder(stageColor, lineWidth: 1.5)
+        StageCard(stageNumber: stageNumber, stageType: stageType) {
+            HStack {
+                // Stage details
+                VStack(alignment: .leading, spacing: 4) {
+                    StageInfo(
+                        icon: stageType.icon,
+                        title: stageType.displayName,
+                        color: stageType.color
                     )
-                    .frame(width: 40, height: 40)
-                    .shadow(color: BrewerColors.buttonShadow, radius: 4, x: 0, y: 2)
-                
-                Text("\(stageNumber)")
-                    .font(.system(size: 16, weight: .semibold))
-                    .foregroundColor(BrewerColors.cream)
-            }
-            
-            // Stage details
-            VStack(alignment: .leading, spacing: 4) {
-                HStack(spacing: 4) {
-                    Image(systemName: stageIcon)
-                        .foregroundColor(stageColor)
-                        .font(.system(size: 14, weight: .medium))
-                    Text(stageTypeText)
-                        .font(.system(size: 17, weight: .semibold))
-                        .foregroundColor(BrewerColors.textPrimary)
-                }
-                
-                HStack(spacing: 6) {
-                    // Recording time
                     
-                    Text("Recorded at \(formattedTime)")
-                        .font(.system(size: 14))
-                        .foregroundColor(BrewerColors.textSecondary)
-                    
-                    
-                    // Duration
-                    if stageNumber > 1 {
-                        HStack(spacing: 4) {
-                            Image(systemName: "clock")
-                                .font(.system(size: 10))
-                                .foregroundColor(BrewerColors.textSecondary)
-                            
-                            Text("\(stageDuration)s")
-                                .font(.system(size: 14))
-                                .foregroundColor(BrewerColors.textSecondary)
+                    HStack(spacing: 6) {
+                        // Recording time
+                        Text("Recorded at \(formattedTime)")
+                            .font(.system(size: 14))
+                            .foregroundColor(BrewerColors.textSecondary)
+                        
+                        // Duration
+                        if stageNumber > 1 {
+                            HStack(spacing: 4) {
+                                Image(systemName: "clock")
+                                    .font(.system(size: 10))
+                                    .foregroundColor(BrewerColors.textSecondary)
+                                
+                                Text("\(stageDuration)s")
+                                    .font(.system(size: 14))
+                                    .foregroundColor(BrewerColors.textSecondary)
+                            }
                         }
                     }
                 }
+                
+                Spacer()
+                
+                // Remove button
+                Button(action: onRemove) {
+                    Image(systemName: "xmark.circle.fill")
+                        .font(.system(size: 20))
+                        .foregroundColor(BrewerColors.textSecondary.opacity(0.6))
+                }
             }
-            
-            Spacer()
-            
-            // Remove button
-            Button(action: onRemove) {
-                Image(systemName: "xmark.circle.fill")
-                    .font(.system(size: 20))
-                    .foregroundColor(BrewerColors.textSecondary.opacity(0.6))
-            }
-            .padding(.trailing, 8)
         }
-        .padding(.vertical, 12)
-        .padding(.horizontal, 16)
-        .background(
-            RoundedRectangle(cornerRadius: 14)
-                .fill(BrewerColors.surface.opacity(0.6))
-                .overlay(
-                    RoundedRectangle(cornerRadius: 14)
-                        .strokeBorder(stageColor.opacity(0.2), lineWidth: 1)
-                )
-        )
     }
 }
 

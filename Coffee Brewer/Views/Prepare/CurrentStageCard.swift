@@ -11,44 +11,6 @@ struct CurrentStageCard: View {
         return stage.type ?? "fast"
     }
     
-    private var stageColor: Color {
-        switch stageType {
-        case "fast":
-            return BrewerColors.caramel
-        case "slow":
-            return BrewerColors.caramel
-        case "wait":
-            return BrewerColors.amber
-        default:
-            return BrewerColors.coffee
-        }
-    }
-    
-    private var stageIcon: String {
-        switch stageType {
-        case "fast":
-            return "drop.fill"
-        case "slow":
-            return "drop.fill"
-        case "wait":
-            return "hourglass"
-        default:
-            return "questionmark.circle"
-        }
-    }
-    
-    private var stageTitle: String {
-        switch stageType {
-        case "fast":
-            return "Fast Pour"
-        case "slow":
-            return "Slow Pour"
-        case "wait":
-            return "Wait"
-        default:
-            return "Unknown Stage"
-        }
-    }
     
     private var stageInstruction: String {
         if stageType == "wait" {
@@ -59,36 +21,19 @@ struct CurrentStageCard: View {
     }
 
     var body: some View {
-        HStack(spacing: 16) {
-            ZStack {
-                Circle()
-                    .fill(LinearGradient(
-                        gradient: Gradient(colors: [BrewerColors.espresso, stageColor.opacity(0.6)]),
-                        startPoint: .topLeading,
-                        endPoint: .bottomTrailing
-                    ))
-                    .overlay(
-                        Circle()
-                            .strokeBorder(stageColor, lineWidth: 1.5)
-                    )
-                    .frame(width: 60, height: 60)
-                    .shadow(color: BrewerColors.buttonShadow, radius: 4, x: 0, y: 2)
-                
-                Text("\(stageNumber)")
-                    .font(.system(size: 24, weight: .semibold))
-                    .foregroundColor(BrewerColors.cream)
-            }
-            
+        StageCardString(
+            stageNumber: stageNumber,
+            stageType: stageType,
+            size: .large
+        ) {
             VStack(alignment: .leading, spacing: 8) {
-                HStack(spacing: 8) {
-                    Image(systemName: stageIcon)
-                        .foregroundColor(stageColor)
-                        .font(.system(size: 18, weight: .medium))
-                    
-                    Text(stageTitle)
-                        .font(.system(size: 22, weight: .semibold))
-                        .foregroundColor(BrewerColors.textPrimary)
-                }
+                StageInfo(
+                    icon: stageType.stageIcon,
+                    title: stageType.stageDisplayName,
+                    color: stageType.stageColor,
+                    iconSize: 18,
+                    titleSize: 22
+                )
                 
                 
                 Text(stageInstruction)
@@ -100,25 +45,13 @@ struct CurrentStageCard: View {
                         PourProgressStyle(
                             height: 10,
                             cornerRadius: 5,
-                            foregroundColor: stageColor
+                            foregroundColor: stageType.stageColor
                         )
                     )
                     .padding(.top, 8)
             }.frame(height: 80)
-            
-            Spacer()
         }
-        .padding(.vertical, 20)
-        .padding(.horizontal, 16)
-        .background(
-            RoundedRectangle(cornerRadius: 16)
-                .fill(BrewerColors.surface.opacity(0.8))
-                .overlay(
-                    RoundedRectangle(cornerRadius: 16)
-                        .strokeBorder(stageColor.opacity(0.3), lineWidth: 1.5)
-                )
-                .shadow(color: Color.black.opacity(0.2), radius: 4, x: 0, y: 2)
-        )
+        .shadow(color: Color.black.opacity(0.2), radius: 4, x: 0, y: 2)
     }
 }
 

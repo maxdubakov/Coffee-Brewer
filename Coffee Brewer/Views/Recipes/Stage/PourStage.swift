@@ -12,44 +12,6 @@ struct PourStage: View {
         return stage.type.id
     }
     
-    private var stageColor: Color {
-        switch pourType {
-        case "fast":
-            return BrewerColors.caramel
-        case "slow":
-            return BrewerColors.caramel
-        case "wait":
-            return BrewerColors.amber
-        default:
-            return BrewerColors.coffee
-        }
-    }
-    
-    private var stageIcon: String {
-        switch pourType {
-        case "fast":
-            return "drop.fill"
-        case "slow":
-            return "drop.fill"
-        case "wait":
-            return "hourglass"
-        default:
-            return "questionmark.circle"
-        }
-    }
-    
-    private var stageTitle: String {
-        switch pourType {
-        case "fast":
-            return "Fast Pour"
-        case "slow":
-            return "Slow Pour"
-        case "wait":
-            return "Wait"
-        default:
-            return "Unknown Stage"
-        }
-    }
     
     private var detailText: String {
         if pourType == "wait" {
@@ -64,37 +26,19 @@ struct PourStage: View {
     }
     
     var body: some View {
-        HStack(spacing: 16) {
-            // Stage number circle
-            ZStack {
-                Circle()
-                    .fill(LinearGradient(
-                        gradient: Gradient(colors: [BrewerColors.espresso, stageColor.opacity(0.6)]),
-                        startPoint: .topLeading,
-                        endPoint: .bottomTrailing
-                    ))
-                    .overlay(
-                        Circle()
-                            .strokeBorder(stageColor, lineWidth: 1.5)
-                    )
-                    .frame(width: 40, height: 40)
-                    .shadow(color: BrewerColors.buttonShadow, radius: 4, x: 0, y: 2)
-                
-                Text("\(stage.orderIndex + 1)")
-                    .font(.system(size: 16, weight: .semibold))
-                    .foregroundColor(BrewerColors.cream)
-            }
-            
+        StageCardString(
+            stageNumber: Int(stage.orderIndex) + 1,
+            stageType: pourType,
+            size: minimize ? .small : .normal,
+            showBorder: true
+        ) {
             // Stage details
             VStack(alignment: .leading, spacing: 4) {
-                HStack(spacing: 4) {
-                    Image(systemName: stageIcon)
-                        .foregroundColor(stageColor)
-                        .font(.system(size: 14, weight: .medium))
-                    Text(stageTitle)
-                        .font(.system(size: 17, weight: .semibold))
-                        .foregroundColor(BrewerColors.textPrimary)
-                }
+                StageInfo(
+                    icon: pourType.stageIcon,
+                    title: pourType.stageDisplayName,
+                    color: pourType.stageColor
+                )
                 
                 HStack(spacing: 6) {
                     // Detail text (water amount or duration)
@@ -137,7 +81,7 @@ struct PourStage: View {
                             
                             Capsule()
                                 .fill(LinearGradient(
-                                    gradient: Gradient(colors: [stageColor.opacity(0.7), stageColor]),
+                                    gradient: Gradient(colors: [pourType.stageColor.opacity(0.7), pourType.stageColor]),
                                     startPoint: .leading,
                                     endPoint: .trailing
                                 ))
@@ -154,20 +98,8 @@ struct PourStage: View {
                 Image(systemName: "chevron.right")
                     .font(.system(size: 14, weight: .semibold))
                     .foregroundColor(BrewerColors.textSecondary.opacity(0.6))
-                    .padding(.trailing, 8)
             }
         }
-        .padding(.vertical, minimize ? 10 : 12)
-        .padding(.horizontal, minimize ? 12 : 16)
-        .background(
-            RoundedRectangle(cornerRadius: 14)
-                .fill(BrewerColors.surface.opacity(0.6))
-                .overlay(
-                    RoundedRectangle(cornerRadius: 14)
-                        .strokeBorder(minimize ? stageColor.opacity(0.1) : stageColor.opacity(0.2), lineWidth: minimize ? 0.5 : 1)
-                )
-        )
-        .animation(.easeInOut(duration: 0.2), value: minimize)
     }
 }
 
