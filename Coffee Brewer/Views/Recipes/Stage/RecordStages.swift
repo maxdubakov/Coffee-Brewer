@@ -13,6 +13,7 @@ struct RecordStages: View {
     @State private var showingStagesManagement = false
     @State private var showingDemo = true
     @State private var demoStep = 0
+    @State private var demoRecordedStages: [(time: Double, id: UUID, type: StageType)] = []
     
     // MARK: - Properties
     let formData: RecipeFormData
@@ -43,9 +44,8 @@ struct RecordStages: View {
             // Fixed header and timer section
             VStack(spacing: 12) {
                 timerSection
-                    .opacity(showingDemo && demoStep < 2 ? 0.1 : 1.0)
                 tapArea
-                    .opacity(showingDemo ? 1.0 : 1.0) // Always visible during demo
+                    
             }
             .padding(.bottom, 30)
             
@@ -54,22 +54,24 @@ struct RecordStages: View {
                     .padding(.horizontal, 15)
                 
                 RecordedStageScroll(
-                    recordedTimestamps: recordViewModel.recordedTimestamps,
-                    currentIndex: recordViewModel.recordedTimestamps.count - 1,
+                    recordedTimestamps: showingDemo && demoStep == 2 ? demoRecordedStages : recordViewModel.recordedTimestamps,
+                    currentIndex: showingDemo && demoStep == 2 ? demoRecordedStages.count - 1 : recordViewModel.recordedTimestamps.count - 1,
                     onRemove: { index in
-                        recordViewModel.removeTimestamp(at: index)
+                        if !showingDemo {
+                            recordViewModel.removeTimestamp(at: index)
+                        }
                     }
                 )
                 .frame(height: 250)
             }
-            .opacity(showingDemo ? 0.1 : 1.0)
+            .opacity(showingDemo && demoStep != 2 ? 0.1 : 1.0)
             
             Spacer()
             
             ZStack {
                 // Control panel truly centered
                 controlPanel
-                    .opacity(showingDemo && demoStep < 2 ? 0.1: 1.0)
+                    .opacity(showingDemo && demoStep < 3 ? 0.1: 1.0)
                 
                 // Done button positioned to the right
                 HStack {
@@ -77,7 +79,7 @@ struct RecordStages: View {
                         .frame(width: 120 + 80) // Width of control panel + spacing
                     
                     doneButton
-                        .opacity(showingDemo && demoStep < 3 ? 0.1 : 1.0)
+                        .opacity(showingDemo && demoStep < 4 ? 0.1 : 1.0)
                 }
             }
             .padding(.top, 20)
@@ -315,16 +317,16 @@ struct RecordStages: View {
                         demoStep3
                     case 3:
                         demoStep4
+                    case 4:
+                        demoStep5
                     default:
                         EmptyView()
                     }
                 }
                 
-                Spacer()
-                
                 // Progress dots
                 HStack(spacing: 8) {
-                    ForEach(0..<4) { index in
+                    ForEach(0..<5) { index in
                         Circle()
                             .fill(index == demoStep ? BrewerColors.amber : BrewerColors.cream.opacity(0.3))
                             .frame(width: 8, height: 8)
@@ -382,7 +384,7 @@ struct RecordStages: View {
                         .font(.system(size: 24, weight: .semibold))
                         .foregroundColor(BrewerColors.cream)
 
-                    Text("Time between your pours will be automatically added as \"Wait\" stage, so only record stages when you actually pour")
+                    Text("This will add an 8-second Fast pour to Recorded Stages")
                         .font(.system(size: 16))
                         .foregroundColor(BrewerColors.cream.opacity(0.8))
                         .multilineTextAlignment(.center)
@@ -397,6 +399,38 @@ struct RecordStages: View {
     }
     
     private var demoStep3: some View {
+        GeometryReader { geometry in
+            VStack {
+                Spacer()
+                VStack(spacing: 10) {
+                    Image(systemName: "arrow.up")
+                        .font(.system(size: 30, weight: .medium))
+                        .foregroundColor(BrewerColors.amber)
+                        .bounceAnimation()
+
+                    Text("Recorded Stages")
+                        .font(.system(size: 24, weight: .semibold))
+                        .foregroundColor(BrewerColors.cream)
+                    
+                    Text("Time between your pours is tracked automatically and added as a Wait stage")
+                        .font(.system(size: 16))
+                        .foregroundColor(BrewerColors.cream.opacity(0.8))
+                        .multilineTextAlignment(.center)
+                        .padding(.horizontal, 40)
+                }
+                .frame(maxWidth: .infinity)
+            }
+        }
+        .onAppear {
+            // Set up demo recorded stages
+            demoRecordedStages = [
+                (time: 8.0, id: UUID(), type: .fast),
+                (time: 15.0, id: UUID(), type: .wait),
+            ]
+        }
+    }
+    
+    private var demoStep4: some View {
         GeometryReader { geometry in
             VStack {
                 Spacer()
@@ -418,11 +452,12 @@ struct RecordStages: View {
                         .bounceAnimation()
                 }
                 .frame(maxWidth: .infinity)
+                .padding(.bottom, 40)
             }
         }
     }
     
-    private var demoStep4: some View {
+    private var demoStep5: some View {
         GeometryReader { geometry in
             VStack {
                 Spacer()
@@ -453,7 +488,7 @@ struct RecordStages: View {
     
     private func advanceDemo() {
         withAnimation(.easeInOut(duration: 0.3)) {
-            if demoStep < 3 {
+            if demoStep < 4 {
                 demoStep += 1
             } else {
                 showingDemo = false
