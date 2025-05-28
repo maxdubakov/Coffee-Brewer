@@ -43,9 +43,9 @@ struct RecordStages: View {
             // Fixed header and timer section
             VStack(spacing: 12) {
                 timerSection
-                    .opacity(showingDemo && demoStep < 1 ? 0.1 : 1.0)
+                    .opacity(showingDemo && demoStep < 2 ? 0.1 : 1.0)
                 tapArea
-                    .opacity(showingDemo && demoStep < 1 ? 0.1 : 1.0)
+                    .opacity(showingDemo ? 1.0 : 1.0) // Always visible during demo
             }
             .padding(.bottom, 30)
             
@@ -62,14 +62,14 @@ struct RecordStages: View {
                 )
                 .frame(height: 250)
             }
-            .opacity(showingDemo && demoStep < 3 ? 0.0 : 1.0)
+            .opacity(showingDemo ? 0.1 : 1.0)
             
             Spacer()
             
             ZStack {
                 // Control panel truly centered
                 controlPanel
-                    .opacity(showingDemo && demoStep < 0 ? 0.0: 1.0)
+                    .opacity(showingDemo && demoStep < 2 ? 0.1: 1.0)
                 
                 // Done button positioned to the right
                 HStack {
@@ -77,7 +77,7 @@ struct RecordStages: View {
                         .frame(width: 120 + 80) // Width of control panel + spacing
                     
                     doneButton
-                        .opacity(showingDemo && demoStep < 2 ? 0.1 : 1.0)
+                        .opacity(showingDemo && demoStep < 3 ? 0.1 : 1.0)
                 }
             }
             .padding(.top, 20)
@@ -114,74 +114,85 @@ struct RecordStages: View {
         ZStack {
             // Background rounded rectangle
             RoundedRectangle(cornerRadius: 20)
-                .fill(recordViewModel.isRunning ? BrewerColors.surface.opacity(0.8) : BrewerColors.surface.opacity(0.5))
+                .fill(BrewerColors.surface.opacity(0.8))
                 .overlay(
                     RoundedRectangle(cornerRadius: 20)
                         .strokeBorder(
-                            recordViewModel.isRunning ? BrewerColors.caramel : BrewerColors.divider,
-                            lineWidth: recordViewModel.isRunning ? 2 : 1
+                            BrewerColors.caramel,
+                            lineWidth: 2
                         )
                 )
             
-            HStack(spacing: 0) {
-                // Fast Pour
-                StageTypeButton(
-                    type: .fast,
-                    icon: "drop.fill",
-                    color: BrewerColors.amber,
-                    isRunning: recordViewModel.isRunning,
-                    isFirstButton: true,
-                    action: {
-                        if recordViewModel.isRunning {
-                            recordViewModel.recordTap(type: .fast)
-                            UIImpactFeedbackGenerator(style: .medium).impactOccurred()
-                        }
+            if showingDemo && demoStep >= 1 {
+                // Demo recording state
+                VStack(spacing: 16) {
+                    Image(systemName: "hand.tap.fill")
+                        .font(.system(size: 32))
+                        .foregroundColor(BrewerColors.amber)
+                    
+                    Text("Tap to record 8 seconds of Fast pour")
+                        .font(.system(size: 18, weight: .medium))
+                        .foregroundColor(BrewerColors.textPrimary)
+                        .multilineTextAlignment(.center)
+                }
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                .contentShape(Rectangle())
+            } else if let activeRecording = recordViewModel.activeRecording, !showingDemo {
+                // Show recording state
+                Button(action: {
+                    recordViewModel.confirmRecording()
+                    UIImpactFeedbackGenerator(style: .medium).impactOccurred()
+                }) {
+                    VStack(spacing: 16) {
+                        Image(systemName: "hand.tap.fill")
+                            .font(.system(size: 32))
+                            .foregroundColor(activeRecording.type == .fast ? BrewerColors.amber : BrewerColors.caramel)
+                        
+                        Text("Tap to record \(Int(recordViewModel.elapsedTime - activeRecording.startTime)) seconds of \(activeRecording.type.name) pour")
+                            .font(.system(size: 18, weight: .medium))
+                            .foregroundColor(BrewerColors.textPrimary)
+                            .multilineTextAlignment(.center)
                     }
-                )
-                
-                Rectangle()
-                    .fill(BrewerColors.divider)
-                    .frame(width: 1)
-                    .padding(.vertical, 12)
-                
-                // Slow Pour
-                StageTypeButton(
-                    type: .slow,
-                    icon: "drop",
-                    color: BrewerColors.caramel,
-                    isRunning: recordViewModel.isRunning,
-                    isFirstButton: false,
-                    action: {
-                        if recordViewModel.isRunning {
-                            recordViewModel.recordTap(type: .slow)
-                            UIImpactFeedbackGenerator(style: .medium).impactOccurred()
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    .contentShape(Rectangle())
+                }
+                .buttonStyle(PlainButtonStyle())
+            } else {
+                HStack(spacing: 0) {
+                    // Fast Pour
+                    StageTypeButton(
+                        type: .fast,
+                        icon: "drop.fill",
+                        color: BrewerColors.amber,
+                        isRunning: true,
+                        isFirstButton: true,
+                        action: {
+                            recordViewModel.startRecording(type: .fast)
+                            UIImpactFeedbackGenerator(style: .light).impactOccurred()
                         }
-                    }
-                )
-                
-                Rectangle()
-                    .fill(BrewerColors.divider)
-                    .frame(width: 1)
-                    .padding(.vertical, 12)
-                
-                // Wait
-                StageTypeButton(
-                    type: .wait,
-                    icon: "pause.circle",
-                    color: BrewerColors.espresso,
-                    isRunning: recordViewModel.isRunning,
-                    isFirstButton: false,
-                    action: {
-                        if recordViewModel.isRunning {
-                            recordViewModel.recordTap(type: .wait)
-                            UIImpactFeedbackGenerator(style: .medium).impactOccurred()
+                    )
+                    
+                    Rectangle()
+                        .fill(BrewerColors.divider)
+                        .frame(width: 1)
+                        .padding(.vertical, 12)
+                    
+                    // Slow Pour
+                    StageTypeButton(
+                        type: .slow,
+                        icon: "drop",
+                        color: BrewerColors.caramel,
+                        isRunning: true,
+                        isFirstButton: false,
+                        action: {
+                            recordViewModel.startRecording(type: .slow)
+                            UIImpactFeedbackGenerator(style: .light).impactOccurred()
                         }
-                    }
-                )
+                    )
+                }
             }
         }
         .frame(height: 140)
-        .disabled(!recordViewModel.isRunning)
     }
     
     struct StageTypeButton: View {
@@ -302,6 +313,8 @@ struct RecordStages: View {
                         demoStep2
                     case 2:
                         demoStep3
+                    case 3:
+                        demoStep4
                     default:
                         EmptyView()
                     }
@@ -311,7 +324,7 @@ struct RecordStages: View {
                 
                 // Progress dots
                 HStack(spacing: 8) {
-                    ForEach(0..<3) { index in
+                    ForEach(0..<4) { index in
                         Circle()
                             .fill(index == demoStep ? BrewerColors.amber : BrewerColors.cream.opacity(0.3))
                             .frame(width: 8, height: 8)
@@ -332,25 +345,26 @@ struct RecordStages: View {
     private var demoStep1: some View {
         GeometryReader { geometry in
             VStack {
-                Spacer()
-                
-                VStack(spacing: 20) {
-                    Text("Start the timer")
+                VStack(spacing: 10) {
+                    Image(systemName: "arrow.up")
+                        .font(.system(size: 30, weight: .medium))
+                        .foregroundColor(BrewerColors.amber)
+                        .bounceAnimation()
+
+                    Text("Start recording")
                         .font(.system(size: 24, weight: .semibold))
                         .foregroundColor(BrewerColors.cream)
                     
-                    Text("Tap the play button to begin timing your brew")
+                    Text("Tap to start the timer and begin recording your pour")
                         .font(.system(size: 16))
                         .foregroundColor(BrewerColors.cream.opacity(0.8))
                         .multilineTextAlignment(.center)
                         .padding(.horizontal, 40)
-                    
-                    Image(systemName: "arrow.down")
-                        .font(.system(size: 40, weight: .medium))
-                        .foregroundColor(BrewerColors.amber)
-                        .bounceAnimation()
                 }
                 .frame(maxWidth: .infinity)
+                .padding(.top, geometry.size.height * 0.39)
+                
+                Spacer()
             }
         }
     }
@@ -358,24 +372,24 @@ struct RecordStages: View {
     private var demoStep2: some View {
         GeometryReader { geometry in
             VStack {
-                VStack(spacing: 20) {
+                VStack(spacing: 10) {
                     Image(systemName: "arrow.up")
                         .font(.system(size: 30, weight: .medium))
                         .foregroundColor(BrewerColors.amber)
                         .bounceAnimation()
 
-                    Text("Record your stages")
+                    Text("Save the pour")
                         .font(.system(size: 24, weight: .semibold))
                         .foregroundColor(BrewerColors.cream)
-                    
-                    Text("The timer is running and your first stage has begun.\n\nWhen you finish a stage (complete a pour or finish waiting), tap Fast, Slow, or Wait to record it.")
+
+                    Text("Time between your pours will be automatically added as \"Wait\" stage, so only record stages when you actually pour")
                         .font(.system(size: 16))
                         .foregroundColor(BrewerColors.cream.opacity(0.8))
                         .multilineTextAlignment(.center)
                         .padding(.horizontal, 40)
                 }
                 .frame(maxWidth: .infinity)
-                .padding(.top, geometry.size.height * 0.40) // Relative positioning
+                .padding(.top, geometry.size.height * 0.39)
                 
                 Spacer()
             }
@@ -386,30 +400,51 @@ struct RecordStages: View {
         GeometryReader { geometry in
             VStack {
                 Spacer()
+                VStack(spacing: 10) {
+                    Text("Control your brew")
+                        .font(.system(size: 24, weight: .semibold))
+                        .foregroundColor(BrewerColors.cream)
+                    
+                    Text("Use pause/play to control timing, or restart to begin fresh")
+                        .font(.system(size: 16))
+                        .foregroundColor(BrewerColors.cream.opacity(0.6))
+                        .multilineTextAlignment(.center)
+                        .padding(.horizontal, 40)
+                        .padding(.bottom, 10)
+                    
+                    Image(systemName: "arrow.down")
+                        .font(.system(size: 30, weight: .medium))
+                        .foregroundColor(BrewerColors.amber)
+                        .bounceAnimation()
+                }
+                .frame(maxWidth: .infinity)
+            }
+        }
+    }
+    
+    private var demoStep4: some View {
+        GeometryReader { geometry in
+            VStack {
+                Spacer()
                 
-                VStack(spacing: 20) {
+                VStack(spacing: 10) {
                     Image(systemName: "checkmark.circle.fill")
                         .font(.system(size: 60))
                         .foregroundColor(BrewerColors.amber)
                         .scaleAnimation()
                     
-                    Text("Finish recording")
+                    Text("Complete your recipe")
                         .font(.system(size: 24, weight: .semibold))
                         .foregroundColor(BrewerColors.cream)
                     
-                    Text("Tap Done when you've recorded all stages")
+                    Text("You can then adjust water amounts and timing for each stage")
                         .font(.system(size: 16))
                         .foregroundColor(BrewerColors.cream.opacity(0.8))
-                        .multilineTextAlignment(.center)
-                    
-                    Text("You can then adjust water amounts and timing for each stage")
-                        .font(.system(size: 14))
-                        .foregroundColor(BrewerColors.cream.opacity(0.6))
                         .multilineTextAlignment(.center)
                         .padding(.horizontal, 40)
                 }
                 .frame(maxWidth: .infinity)
-                .padding(.top, geometry.size.height * 0.35) // Relative positioning
+                .padding(.top, geometry.size.height * 0.35)
                 
                 Spacer()
             }
@@ -418,7 +453,7 @@ struct RecordStages: View {
     
     private func advanceDemo() {
         withAnimation(.easeInOut(duration: 0.3)) {
-            if demoStep < 2 {
+            if demoStep < 3 {
                 demoStep += 1
             } else {
                 showingDemo = false

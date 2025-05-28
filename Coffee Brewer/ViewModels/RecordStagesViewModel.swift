@@ -7,11 +7,13 @@ class RecordStagesViewModel: ObservableObject {
     @Published var elapsedTime: Double = 0
     @Published var isRunning: Bool = false
     @Published var recordedTimestamps: [(time: Double, id: UUID, type: StageType)] = []
+    @Published var activeRecording: (type: StageType, startTime: Double)? = nil
     
     // MARK: - Private Properties
     private var timer: AnyCancellable?
     private let formData: RecipeFormData
     private let brewMath: BrewMathViewModel
+    private var lastRecordedTime: Double = 0
     
     // MARK: - Initialization
     init(formData: RecipeFormData, brewMath: BrewMathViewModel) {
@@ -28,9 +30,32 @@ class RecordStagesViewModel: ObservableObject {
         }
     }
     
-    func recordTap(type: StageType = .slow) {
-        let timestamp = (time: elapsedTime, id: UUID(), type: type)
+    func startRecording(type: StageType) {
+        // Start timer if not already running
+        if !isRunning {
+            startTimer()
+        }
+        
+        // Check if we need to add a wait stage
+        if !recordedTimestamps.isEmpty && (elapsedTime - lastRecordedTime) > 5.0 {
+            let waitTimestamp = (time: elapsedTime, id: UUID(), type: StageType.wait)
+            recordedTimestamps.append(waitTimestamp)
+        }
+        
+        activeRecording = (type: type, startTime: elapsedTime)
+    }
+    
+    func confirmRecording() {
+        guard let active = activeRecording else { return }
+        
+        let timestamp = (time: elapsedTime, id: UUID(), type: active.type)
         recordedTimestamps.append(timestamp)
+        lastRecordedTime = elapsedTime
+        activeRecording = nil
+    }
+    
+    func cancelRecording() {
+        activeRecording = nil
     }
     
     func removeTimestamp(at index: Int) {
@@ -42,6 +67,8 @@ class RecordStagesViewModel: ObservableObject {
         stopTimer()
         elapsedTime = 0
         recordedTimestamps.removeAll()
+        activeRecording = nil
+        lastRecordedTime = 0
     }
     
     func generateStagesFromTimestamps() -> [StageFormData] {
