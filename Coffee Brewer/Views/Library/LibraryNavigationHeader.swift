@@ -1,6 +1,7 @@
 import SwiftUI
 
 enum LibraryTab: String, CaseIterable {
+    case all = "All"
     case recipes = "Recipes"
     case roasters = "Roasters" 
     case grinders = "Grinders"

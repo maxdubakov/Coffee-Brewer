@@ -5,7 +5,7 @@ struct LibraryContainer: View {
     @ObservedObject var navigationCoordinator: NavigationCoordinator
     
     @State private var showLibraryMode = false
-    @State private var selectedLibraryTab: LibraryTab = .recipes
+    @State private var selectedLibraryTab: LibraryTab = .all
     @State private var searchText = ""
     
     var body: some View {
@@ -65,6 +65,8 @@ struct LibraryContainer: View {
     
     private var searchPlaceholder: String {
         switch selectedLibraryTab {
+        case .all:
+            return "Search everything..."
         case .recipes:
             return "Search recipes..."
         case .roasters:
@@ -85,6 +87,9 @@ struct LibraryContent: View {
     var body: some View {
         Group {
             switch selectedTab {
+            case .all:
+                AllLibraryView(navigationCoordinator: navigationCoordinator, searchText: searchText)
+                    .padding(.horizontal, 20)
             case .recipes:
                 RecipesLibraryView(navigationCoordinator: navigationCoordinator, searchText: searchText)
                     .padding(.horizontal, 20)

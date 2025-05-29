@@ -109,6 +109,7 @@ struct RecipesLibraryView: View {
                 .listStyle(PlainListStyle())
                 .scrollContentBackground(.hidden)
                 .scrollDismissesKeyboard(.immediately)
+                .scrollIndicators(.hidden)
             }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
@@ -359,6 +360,7 @@ struct RoastersLibraryView: View {
                 .listStyle(PlainListStyle())
                 .scrollContentBackground(.hidden)
                 .scrollDismissesKeyboard(.immediately)
+                .scrollIndicators(.hidden)
             }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
@@ -620,6 +622,7 @@ struct GrindersLibraryView: View {
                 .listStyle(PlainListStyle())
                 .scrollContentBackground(.hidden)
                 .scrollDismissesKeyboard(.immediately)
+                .scrollIndicators(.hidden)
             }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
