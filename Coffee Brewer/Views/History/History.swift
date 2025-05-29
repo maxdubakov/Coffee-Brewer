@@ -5,6 +5,10 @@ struct History: View {
     // MARK: - Environment
     @Environment(\.managedObjectContext) private var viewContext
     
+    // MARK: - State
+    @StateObject private var viewModel = HistoryViewModel()
+    @State private var showChartSelector = false
+    
     // MARK: - Fetch Request
     @FetchRequest(
         entity: Brew.entity(),
@@ -14,12 +18,62 @@ struct History: View {
     
     var body: some View {
         GlobalBackground {
-            VStack(alignment: .leading, spacing: 0) {                
-                if brews.isEmpty {
-                    emptyStateView
-                } else {
-                    brewsList
+            ZStack {
+                VStack(alignment: .leading, spacing: 0) {
+                    // Header
+                    HStack {
+                        PageTitleH1("Analytics")
+                            .padding(.horizontal)
+                        
+                        Spacer()
+                        
+                        Button(action: {
+                            showChartSelector = true
+                        }) {
+                            Image(systemName: "plus.circle.fill")
+                                .font(.title2)
+                                .foregroundColor(BrewerColors.chartPrimary)
+                        }
+                        .padding(.trailing)
+                    }
+                    .padding(.top, 8)
+                    
+                    if brews.isEmpty {
+                        emptyStateView
+                    } else {
+                        analyticsView
+                    }
                 }
+                
+                // Floating action button for adding charts
+                if !brews.isEmpty && viewModel.chartConfigurations.isEmpty {
+                    VStack {
+                        Spacer()
+                        HStack {
+                            Spacer()
+                            Button(action: {
+                                showChartSelector = true
+                            }) {
+                                HStack {
+                                    Image(systemName: "chart.line.uptrend.xyaxis")
+                                    Text("Add Chart")
+                                }
+                                .font(.headline)
+                                .foregroundColor(BrewerColors.background)
+                                .padding(.horizontal, 20)
+                                .padding(.vertical, 12)
+                                .background(BrewerColors.chartPrimary)
+                                .cornerRadius(25)
+                                .shadow(color: Color.black.opacity(0.2), radius: 4, x: 0, y: 2)
+                            }
+                            .padding(.trailing, 20)
+                            .padding(.bottom, 100)
+                        }
+                    }
+                }
+            }
+            .sheet(isPresented: $showChartSelector) {
+                ChartSelectorView(viewModel: viewModel)
             }
         }
     }
@@ -50,18 +104,54 @@ struct History: View {
         }
     }
     
-    // MARK: - Brews List
-    private var brewsList: some View {
+    // MARK: - Analytics View
+    private var analyticsView: some View {
         ScrollView {
-            LazyVStack(spacing: 16) {
-                ForEach(brews, id: \.self) { brew in
-                    BrewHistoryCard(brew: brew)
+            LazyVStack(spacing: 0) {
+                // Chart widgets
+                ForEach(viewModel.chartConfigurations) { configuration in
+                    FlexibleChartWidget(
+                        configuration: .constant(configuration),
+                        brews: Array(brews),
+                        onRemove: {
+                            withAnimation {
+                                if let index = viewModel.chartConfigurations.firstIndex(where: { $0.id == configuration.id }) {
+                                    viewModel.removeChart(at: index)
+                                }
+                            }
+                        },
+                        onConfigure: {
+                            viewModel.selectedConfiguration = configuration
+                        }
+                    )
+                    .onTapGesture {
+                        withAnimation(.easeInOut(duration: 0.2)) {
+                            viewModel.toggleExpanded(for: configuration)
+                        }
+                    }
+                }
+                
+                // Recent brews section
+                if !brews.isEmpty {
+                    VStack(alignment: .leading, spacing: 12) {
+                        Text("RECENT BREWS")
+                            .font(.caption)
+                            .fontWeight(.bold)
+                            .foregroundColor(BrewerColors.textPrimary)
+                            .tracking(1.5)
+                            .padding(.horizontal, 18)
+                            .padding(.top, 24)
+                        
+                        ForEach(brews.prefix(5), id: \.self) { brew in
+                            BrewHistoryCard(brew: brew)
+                                .padding(.horizontal, 18)
+                        }
+                    }
                 }
                 
                 // Add extra space at bottom for tab bar
-                Spacer().frame(height: 80)
+                Spacer().frame(height: 100)
             }
-            .padding(.horizontal, 18)
             .padding(.top, 8)
         }
     }

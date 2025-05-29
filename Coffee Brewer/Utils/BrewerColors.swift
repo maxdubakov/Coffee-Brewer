@@ -28,4 +28,11 @@ struct BrewerColors {
     // Button states
     static let buttonShadow = Color.black.opacity(0.3)
     static let buttonHighlight = Color.white.opacity(0.1)
+    
+    // Chart colors
+    static let chartPrimary = Color(red: 0.85, green: 0.65, blue: 0.30) // Warm amber
+    static let chartSecondary = Color(red: 0.55, green: 0.35, blue: 0.20) // Deep coffee
+    static let chartTertiary = Color(red: 0.70, green: 0.50, blue: 0.35) // Medium roast
+    static let chartGrid = Color(red: 0.93, green: 0.91, blue: 0.90).opacity(0.1)
+    static let chartLabel = Color(red: 0.93, green: 0.91, blue: 0.90).opacity(0.6)
 }
