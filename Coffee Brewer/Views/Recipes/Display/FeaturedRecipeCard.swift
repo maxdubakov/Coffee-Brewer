@@ -125,7 +125,7 @@ struct FeaturedRecipeCard: View {
                         Spacer()
                         
                         // Pour count
-                        Text("^[\(pourCount) \("pour")](inflect: true)")
+                        Text.pluralized("pour", count: pourCount)
                             .font(.system(size: 13, weight: .medium))
                     }
                     .foregroundColor(.white)

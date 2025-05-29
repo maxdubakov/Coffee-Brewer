@@ -116,7 +116,7 @@ struct RecipeCard: View {
                         
                         Spacer()
                         
-                        Text("^[\(pourCount) \("pour")](inflect: true)")
+                        Text.pluralized("pour", count: pourCount)
                             .font(.system(size: 11, weight: .medium))
                             .foregroundColor(BrewerColors.caramel)
                         .padding(.horizontal, 8)

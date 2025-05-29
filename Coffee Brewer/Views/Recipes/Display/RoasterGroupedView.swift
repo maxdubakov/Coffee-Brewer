@@ -27,7 +27,7 @@ struct RoasterGroupedView: View {
                             
                             Spacer()
                             
-                            Text("\(recipes.count) recipe\(recipes.count == 1 ? "" : "s")")
+                            Text.pluralized("recipe", count: recipes.count)
                                 .font(.caption)
                                 .foregroundColor(BrewerColors.textSecondary)
                         }
