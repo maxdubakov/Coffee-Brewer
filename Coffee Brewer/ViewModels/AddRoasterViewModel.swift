@@ -64,11 +64,10 @@ class AddRoasterViewModel: ObservableObject {
         
         let roaster = Roaster(context: viewContext)
         roaster.id = UUID()
-        roaster.name = formData.name.trimmingCharacters(in: .whitespacesAndNewlines)
+        roaster.name = formData.name.trimmingCharacters(in: CharacterSet.whitespacesAndNewlines)
         roaster.country = formData.country
-        roaster.location = formData.location.trimmingCharacters(in: .whitespacesAndNewlines)
-        roaster.website = formData.website.trimmingCharacters(in: .whitespacesAndNewlines)
-        roaster.notes = formData.notes.trimmingCharacters(in: .whitespacesAndNewlines)
+        roaster.website = formData.website.trimmingCharacters(in: CharacterSet.whitespacesAndNewlines)
+        roaster.notes = formData.notes.trimmingCharacters(in: CharacterSet.whitespacesAndNewlines)
         
         if let foundedYear = formData.foundedYearInt {
             roaster.foundedYear = Int16(foundedYear)
@@ -99,7 +98,6 @@ class AddRoasterViewModel: ObservableObject {
     func hasUnsavedChanges() -> Bool {
         !formData.name.isEmpty ||
         formData.country != nil ||
-        !formData.location.isEmpty ||
         !formData.website.isEmpty ||
         !formData.notes.isEmpty ||
         !formData.foundedYear.isEmpty

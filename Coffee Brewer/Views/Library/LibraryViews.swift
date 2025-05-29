@@ -262,19 +262,254 @@ struct RecipeLibraryRow: View {
 // MARK: - Roasters Library View
 struct RoastersLibraryView: View {
     @ObservedObject var navigationCoordinator: NavigationCoordinator
+    let searchText: String
+    
+    @Environment(\.managedObjectContext) private var viewContext
+    @FetchRequest(
+        sortDescriptors: [NSSortDescriptor(keyPath: \Roaster.name, ascending: true)],
+        animation: .default
+    )
+    private var roasters: FetchedResults<Roaster>
+    
+    @State private var showingDeleteAlert = false
+    @State private var roasterToDelete: Roaster?
+    @State private var isEditMode = false
+    @State private var selectedRoasters: Set<NSManagedObjectID> = []
+    
+    private var filteredRoasters: [Roaster] {
+        let allRoasters = Array(roasters)
+        
+        if searchText.isEmpty {
+            return allRoasters
+        } else {
+            return allRoasters.filter { roaster in
+                let nameMatch = roaster.name?.localizedCaseInsensitiveContains(searchText) ?? false
+                let countryMatch = roaster.country?.name?.localizedCaseInsensitiveContains(searchText) ?? false
+                return nameMatch || countryMatch
+            }
+        }
+    }
     
     var body: some View {
-        VStack(alignment: .leading, spacing: 20) {
-            Text("Roaster Management")
-                .font(.system(size: 24, weight: .bold))
-                .foregroundColor(BrewerColors.cream)
+        VStack(alignment: .leading, spacing: 0) {
+            // Header with edit/delete buttons
+            if !filteredRoasters.isEmpty {
+                HStack {
+                    Button(isEditMode ? "Done" : "Edit") {
+                        withAnimation(.easeInOut(duration: 0.2)) {
+                            isEditMode.toggle()
+                            if !isEditMode {
+                                selectedRoasters.removeAll()
+                            }
+                        }
+                    }
+                    .font(.system(size: 15, weight: .medium))
+                    .foregroundColor(BrewerColors.caramel)
+                    
+                    Spacer()
+                    
+                    if isEditMode && !selectedRoasters.isEmpty {
+                        Button("Delete") {
+                            showingDeleteAlert = true
+                        }
+                        .font(.system(size: 15, weight: .medium))
+                        .foregroundColor(.red)
+                    }
+                }
+                .padding(.bottom, 8)
+            }
             
-            Text("Roaster management coming soon...")
-                .font(.subheadline)
-                .foregroundColor(BrewerColors.textSecondary)
-                .padding(.top, 40)
+            if filteredRoasters.isEmpty {
+                emptyStateView
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+            } else {
+                List(filteredRoasters) { roaster in
+                    RoasterLibraryRow(
+                        roaster: roaster,
+                        isEditMode: isEditMode,
+                        isSelected: selectedRoasters.contains(roaster.objectID),
+                        onTap: {
+                            if isEditMode {
+                                toggleSelection(for: roaster)
+                            } else {
+                                navigationCoordinator.presentRoasterDetail(roaster)
+                            }
+                        }
+                    )
+                    .listRowBackground(Color.clear)
+                    .listRowSeparator(.hidden)
+                    .listRowInsets(EdgeInsets(top: 4, leading: 0, bottom: 4, trailing: 0))
+                    .swipeActions(edge: .trailing, allowsFullSwipe: true) {
+                        Button(role: .destructive) {
+                            roasterToDelete = roaster
+                            showingDeleteAlert = true
+                        } label: {
+                            Label("Delete", systemImage: "trash")
+                        }
+                        
+                        Button {
+                            navigationCoordinator.presentEditRoaster(roaster)
+                        } label: {
+                            Label("Edit", systemImage: "pencil")
+                        }
+                        .tint(BrewerColors.caramel)
+                    }
+                }
+                .listStyle(PlainListStyle())
+                .scrollContentBackground(.hidden)
+                .scrollDismissesKeyboard(.immediately)
+            }
         }
-        .frame(maxWidth: .infinity, alignment: .leading)
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+        .alert("Delete Roaster\(selectedRoasters.count > 1 ? "s" : "")", isPresented: $showingDeleteAlert) {
+            Button("Cancel", role: .cancel) {
+                if selectedRoasters.isEmpty {
+                    roasterToDelete = nil
+                }
+            }
+            Button("Delete", role: .destructive) {
+                if !selectedRoasters.isEmpty {
+                    deleteSelectedRoasters()
+                } else if let roaster = roasterToDelete {
+                    deleteRoaster(roaster)
+                }
+            }
+        } message: {
+            if !selectedRoasters.isEmpty {
+                Text("Are you sure you want to delete \(selectedRoasters.count) roaster\(selectedRoasters.count == 1 ? "" : "s")? This will also delete all associated recipes.")
+            } else {
+                Text("Are you sure you want to delete \(roasterToDelete?.name ?? "this roaster")? This will also delete all associated recipes.")
+            }
+        }
+    }
+    
+    private var emptyStateView: some View {
+        VStack(spacing: 16) {
+            Image(systemName: searchText.isEmpty ? "building.2" : "magnifyingglass")
+                .font(.system(size: 48))
+                .foregroundColor(BrewerColors.textSecondary.opacity(0.5))
+            
+            Text(searchText.isEmpty ? "No roasters yet" : "No roasters found")
+                .font(.system(size: 18, weight: .medium))
+                .foregroundColor(BrewerColors.textSecondary)
+            
+            if searchText.isEmpty {
+                Text("Create your first roaster to get started")
+                    .font(.system(size: 14))
+                    .foregroundColor(BrewerColors.textSecondary.opacity(0.8))
+            }
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .padding(.top, 60)
+    }
+    
+    private func toggleSelection(for roaster: Roaster) {
+        if selectedRoasters.contains(roaster.objectID) {
+            selectedRoasters.remove(roaster.objectID)
+        } else {
+            selectedRoasters.insert(roaster.objectID)
+        }
+    }
+    
+    private func deleteSelectedRoasters() {
+        withAnimation {
+            for objectID in selectedRoasters {
+                if let roaster = viewContext.object(with: objectID) as? Roaster {
+                    viewContext.delete(roaster)
+                }
+            }
+            
+            do {
+                try viewContext.save()
+            } catch {
+                print("Error deleting roasters: \(error)")
+            }
+            
+            selectedRoasters.removeAll()
+            isEditMode = false
+        }
+    }
+    
+    private func deleteRoaster(_ roaster: Roaster) {
+        withAnimation {
+            viewContext.delete(roaster)
+            do {
+                try viewContext.save()
+            } catch {
+                print("Error deleting roaster: \(error)")
+            }
+        }
+        roasterToDelete = nil
+    }
+}
+
+// MARK: - Roaster Library Row
+struct RoasterLibraryRow: View {
+    let roaster: Roaster
+    let isEditMode: Bool
+    let isSelected: Bool
+    let onTap: () -> Void
+    
+    var body: some View {
+        Button(action: onTap) {
+            HStack(spacing: 12) {
+                // Selection circle (shown in edit mode)
+                if isEditMode {
+                    Image(systemName: isSelected ? "checkmark.circle.fill" : "circle")
+                        .font(.system(size: 20))
+                        .foregroundColor(isSelected ? BrewerColors.caramel : BrewerColors.textSecondary.opacity(0.4))
+                        .animation(.easeInOut(duration: 0.2), value: isSelected)
+                }
+                
+                // Roaster Info
+                VStack(alignment: .leading, spacing: 3) {
+                    Text(roaster.name ?? "Untitled Roaster")
+                        .font(.system(size: 15, weight: .medium))
+                        .foregroundColor(BrewerColors.cream)
+                        .lineLimit(1)
+                    
+                    HStack(spacing: 6) {
+                        if let country = roaster.country {
+                            HStack(spacing: 4) {
+                                if let flag = country.flag {
+                                    Text(flag)
+                                        .font(.system(size: 11))
+                                }
+                                Text(country.name ?? "")
+                                    .font(.system(size: 12))
+                                    .foregroundColor(BrewerColors.textSecondary)
+                                    .lineLimit(1)
+                            }
+                        }
+                        
+                        // Show recipe count
+                        if let recipes = roaster.recipes, recipes.count > 0 {
+                            if roaster.country != nil {
+                                Text("•")
+                                    .font(.system(size: 9))
+                                    .foregroundColor(BrewerColors.textSecondary.opacity(0.4))
+                            }
+                            
+                            Text("\(recipes.count) recipe\(recipes.count == 1 ? "" : "s")")
+                                .font(.system(size: 12))
+                                .foregroundColor(BrewerColors.textSecondary)
+                        }
+                    }
+                }
+                
+                Spacer()
+                
+                // Chevron (hidden in edit mode)
+                if !isEditMode {
+                    Image(systemName: "chevron.right")
+                        .font(.system(size: 12, weight: .regular))
+                        .foregroundColor(BrewerColors.textSecondary.opacity(0.3))
+                }
+            }
+            .padding(.vertical, 10)
+            .contentShape(Rectangle())
+        }
+        .buttonStyle(PlainButtonStyle())
     }
 }
 

@@ -47,6 +47,18 @@ struct LibraryContainer: View {
             }
             .tint(BrewerColors.cream)
         }
+        .sheet(item: $navigationCoordinator.editingRoaster) { roaster in
+            NavigationStack {
+                EditRoaster(roaster: roaster, isPresented: $navigationCoordinator.editingRoaster)
+                    .environment(\.managedObjectContext, navigationCoordinator.editingRoaster?.managedObjectContext ?? PersistenceController.shared.container.viewContext)
+            }
+            .tint(BrewerColors.cream)
+        }
+        .sheet(item: $navigationCoordinator.selectedRoasterForDetail) { roaster in
+            RoasterDetailSheet(roaster: roaster)
+                .presentationDetents([.medium, .large])
+                .presentationDragIndicator(.visible)
+        }
     }
     
     private var searchPlaceholder: String {
@@ -75,13 +87,8 @@ struct LibraryContent: View {
                 RecipesLibraryView(navigationCoordinator: navigationCoordinator, searchText: searchText)
                     .padding(.horizontal, 20)
             case .roasters:
-                ScrollView {
-                    RoastersLibraryView(navigationCoordinator: navigationCoordinator)
-                        .padding(.horizontal, 20)
-                        .padding(.top, 8)
-                    Spacer().frame(height: 100)
-                }
-                .scrollIndicators(.hidden)
+                RoastersLibraryView(navigationCoordinator: navigationCoordinator, searchText: searchText)
+                    .padding(.horizontal, 20)
             case .grinders:
                 ScrollView {
                     GrindersLibraryView(navigationCoordinator: navigationCoordinator)

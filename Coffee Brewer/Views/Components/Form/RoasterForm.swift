@@ -54,8 +54,6 @@ struct RoasterForm: View {
                     selectedCountry: $formData.country,
                     focusedField: $focusedField
                 )
-                
-            
             }
         }
     }
