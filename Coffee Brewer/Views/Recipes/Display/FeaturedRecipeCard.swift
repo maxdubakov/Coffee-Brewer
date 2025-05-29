@@ -237,13 +237,13 @@ struct FeaturedRecipeCard: View {
             
             if recipe.roaster != nil {
                 Button(action: { showRoasterDetail = true }) {
-                    Label("View Roaster", systemImage: "building.2")
+                    Label("Roaster", systemImage: "building.2")
                 }
             }
             
             if recipe.grinder != nil {
                 Button(action: { showGrinderDetail = true }) {
-                    Label("View Grinder", systemImage: "gearshape")
+                    Label("Grinder", systemImage: "gearshape")
                 }
             }
             
