@@ -74,19 +74,26 @@ struct RecipesLibraryView: View {
                 emptyStateView
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
             } else {
-                List(filteredRecipes) { recipe in
-                    RecipeLibraryRow(
-                        recipe: recipe,
-                        isEditMode: isEditMode,
-                        isSelected: selectedRecipes.contains(recipe.objectID),
-                        onTap: {
-                            if isEditMode {
-                                toggleSelection(for: recipe)
-                            } else {
-                                navigationCoordinator.navigateToBrewRecipe(recipe: recipe)
+                List(Array(filteredRecipes.enumerated()), id: \.element.id) { index, recipe in
+                    VStack(spacing: 0) {
+                        RecipeLibraryRow(
+                            recipe: recipe,
+                            isEditMode: isEditMode,
+                            isSelected: selectedRecipes.contains(recipe.objectID),
+                            onTap: {
+                                if isEditMode {
+                                    toggleSelection(for: recipe)
+                                } else {
+                                    navigationCoordinator.navigateToBrewRecipe(recipe: recipe)
+                                }
                             }
+                        )
+                        
+                        if index < filteredRecipes.count - 1 {
+                            CustomDivider()
+                                .padding(.leading, 32)
                         }
-                    )
+                    }
                     .listRowBackground(Color.clear)
                     .listRowSeparator(.hidden)
                     .listRowInsets(EdgeInsets(top: 4, leading: 0, bottom: 4, trailing: 0))
@@ -213,6 +220,11 @@ struct RecipeLibraryRow: View {
                         .animation(.easeInOut(duration: 0.2), value: isSelected)
                 }
                 
+                // Country flag (at the beginning)
+                Text(recipe.roaster?.country?.flag ?? "🏳️")
+                    .font(.system(size: 16))
+                    .frame(width: 20, height: 20)
+                
                 // Recipe Info
                 VStack(alignment: .leading, spacing: 3) {
                     Text(recipe.name ?? "Untitled Recipe")
@@ -222,16 +234,10 @@ struct RecipeLibraryRow: View {
                     
                     HStack(spacing: 6) {
                         if let roaster = recipe.roaster {
-                            HStack(spacing: 4) {
-                                if let flag = roaster.country?.flag {
-                                    Text(flag)
-                                        .font(.system(size: 11))
-                                }
-                                Text(roaster.name ?? "")
-                                    .font(.system(size: 12))
-                                    .foregroundColor(BrewerColors.textSecondary)
-                                    .lineLimit(1)
-                            }
+                            Text(roaster.name ?? "")
+                                .font(.system(size: 12))
+                                .foregroundColor(BrewerColors.textSecondary)
+                                .lineLimit(1)
                         }
                         
                         Text("•")
@@ -325,19 +331,26 @@ struct RoastersLibraryView: View {
                 emptyStateView
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
             } else {
-                List(filteredRoasters) { roaster in
-                    RoasterLibraryRow(
-                        roaster: roaster,
-                        isEditMode: isEditMode,
-                        isSelected: selectedRoasters.contains(roaster.objectID),
-                        onTap: {
-                            if isEditMode {
-                                toggleSelection(for: roaster)
-                            } else {
-                                selectedRoasterForDetail = roaster
+                List(Array(filteredRoasters.enumerated()), id: \.element.id) { index, roaster in
+                    VStack(spacing: 0) {
+                        RoasterLibraryRow(
+                            roaster: roaster,
+                            isEditMode: isEditMode,
+                            isSelected: selectedRoasters.contains(roaster.objectID),
+                            onTap: {
+                                if isEditMode {
+                                    toggleSelection(for: roaster)
+                                } else {
+                                    selectedRoasterForDetail = roaster
+                                }
                             }
+                        )
+                        
+                        if index < filteredRoasters.count - 1 {
+                            CustomDivider()
+                                .padding(.leading, 32)
                         }
-                    )
+                    }
                     .listRowBackground(Color.clear)
                     .listRowSeparator(.hidden)
                     .listRowInsets(EdgeInsets(top: 4, leading: 0, bottom: 4, trailing: 0))
@@ -469,6 +482,11 @@ struct RoasterLibraryRow: View {
                         .animation(.easeInOut(duration: 0.2), value: isSelected)
                 }
                 
+                // Country flag (at the beginning)
+                Text(roaster.country?.flag ?? "🏳️")
+                    .font(.system(size: 16))
+                    .frame(width: 20, height: 20)
+                
                 // Roaster Info
                 VStack(alignment: .leading, spacing: 3) {
                     Text(roaster.name ?? "Untitled Roaster")
@@ -478,16 +496,10 @@ struct RoasterLibraryRow: View {
                     
                     HStack(spacing: 6) {
                         if let country = roaster.country {
-                            HStack(spacing: 4) {
-                                if let flag = country.flag {
-                                    Text(flag)
-                                        .font(.system(size: 11))
-                                }
-                                Text(country.name ?? "")
-                                    .font(.system(size: 12))
-                                    .foregroundColor(BrewerColors.textSecondary)
-                                    .lineLimit(1)
-                            }
+                            Text(country.name ?? "")
+                                .font(.system(size: 12))
+                                .foregroundColor(BrewerColors.textSecondary)
+                                .lineLimit(1)
                         }
                         
                         // Show recipe count
@@ -587,19 +599,26 @@ struct GrindersLibraryView: View {
                 emptyStateView
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
             } else {
-                List(filteredGrinders) { grinder in
-                    GrinderLibraryRow(
-                        grinder: grinder,
-                        isEditMode: isEditMode,
-                        isSelected: selectedGrinders.contains(grinder.objectID),
-                        onTap: {
-                            if isEditMode {
-                                toggleSelection(for: grinder)
-                            } else {
-                                selectedGrinderForDetail = grinder
+                List(Array(filteredGrinders.enumerated()), id: \.element.id) { index, grinder in
+                    VStack(spacing: 0) {
+                        GrinderLibraryRow(
+                            grinder: grinder,
+                            isEditMode: isEditMode,
+                            isSelected: selectedGrinders.contains(grinder.objectID),
+                            onTap: {
+                                if isEditMode {
+                                    toggleSelection(for: grinder)
+                                } else {
+                                    selectedGrinderForDetail = grinder
+                                }
                             }
+                        )
+                        
+                        if index < filteredGrinders.count - 1 {
+                            CustomDivider()
+                                .padding(.leading, 44)
                         }
-                    )
+                    }
                     .listRowBackground(Color.clear)
                     .listRowSeparator(.hidden)
                     .listRowInsets(EdgeInsets(top: 4, leading: 0, bottom: 4, trailing: 0))

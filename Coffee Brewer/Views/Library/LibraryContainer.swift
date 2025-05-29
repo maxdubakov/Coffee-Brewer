@@ -39,6 +39,7 @@ struct LibraryContainer: View {
                 }
             }
         }
+        .padding(.top, 20)
         .animation(.easeInOut(duration: 0.3), value: showLibraryMode)
         .sheet(item: $navigationCoordinator.editingRecipe) { recipe in
             NavigationStack {

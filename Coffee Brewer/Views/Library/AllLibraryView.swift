@@ -83,15 +83,22 @@ struct AllLibraryView: View {
                     // Recipes Section
                     if !filteredRecipes.isEmpty {
                         Section {
-                            ForEach(filteredRecipes) { recipe in
-                                RecipeLibraryRow(
-                                    recipe: recipe,
-                                    isEditMode: false,
-                                    isSelected: false,
-                                    onTap: {
-                                        navigationCoordinator.navigateToBrewRecipe(recipe: recipe)
+                            ForEach(Array(filteredRecipes.enumerated()), id: \.element.id) { index, recipe in
+                                VStack(spacing: 0) {
+                                    RecipeLibraryRow(
+                                        recipe: recipe,
+                                        isEditMode: false,
+                                        isSelected: false,
+                                        onTap: {
+                                            navigationCoordinator.navigateToBrewRecipe(recipe: recipe)
+                                        }
+                                    )
+                                    
+                                    if index < filteredRecipes.count - 1 {
+                                        CustomDivider()
+                                            .padding(.leading, 32)
                                     }
-                                )
+                                }
                                 .listRowBackground(Color.clear)
                                 .listRowSeparator(.hidden)
                                 .listRowInsets(EdgeInsets(top: 4, leading: 0, bottom: 4, trailing: 0))
@@ -118,15 +125,22 @@ struct AllLibraryView: View {
                     // Roasters Section
                     if !filteredRoasters.isEmpty {
                         Section {
-                            ForEach(filteredRoasters) { roaster in
-                                RoasterLibraryRow(
-                                    roaster: roaster,
-                                    isEditMode: false,
-                                    isSelected: false,
-                                    onTap: {
-                                        selectedRoasterForDetail = roaster
+                            ForEach(Array(filteredRoasters.enumerated()), id: \.element.id) { index, roaster in
+                                VStack(spacing: 0) {
+                                    RoasterLibraryRow(
+                                        roaster: roaster,
+                                        isEditMode: false,
+                                        isSelected: false,
+                                        onTap: {
+                                            selectedRoasterForDetail = roaster
+                                        }
+                                    )
+                                    
+                                    if index < filteredRoasters.count - 1 {
+                                        CustomDivider()
+                                            .padding(.leading, 32)
                                     }
-                                )
+                                }
                                 .listRowBackground(Color.clear)
                                 .listRowSeparator(.hidden)
                                 .listRowInsets(EdgeInsets(top: 4, leading: 0, bottom: 4, trailing: 0))
@@ -147,15 +161,22 @@ struct AllLibraryView: View {
                     // Grinders Section
                     if !filteredGrinders.isEmpty {
                         Section {
-                            ForEach(filteredGrinders) { grinder in
-                                GrinderLibraryRow(
-                                    grinder: grinder,
-                                    isEditMode: false,
-                                    isSelected: false,
-                                    onTap: {
-                                        selectedGrinderForDetail = grinder
+                            ForEach(Array(filteredGrinders.enumerated()), id: \.element.id) { index, grinder in
+                                VStack(spacing: 0) {
+                                    GrinderLibraryRow(
+                                        grinder: grinder,
+                                        isEditMode: false,
+                                        isSelected: false,
+                                        onTap: {
+                                            selectedGrinderForDetail = grinder
+                                        }
+                                    )
+                                    
+                                    if index < filteredGrinders.count - 1 {
+                                        CustomDivider()
+                                            .padding(.leading, 44)
                                     }
-                                )
+                                }
                                 .listRowBackground(Color.clear)
                                 .listRowSeparator(.hidden)
                                 .listRowInsets(EdgeInsets(top: 4, leading: 0, bottom: 4, trailing: 0))
