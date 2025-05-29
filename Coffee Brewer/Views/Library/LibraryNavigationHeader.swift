@@ -6,99 +6,131 @@ enum LibraryTab: String, CaseIterable {
     case grinders = "Grinders"
 }
 
+// MARK: - Library Tab Pills
+struct LibraryTabButton: View {
+    @Binding var selectedTab: LibraryTab
+    @Namespace private var animation
+    
+    var body: some View {
+        HStack(spacing: 0) {
+            ForEach(LibraryTab.allCases, id: \.self) { tab in
+                tabButton(for: tab)
+            }
+        }
+        .padding(.horizontal, 20)
+        .padding(.top, 12)
+    }
+    
+    @ViewBuilder
+    private func tabButton(for tab: LibraryTab) -> some View {
+        let isSelected = selectedTab == tab
+        
+        Button(action: {
+            withAnimation(.easeInOut(duration: 0.2)) {
+                selectedTab = tab
+            }
+        }) {
+            VStack(spacing: 8) {
+                Text(tab.rawValue)
+                    .font(.subheadline)
+                    .fontWeight(isSelected ? .semibold : .regular)
+                    .foregroundColor(isSelected ? BrewerColors.cream : BrewerColors.textSecondary)
+                
+                if isSelected {
+                    RoundedRectangle(cornerRadius: 2)
+                        .fill(BrewerColors.caramel)
+                        .frame(height: 3)
+                        .matchedGeometryEffect(id: "selector", in: animation)
+                } else {
+                    RoundedRectangle(cornerRadius: 2)
+                        .fill(Color.clear)
+                        .frame(height: 3)
+                }
+            }
+            .frame(maxWidth: .infinity)
+        }
+        .buttonStyle(PlainButtonStyle())
+    }
+}
+
+// MARK: - Unified Library Header
+struct LibraryHeader: View {
+    @Binding var selectedTab: LibraryTab
+    @Binding var showLibraryMode: Bool
+    @State private var isPressed = false
+    
+    var body: some View {
+        HStack(alignment: .center) {
+            // Title with icon
+            HStack(spacing: 8) {
+                Text(showLibraryMode ? "Library" : "Recipes")
+                    .font(.system(size: 32, weight: .bold))
+                    .foregroundColor(BrewerColors.cream)
+                    .fixedSize()
+            }
+            
+            Spacer()
+            
+            // Toggle Button (Library/Recipes)
+            Button(action: {
+                withAnimation(.easeInOut(duration: 0.3)) {
+                    showLibraryMode.toggle()
+                }
+            }) {
+                HStack(spacing: 4) {
+                    Text(showLibraryMode ? "Recipes" : "Library")
+                        .font(.system(size: 13, weight: .semibold))
+                    
+                    Image(systemName: "chevron.right")
+                        .font(.system(size: 11, weight: .semibold))
+                }
+                .foregroundColor(BrewerColors.cream)
+                .padding(.horizontal, 14)
+                .padding(.vertical, 8)
+                .background(
+                    LinearGradient(
+                        gradient: Gradient(colors: [
+                            BrewerColors.mocha.opacity(0.9),
+                            BrewerColors.espresso.opacity(0.9)
+                        ]),
+                        startPoint: .topLeading,
+                        endPoint: .bottomTrailing
+                    )
+                )
+                .overlay(
+                    RoundedRectangle(cornerRadius: 12)
+                        .strokeBorder(
+                            LinearGradient(
+                                gradient: Gradient(colors: [
+                                    BrewerColors.caramel.opacity(0.5),
+                                    BrewerColors.caramel.opacity(0.2)
+                                ]),
+                                startPoint: .topLeading,
+                                endPoint: .bottomTrailing
+                            ),
+                            lineWidth: 1
+                        )
+                )
+                .cornerRadius(12)
+                .shadow(color: Color.black.opacity(0.15), radius: 3, x: 0, y: 2)
+            }
+            .buttonStyle(PlainButtonStyle())
+            .scaleEffect(isPressed ? 0.95 : 1.0)
+            .animation(.easeInOut(duration: 0.15), value: isPressed)
+            .onLongPressGesture(minimumDuration: 0, maximumDistance: .infinity, pressing: { pressing in
+                isPressed = pressing
+            }, perform: {})
+        }
+        .padding(.horizontal, 20)
+    }
+}
+
+// MARK: - Legacy component for backwards compatibility
 struct LibraryNavigationHeader: View {
     @Binding var selectedTab: LibraryTab
     @Binding var showLibraryMode: Bool
     
     var body: some View {
-        VStack(spacing: 0) {
-            // Premium Header Bar
-            HStack(alignment: .center, spacing: 16) {
-                // Library Title with icon
-                HStack(spacing: 8) {
-                    Image(systemName: "books.vertical")
-                        .font(.system(size: 18, weight: .medium))
-                        .foregroundColor(BrewerColors.caramel)
-                    
-                    Text("Library")
-                        .font(.system(size: 20, weight: .bold))
-                        .foregroundColor(BrewerColors.cream)
-                }
-                
-                Spacer()
-                
-                // Tab Pills
-                HStack(spacing: 4) {
-                    ForEach(LibraryTab.allCases, id: \.self) { tab in
-                        Button(action: {
-                            withAnimation(.spring(response: 0.3, dampingFraction: 0.8)) {
-                                selectedTab = tab
-                            }
-                        }) {
-                            Text(tab.rawValue)
-                                .font(.system(size: 13, weight: selectedTab == tab ? .semibold : .medium))
-                                .foregroundColor(selectedTab == tab ? BrewerColors.cream : BrewerColors.textSecondary)
-                                .padding(.horizontal, 12)
-                                .padding(.vertical, 6)
-                                .background(
-                                    RoundedRectangle(cornerRadius: 12)
-                                        .fill(selectedTab == tab ? BrewerColors.caramel : Color.clear)
-                                        .animation(.spring(response: 0.3, dampingFraction: 0.8), value: selectedTab)
-                                )
-                        }
-                    }
-                }
-                
-                // Close/Recipes Toggle
-                Button(action: {
-                    withAnimation(.easeInOut(duration: 0.3)) {
-                        showLibraryMode = false
-                    }
-                }) {
-                    Text("Recipes")
-                        .font(.system(size: 13, weight: .medium))
-                        .foregroundColor(BrewerColors.textSecondary)
-                        .padding(.horizontal, 12)
-                        .padding(.vertical, 6)
-                        .background(
-                            RoundedRectangle(cornerRadius: 12)
-                                .stroke(BrewerColors.textSecondary.opacity(0.3), lineWidth: 1)
-                        )
-                }
-            }
-        }
-        .background(
-            ZStack {
-                // Base background with blur effect
-                RoundedRectangle(cornerRadius: 0)
-                    .fill(
-                        LinearGradient(
-                            colors: [
-                                BrewerColors.cardBackground.opacity(0.98),
-                                BrewerColors.cardBackground.opacity(0.95)
-                            ],
-                            startPoint: .top,
-                            endPoint: .bottom
-                        )
-                    )
-                
-                // Subtle border
-                VStack {
-                    Spacer()
-                    Rectangle()
-                        .fill(
-                            LinearGradient(
-                                colors: [
-                                    BrewerColors.caramel.opacity(0.2),
-                                    BrewerColors.caramel.opacity(0.1)
-                                ],
-                                startPoint: .leading,
-                                endPoint: .trailing
-                            )
-                        )
-                        .frame(height: 1)
-                }
-            }
-        )
+        LibraryHeader(selectedTab: $selectedTab, showLibraryMode: $showLibraryMode)
     }
 }

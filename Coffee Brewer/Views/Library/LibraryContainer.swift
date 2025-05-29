@@ -8,14 +8,18 @@ struct LibraryContainer: View {
     
     var body: some View {
         VStack(spacing: 0) {
-            // Navigation Header
-            if showLibraryMode {
-                LibraryNavigationHeader(
+            // Unified Navigation Header
+            VStack(spacing: 0) {
+                LibraryHeader(
                     selectedTab: $selectedLibraryTab,
                     showLibraryMode: $showLibraryMode
                 )
-            } else {
-                LibraryAccessButton(showLibraryMode: $showLibraryMode)
+                .padding(.bottom, 20)
+                
+                // Tab Pills (only visible in library mode)
+                if showLibraryMode {
+                    LibraryTabButton(selectedTab: $selectedLibraryTab)
+                }
             }
             
             // Main Content
@@ -33,65 +37,6 @@ struct LibraryContainer: View {
     }
 }
 
-// MARK: - Library Access Button
-struct LibraryAccessButton: View {
-    @Binding var showLibraryMode: Bool
-    
-    var body: some View {
-        HStack {
-            Spacer()
-            
-            Button(action: {
-                withAnimation(.easeInOut(duration: 0.3)) {
-                    showLibraryMode = true
-                }
-            }) {
-                HStack(spacing: 8) {
-                    Image(systemName: "books.vertical")
-                        .font(.system(size: 14, weight: .medium))
-                        .foregroundColor(BrewerColors.caramel)
-                    
-                    Text("Library")
-                        .font(.system(size: 14, weight: .semibold))
-                        .foregroundColor(BrewerColors.cream)
-                }
-                .padding(.horizontal, 16)
-                .padding(.vertical, 8)
-                .background(
-                    ZStack {
-                        RoundedRectangle(cornerRadius: 16)
-                            .fill(
-                                LinearGradient(
-                                    colors: [
-                                        BrewerColors.cardBackground.opacity(0.9),
-                                        BrewerColors.cardBackground.opacity(0.8)
-                                    ],
-                                    startPoint: .top,
-                                    endPoint: .bottom
-                                )
-                            )
-                        
-                        RoundedRectangle(cornerRadius: 16)
-                            .stroke(
-                                LinearGradient(
-                                    colors: [
-                                        BrewerColors.caramel.opacity(0.3),
-                                        BrewerColors.caramel.opacity(0.1)
-                                    ],
-                                    startPoint: .topLeading,
-                                    endPoint: .bottomTrailing
-                                ),
-                                lineWidth: 1
-                            )
-                    }
-                )
-                .shadow(color: Color.black.opacity(0.1), radius: 4, x: 0, y: 2)
-            }
-            .padding(.top, 8)
-            .padding(.trailing, 20)
-        }
-    }
-}
 
 // MARK: - Library Content View
 struct LibraryContent: View {
