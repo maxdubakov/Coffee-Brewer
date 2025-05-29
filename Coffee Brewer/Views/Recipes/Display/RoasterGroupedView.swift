@@ -35,7 +35,7 @@ struct RoasterGroupedView: View {
                         ScrollView(.horizontal, showsIndicators: false) {
                             HStack(spacing: 12) {
                                 ForEach(recipes.sorted(by: { ($0.lastBrewedAt ?? Date.distantPast) > ($1.lastBrewedAt ?? Date.distantPast) })) { recipe in
-                                    PremiumRecipeCard(
+                                    RecipeCard(
                                         recipe: recipe,
                                         onBrewTapped: {
                                             navigationCoordinator.navigateToBrewRecipe(recipe: recipe)

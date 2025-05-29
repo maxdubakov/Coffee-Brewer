@@ -61,7 +61,7 @@ struct Recipes: View {
                                     ScrollView(.horizontal, showsIndicators: false) {
                                         HStack(spacing: 12) {
                                             ForEach(quickBrewRecipes) { recipe in
-                                                PremiumRecipeCard(
+                                                RecipeCard(
                                                     recipe: recipe,
                                                     onBrewTapped: {
                                                         navigationCoordinator.navigateToBrewRecipe(recipe: recipe)
