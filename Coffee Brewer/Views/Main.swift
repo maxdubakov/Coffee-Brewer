@@ -16,7 +16,14 @@ struct Main: View {
         let appearance = UITabBarAppearance()
         appearance.configureWithOpaqueBackground()
         appearance.backgroundColor = UIColor(BrewerColors.background)
+        appearance.shadowColor = .clear
+        
         UITabBar.appearance().standardAppearance = appearance
+        UITabBar.appearance().scrollEdgeAppearance = appearance
+        
+        if #available(iOS 15.0, *) {
+            UITabBar.appearance().scrollEdgeAppearance = appearance
+        }
     }
 
     var body: some View {
@@ -58,6 +65,16 @@ struct Main: View {
             .tag(Tab.history)
         }
         .accentColor(BrewerColors.cream)
+        .onAppear {
+            // Ensure tab bar appearance is maintained
+            let appearance = UITabBarAppearance()
+            appearance.configureWithOpaqueBackground()
+            appearance.backgroundColor = UIColor(BrewerColors.background)
+            appearance.shadowColor = .clear
+            
+            UITabBar.appearance().standardAppearance = appearance
+            UITabBar.appearance().scrollEdgeAppearance = appearance
+        }
         .alert("Discard Recipe?", isPresented: $navigationCoordinator.showingDiscardAlert) {
             Button("Cancel", role: .cancel) {
                 navigationCoordinator.cancelTabChange()

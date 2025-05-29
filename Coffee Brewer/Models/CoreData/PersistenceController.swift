@@ -145,6 +145,7 @@ struct PersistenceController {
         let brightBean = Roaster(context: viewContext)
         brightBean.id = UUID()
         brightBean.name = "Bright Bean Co."
+        brightBean.country = ethiopiaCountry
 
         // Nord Roaster Recipes
         let nordKenya = Recipe(context: viewContext)

@@ -46,6 +46,10 @@ class NavigationCoordinator: ObservableObject {
     @Published var showingBrewCompletion = false
     @Published var brewCompletionRecipe: Recipe?
     
+    // MARK: - Delete Recipe State
+    @Published var showingDeleteAlert = false
+    @Published var recipeToDelete: Recipe?
+    
     // MARK: - Shared State
     @Published var selectedRoaster: Roaster?
     
@@ -86,6 +90,36 @@ class NavigationCoordinator: ObservableObject {
     
     func dismissEditRecipe() {
         editingRecipe = nil
+    }
+    
+    // MARK: - Recipe Deletion
+    func confirmDeleteRecipe(_ recipe: Recipe) {
+        recipeToDelete = recipe
+        showingDeleteAlert = true
+    }
+    
+    func deleteRecipe(in context: NSManagedObjectContext) {
+        guard let recipe = recipeToDelete else { return }
+        
+        withAnimation(.bouncy(duration: 0.5)) {
+            context.delete(recipe)
+            
+            do {
+                try context.save()
+                // Send notification for any views that need to update
+                NotificationCenter.default.post(name: .recipeDeleted, object: nil)
+            } catch {
+                print("Error deleting recipe: \(error)")
+            }
+        }
+        
+        recipeToDelete = nil
+        showingDeleteAlert = false
+    }
+    
+    func cancelDeleteRecipe() {
+        recipeToDelete = nil
+        showingDeleteAlert = false
     }
     
     // MARK: - Navigation Stack Management
@@ -202,4 +236,8 @@ class NavigationCoordinator: ObservableObject {
     deinit {
         NotificationCenter.default.removeObserver(self)
     }
+}
+
+extension Notification.Name {
+    static let recipeDeleted = Notification.Name("recipeDeleted")
 }
