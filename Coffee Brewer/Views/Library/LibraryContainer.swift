@@ -54,11 +54,6 @@ struct LibraryContainer: View {
             }
             .tint(BrewerColors.cream)
         }
-        .sheet(item: $navigationCoordinator.selectedRoasterForDetail) { roaster in
-            RoasterDetailSheet(roaster: roaster)
-                .presentationDetents([.medium, .large])
-                .presentationDragIndicator(.visible)
-        }
     }
     
     private var searchPlaceholder: String {

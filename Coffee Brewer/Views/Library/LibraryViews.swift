@@ -275,6 +275,7 @@ struct RoastersLibraryView: View {
     @State private var roasterToDelete: Roaster?
     @State private var isEditMode = false
     @State private var selectedRoasters: Set<NSManagedObjectID> = []
+    @State private var selectedRoasterForDetail: Roaster?
     
     private var filteredRoasters: [Roaster] {
         let allRoasters = Array(roasters)
@@ -332,7 +333,7 @@ struct RoastersLibraryView: View {
                             if isEditMode {
                                 toggleSelection(for: roaster)
                             } else {
-                                navigationCoordinator.presentRoasterDetail(roaster)
+                                selectedRoasterForDetail = roaster
                             }
                         }
                     )
@@ -380,6 +381,11 @@ struct RoastersLibraryView: View {
             } else {
                 Text("Are you sure you want to delete \(roasterToDelete?.name ?? "this roaster")? This will also delete all associated recipes.")
             }
+        }
+        .sheet(item: $selectedRoasterForDetail) { roaster in
+            RoasterDetailSheet(roaster: roaster)
+                .presentationDetents([.medium, .large])
+                .presentationDragIndicator(.visible)
         }
     }
     

@@ -44,7 +44,6 @@ class NavigationCoordinator: ObservableObject {
     // MARK: - Modal States
     @Published var editingRecipe: Recipe?
     @Published var editingRoaster: Roaster?
-    @Published var selectedRoasterForDetail: Roaster?
     @Published var showingBrewCompletion = false
     @Published var brewCompletionRecipe: Recipe?
     
@@ -100,14 +99,6 @@ class NavigationCoordinator: ObservableObject {
     
     func dismissEditRoaster() {
         editingRoaster = nil
-    }
-    
-    func presentRoasterDetail(_ roaster: Roaster) {
-        selectedRoasterForDetail = roaster
-    }
-    
-    func dismissRoasterDetail() {
-        selectedRoasterForDetail = nil
     }
     
     // MARK: - Recipe Deletion
