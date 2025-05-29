@@ -13,7 +13,7 @@ struct RecipeCard: View {
     private var pourCount: Int {
         return recipe.stagesArray.count
     }
-
+    
     var body: some View {
         VStack(spacing: 0) {
             // Premium Image Section with Info Overlay
@@ -81,25 +81,22 @@ struct RecipeCard: View {
                         
                         Text("1:\(Int(recipe.ratio))")
                             .font(.system(size: 12, weight: .medium, design: .rounded))
-                            
                     }
                     .foregroundColor(.white)
                 }
                 .padding(.bottom, 10)
             }
-            .frame(height: 180)
-            .clipped()
             
             // Compact Details Section
-            VStack(alignment: .leading, spacing: 10) {
-                // Title and Roaster
-                VStack(alignment: .leading, spacing: 4) {
-                    Text(recipe.name ?? "Untitled Recipe")
-                        .font(.system(size: 14, weight: .semibold))
-                        .foregroundColor(BrewerColors.cream)
-                        .lineLimit(1)
-                    
-                    HStack(spacing: 12) {
+            HStack {
+                VStack(alignment: .leading, spacing: 10) {
+                    // Title and Roaster
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text(recipe.name ?? "Untitled Recipe")
+                            .font(.system(size: 14, weight: .semibold))
+                            .foregroundColor(BrewerColors.cream)
+                            .lineLimit(1)
+                        
                         // Roaster info
                         if let roaster = recipe.roaster {
                             HStack(spacing: 4) {
@@ -113,45 +110,33 @@ struct RecipeCard: View {
                                     .lineLimit(1)
                             }
                         }
+                    }
+                    
+                    // Time since last brew
+                    HStack(spacing: 4) {
+                        Circle()
+                            .fill(BrewerColors.caramel.opacity(0.4))
+                            .frame(width: 5, height: 5)
                         
-                        Spacer()
-                        
-                        Text.pluralized("pour", count: pourCount)
-                            .font(.system(size: 11, weight: .medium))
-                            .foregroundColor(BrewerColors.caramel)
-                        .padding(.horizontal, 8)
-                        .padding(.vertical, 2)
-                        .background(
-                            Capsule()
-                                .fill(BrewerColors.caramel.opacity(0.15))
-                        )
+                        Text((recipe.lastBrewedAt ?? Date()).timeAgoDescription())
+                            .font(.system(size: 10))
+                            .foregroundColor(BrewerColors.textSecondary.opacity(0.8))
                     }
                 }
-                
-                // Time since last brew
-                HStack(spacing: 4) {
-                    Circle()
-                        .fill(BrewerColors.caramel.opacity(0.4))
-                        .frame(width: 5, height: 5)
-                    
-                    Text((recipe.lastBrewedAt ?? Date()).timeAgoDescription())
-                        .font(.system(size: 10))
-                        .foregroundColor(BrewerColors.textSecondary.opacity(0.8))
-                }
-            }
-            .padding(12)
-            .background(
-                LinearGradient(
-                    colors: [
-                        BrewerColors.cardBackground,
-                        BrewerColors.cardBackground.opacity(0.95)
-                    ],
-                    startPoint: .top,
-                    endPoint: .bottom
+                .padding(12)
+                .background(
+                    LinearGradient(
+                        colors: [
+                            BrewerColors.cardBackground,
+                            BrewerColors.cardBackground.opacity(0.95)
+                        ],
+                        startPoint: .top,
+                        endPoint: .bottom
+                    )
                 )
-            )
+                Spacer()
+            }
         }
-        .frame(width: 180)
         .background(
             ZStack {
                 // Base background

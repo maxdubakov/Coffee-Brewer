@@ -144,25 +144,25 @@ struct FeaturedRecipeCard: View {
                 if let grinder = recipe.grinder {
                     HStack(spacing: 6) {
                         Image(systemName: "gearshape.fill")
-                            .font(.system(size: 11))
+                            .font(.system(size: 12))
                             .foregroundColor(BrewerColors.caramel)
                         Text(grinder.name ?? "")
-                            .font(.system(size: 12, weight: .medium))
+                            .font(.system(size: 13, weight: .medium))
                             .foregroundColor(BrewerColors.textPrimary)
                     }
                 }
                 
-                Spacer()
-                
                 // Grind size
                 HStack(spacing: 6) {
                     Image(systemName: "circle.grid.3x3.fill")
-                        .font(.system(size: 11))
+                        .font(.system(size: 12))
                         .foregroundColor(BrewerColors.caramel)
                     Text("Grind \(recipe.grindSize)")
-                        .font(.system(size: 12, weight: .medium))
+                        .font(.system(size: 13, weight: .medium))
                         .foregroundColor(BrewerColors.textPrimary)
                 }
+                
+                Spacer()
                 
                 // Last brew time
                 HStack(spacing: 4) {
@@ -171,11 +171,12 @@ struct FeaturedRecipeCard: View {
                         .frame(width: 6, height: 6)
                     
                     Text((recipe.lastBrewedAt ?? Date()).timeAgoDescription())
-                        .font(.system(size: 12))
+                        .font(.system(size: 13))
                         .foregroundColor(BrewerColors.textSecondary)
                 }
             }
-            .padding(20)
+            .padding(.vertical, 16)
+            .padding(.horizontal, 24)
             .background(
                 LinearGradient(
                     colors: [

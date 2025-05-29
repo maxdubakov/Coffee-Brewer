@@ -50,9 +50,7 @@ struct GrinderGroupedView: View {
                                     .frame(width: 180)
                                 }
                             }
-                            .padding(.horizontal, 20)
                         }
-                        .padding(.horizontal, -20)
                     }
                 }
             }
