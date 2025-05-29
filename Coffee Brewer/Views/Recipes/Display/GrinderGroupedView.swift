@@ -17,9 +17,9 @@ struct GrinderGroupedView: View {
                 if let recipes = grinder.recipes?.allObjects as? [Recipe], !recipes.isEmpty {
                     VStack(alignment: .leading, spacing: 12) {
                         HStack {
-                            Image(systemName: "gearshape.fill")
+                            Image(systemName: grinder.typeIcon)
                                 .font(.subheadline)
-                                .foregroundColor(BrewerColors.textSecondary)
+                                .foregroundColor(BrewerColors.caramel)
                             
                             Text(grinder.name ?? "Unknown Grinder")
                                 .font(.headline)

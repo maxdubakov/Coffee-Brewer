@@ -7,6 +7,8 @@ struct FeaturedRecipeCard: View {
     
     @State private var isPressed = false
     @State private var showQuickActions = false
+    @State private var showRoasterDetail = false
+    @State private var showGrinderDetail = false
     
     private var pourCount: Int {
         return recipe.stagesArray.count
@@ -143,7 +145,7 @@ struct FeaturedRecipeCard: View {
                 // Grinder info
                 if let grinder = recipe.grinder {
                     HStack(spacing: 6) {
-                        Image(systemName: "gearshape.fill")
+                        Image(systemName: grinder.typeIcon)
                             .font(.system(size: 12))
                             .foregroundColor(BrewerColors.caramel)
                         Text(grinder.name ?? "")
@@ -224,6 +226,45 @@ struct FeaturedRecipeCard: View {
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
                 isPressed = false
                 onBrewTapped()
+            }
+        }
+        .contextMenu {
+            Button(action: onBrewTapped) {
+                Label("Brew", systemImage: "mug")
+            }
+            
+            Divider()
+            
+            if recipe.roaster != nil {
+                Button(action: { showRoasterDetail = true }) {
+                    Label("View Roaster", systemImage: "building.2")
+                }
+            }
+            
+            if recipe.grinder != nil {
+                Button(action: { showGrinderDetail = true }) {
+                    Label("View Grinder", systemImage: "gearshape")
+                }
+            }
+            
+            Divider()
+            
+            Button(action: onEditTapped) {
+                Label("Edit", systemImage: "pencil")
+            }
+        }
+        .sheet(isPresented: $showRoasterDetail) {
+            if let roaster = recipe.roaster {
+                RoasterDetailSheet(roaster: roaster)
+                    .presentationDetents([.height(400)])
+                    .presentationDragIndicator(.hidden)
+            }
+        }
+        .sheet(isPresented: $showGrinderDetail) {
+            if let grinder = recipe.grinder {
+                GrinderDetailSheet(grinder: grinder)
+                    .presentationDetents([.height(400)])
+                    .presentationDragIndicator(.hidden)
             }
         }
     }

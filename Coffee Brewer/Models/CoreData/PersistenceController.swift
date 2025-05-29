@@ -73,10 +73,12 @@ struct PersistenceController {
         let niche = Grinder(context: viewContext)
         niche.id = UUID()
         niche.name = "Niche Zero"
+        niche.type = "Electric"
         
         let commandante = Grinder(context: viewContext)
         commandante.id = UUID()
         commandante.name = "Commandante C40"
+        commandante.type = "Manual"
         
         // Create a default recipe
         let defaultRecipe = Recipe(context: viewContext)
