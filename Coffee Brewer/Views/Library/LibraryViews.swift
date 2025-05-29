@@ -1,4 +1,5 @@
 import SwiftUI
+import CoreData
 
 // MARK: - Recipes Library View
 struct RecipesLibraryView: View {
@@ -14,6 +15,8 @@ struct RecipesLibraryView: View {
     
     @State private var showingDeleteAlert = false
     @State private var recipeToDelete: Recipe?
+    @State private var isEditMode = false
+    @State private var selectedRecipes: Set<NSManagedObjectID> = []
     
     private var filteredRecipes: [Recipe] {
         let allRecipes = Array(recipes)
@@ -40,6 +43,33 @@ struct RecipesLibraryView: View {
     
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
+            // Header with edit/delete buttons
+            if !filteredRecipes.isEmpty {
+                HStack {
+                    Button(isEditMode ? "Done" : "Edit") {
+                        withAnimation(.easeInOut(duration: 0.2)) {
+                            isEditMode.toggle()
+                            if !isEditMode {
+                                selectedRecipes.removeAll()
+                            }
+                        }
+                    }
+                    .font(.system(size: 15, weight: .medium))
+                    .foregroundColor(BrewerColors.caramel)
+                    
+                    Spacer()
+                    
+                    if isEditMode && !selectedRecipes.isEmpty {
+                        Button("Delete") {
+                            showingDeleteAlert = true
+                        }
+                        .font(.system(size: 15, weight: .medium))
+                        .foregroundColor(.red)
+                    }
+                }
+                .padding(.bottom, 8)
+            }
+            
             if filteredRecipes.isEmpty {
                 emptyStateView
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -47,8 +77,14 @@ struct RecipesLibraryView: View {
                 List(filteredRecipes) { recipe in
                     RecipeLibraryRow(
                         recipe: recipe,
+                        isEditMode: isEditMode,
+                        isSelected: selectedRecipes.contains(recipe.objectID),
                         onTap: {
-                            navigationCoordinator.navigateToBrewRecipe(recipe: recipe)
+                            if isEditMode {
+                                toggleSelection(for: recipe)
+                            } else {
+                                navigationCoordinator.navigateToBrewRecipe(recipe: recipe)
+                            }
                         }
                     )
                     .listRowBackground(Color.clear)
@@ -76,17 +112,25 @@ struct RecipesLibraryView: View {
             }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
-        .alert("Delete Recipe", isPresented: $showingDeleteAlert) {
+        .alert("Delete Recipe\(selectedRecipes.count > 1 ? "s" : "")", isPresented: $showingDeleteAlert) {
             Button("Cancel", role: .cancel) {
-                recipeToDelete = nil
+                if selectedRecipes.isEmpty {
+                    recipeToDelete = nil
+                }
             }
             Button("Delete", role: .destructive) {
-                if let recipe = recipeToDelete {
+                if !selectedRecipes.isEmpty {
+                    deleteSelectedRecipes()
+                } else if let recipe = recipeToDelete {
                     deleteRecipe(recipe)
                 }
             }
         } message: {
-            Text("Are you sure you want to delete \(recipeToDelete?.name ?? "this recipe")?")
+            if !selectedRecipes.isEmpty {
+                Text("Are you sure you want to delete \(selectedRecipes.count) recipe\(selectedRecipes.count == 1 ? "" : "s")?")
+            } else {
+                Text("Are you sure you want to delete \(recipeToDelete?.name ?? "this recipe")?")
+            }
         }
     }
     
@@ -110,6 +154,33 @@ struct RecipesLibraryView: View {
         .padding(.top, 60)
     }
     
+    private func toggleSelection(for recipe: Recipe) {
+        if selectedRecipes.contains(recipe.objectID) {
+            selectedRecipes.remove(recipe.objectID)
+        } else {
+            selectedRecipes.insert(recipe.objectID)
+        }
+    }
+    
+    private func deleteSelectedRecipes() {
+        withAnimation {
+            for objectID in selectedRecipes {
+                if let recipe = viewContext.object(with: objectID) as? Recipe {
+                    viewContext.delete(recipe)
+                }
+            }
+            
+            do {
+                try viewContext.save()
+            } catch {
+                print("Error deleting recipes: \(error)")
+            }
+            
+            selectedRecipes.removeAll()
+            isEditMode = false
+        }
+    }
+    
     private func deleteRecipe(_ recipe: Recipe) {
         withAnimation {
             viewContext.delete(recipe)
@@ -126,11 +197,21 @@ struct RecipesLibraryView: View {
 // MARK: - Recipe Library Row
 struct RecipeLibraryRow: View {
     let recipe: Recipe
+    let isEditMode: Bool
+    let isSelected: Bool
     let onTap: () -> Void
     
     var body: some View {
         Button(action: onTap) {
             HStack(spacing: 12) {
+                // Selection circle (shown in edit mode)
+                if isEditMode {
+                    Image(systemName: isSelected ? "checkmark.circle.fill" : "circle")
+                        .font(.system(size: 20))
+                        .foregroundColor(isSelected ? BrewerColors.caramel : BrewerColors.textSecondary.opacity(0.4))
+                        .animation(.easeInOut(duration: 0.2), value: isSelected)
+                }
+                
                 // Recipe Info
                 VStack(alignment: .leading, spacing: 3) {
                     Text(recipe.name ?? "Untitled Recipe")
@@ -164,10 +245,12 @@ struct RecipeLibraryRow: View {
                 
                 Spacer()
                 
-                // Chevron
-                Image(systemName: "chevron.right")
-                    .font(.system(size: 12, weight: .regular))
-                    .foregroundColor(BrewerColors.textSecondary.opacity(0.3))
+                // Chevron (hidden in edit mode)
+                if !isEditMode {
+                    Image(systemName: "chevron.right")
+                        .font(.system(size: 12, weight: .regular))
+                        .foregroundColor(BrewerColors.textSecondary.opacity(0.3))
+                }
             }
             .padding(.vertical, 10)
             .contentShape(Rectangle())
