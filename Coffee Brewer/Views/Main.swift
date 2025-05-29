@@ -29,7 +29,7 @@ struct Main: View {
     var body: some View {
         TabView(selection: navigationCoordinator.selectedTab) {
             NavigationStack(path: $navigationCoordinator.homePath) {
-                Recipes(navigationCoordinator: navigationCoordinator)
+                LibraryContainer(navigationCoordinator: navigationCoordinator)
                     .background(BrewerColors.background)
                     .navigationDestination(for: AppDestination.self) { destination in
                         destinationView(for: destination)

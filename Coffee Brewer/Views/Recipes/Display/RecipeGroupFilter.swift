@@ -38,7 +38,7 @@ struct RecipeGroupFilter: View {
                 
                 if isSelected {
                     RoundedRectangle(cornerRadius: 2)
-                        .fill(BrewerColors.espresso)
+                        .fill(BrewerColors.caramel)
                         .frame(height: 3)
                         .matchedGeometryEffect(id: "selector", in: animation)
                 } else {
