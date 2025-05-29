@@ -1,24 +1,28 @@
 import SwiftUI
+import CoreData
 
 struct LibraryContainer: View {
     @ObservedObject var navigationCoordinator: NavigationCoordinator
     
     @State private var showLibraryMode = false
     @State private var selectedLibraryTab: LibraryTab = .recipes
+    @State private var searchText = ""
     
     var body: some View {
-        VStack(spacing: 0) {
+        VStack(spacing: 20) {
             // Unified Navigation Header
-            VStack(spacing: 0) {
+            VStack(spacing: 20) {
                 LibraryHeader(
                     selectedTab: $selectedLibraryTab,
                     showLibraryMode: $showLibraryMode
                 )
-                .padding(.bottom, 20)
-                
-                // Tab Pills (only visible in library mode)
+                // Search Bar (only visible in library mode)
                 if showLibraryMode {
-                    LibraryTabButton(selectedTab: $selectedLibraryTab)
+                    VStack(spacing: 10) {
+                        SearchBar(searchText: $searchText, placeholder: searchPlaceholder)
+                            .padding(.horizontal, 20)
+                        LibraryTabButton(selectedTab: $selectedLibraryTab)
+                    }
                 }
             }
             
@@ -27,12 +31,32 @@ struct LibraryContainer: View {
                 if showLibraryMode {
                     LibraryContent(
                         selectedTab: selectedLibraryTab,
-                        navigationCoordinator: navigationCoordinator
+                        navigationCoordinator: navigationCoordinator,
+                        searchText: searchText
                     )
                 } else {
                     Recipes(navigationCoordinator: navigationCoordinator)
                 }
             }
+        }
+        .animation(.easeInOut(duration: 0.3), value: showLibraryMode)
+        .sheet(item: $navigationCoordinator.editingRecipe) { recipe in
+            NavigationStack {
+                EditRecipe(recipe: recipe, isPresented: $navigationCoordinator.editingRecipe)
+                    .environment(\.managedObjectContext, navigationCoordinator.editingRecipe?.managedObjectContext ?? PersistenceController.shared.container.viewContext)
+            }
+            .tint(BrewerColors.cream)
+        }
+    }
+    
+    private var searchPlaceholder: String {
+        switch selectedLibraryTab {
+        case .recipes:
+            return "Search recipes..."
+        case .roasters:
+            return "Search roasters..."
+        case .grinders:
+            return "Search grinders..."
         }
     }
 }
@@ -42,26 +66,31 @@ struct LibraryContainer: View {
 struct LibraryContent: View {
     let selectedTab: LibraryTab
     @ObservedObject var navigationCoordinator: NavigationCoordinator
+    let searchText: String
     
     var body: some View {
-        ScrollView {
-            VStack(spacing: 24) {
-                Group {
-                    switch selectedTab {
-                    case .recipes:
-                        RecipesLibraryView(navigationCoordinator: navigationCoordinator)
-                    case .roasters:
-                        RoastersLibraryView(navigationCoordinator: navigationCoordinator)
-                    case .grinders:
-                        GrindersLibraryView(navigationCoordinator: navigationCoordinator)
-                    }
+        Group {
+            switch selectedTab {
+            case .recipes:
+                RecipesLibraryView(navigationCoordinator: navigationCoordinator, searchText: searchText)
+                    .padding(.horizontal, 20)
+            case .roasters:
+                ScrollView {
+                    RoastersLibraryView(navigationCoordinator: navigationCoordinator)
+                        .padding(.horizontal, 20)
+                        .padding(.top, 8)
+                    Spacer().frame(height: 100)
                 }
-                .padding(.horizontal, 20)
-                .padding(.top, 8)
-                
-                Spacer().frame(height: 100)
+                .scrollIndicators(.hidden)
+            case .grinders:
+                ScrollView {
+                    GrindersLibraryView(navigationCoordinator: navigationCoordinator)
+                        .padding(.horizontal, 20)
+                        .padding(.top, 8)
+                    Spacer().frame(height: 100)
+                }
+                .scrollIndicators(.hidden)
             }
         }
-        .scrollIndicators(.hidden)
     }
 }
