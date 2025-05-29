@@ -28,6 +28,13 @@ struct AllLibraryView: View {
     @State private var selectedRoasterForDetail: Roaster?
     @State private var selectedGrinderForDetail: Grinder?
     
+    // MARK: - Edit Mode State
+    @State private var isEditMode = false
+    @State private var selectedRecipes: Set<NSManagedObjectID> = []
+    @State private var selectedRoasters: Set<NSManagedObjectID> = []
+    @State private var selectedGrinders: Set<NSManagedObjectID> = []
+    @State private var showingMultiDeleteAlert = false
+    
     private var filteredRecipes: [Recipe] {
         let allRecipes = Array(recipes)
         if searchText.isEmpty {
@@ -73,8 +80,41 @@ struct AllLibraryView: View {
         !filteredRecipes.isEmpty || !filteredRoasters.isEmpty || !filteredGrinders.isEmpty
     }
     
+    private var totalSelectedItems: Int {
+        selectedRecipes.count + selectedRoasters.count + selectedGrinders.count
+    }
+    
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
+            // Header with edit/delete buttons
+            if hasAnyItems {
+                HStack {
+                    Button(isEditMode ? "Done" : "Edit") {
+                        withAnimation(.easeInOut(duration: 0.2)) {
+                            isEditMode.toggle()
+                            if !isEditMode {
+                                selectedRecipes.removeAll()
+                                selectedRoasters.removeAll()
+                                selectedGrinders.removeAll()
+                            }
+                        }
+                    }
+                    .font(.system(size: 15, weight: .medium))
+                    .foregroundColor(BrewerColors.caramel)
+                    
+                    Spacer()
+                    
+                    if isEditMode && totalSelectedItems > 0 {
+                        Button("Delete") {
+                            showingMultiDeleteAlert = true
+                        }
+                        .font(.system(size: 15, weight: .medium))
+                        .foregroundColor(.red)
+                    }
+                }
+                .padding(.bottom, 8)
+            }
+            
             if !hasAnyItems {
                 emptyStateView
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -87,10 +127,14 @@ struct AllLibraryView: View {
                                 VStack(spacing: 0) {
                                     RecipeLibraryRow(
                                         recipe: recipe,
-                                        isEditMode: false,
-                                        isSelected: false,
+                                        isEditMode: isEditMode,
+                                        isSelected: selectedRecipes.contains(recipe.objectID),
                                         onTap: {
-                                            navigationCoordinator.navigateToBrewRecipe(recipe: recipe)
+                                            if isEditMode {
+                                                toggleRecipeSelection(for: recipe)
+                                            } else {
+                                                navigationCoordinator.navigateToBrewRecipe(recipe: recipe)
+                                            }
                                         }
                                     )
                                     
@@ -129,10 +173,14 @@ struct AllLibraryView: View {
                                 VStack(spacing: 0) {
                                     RoasterLibraryRow(
                                         roaster: roaster,
-                                        isEditMode: false,
-                                        isSelected: false,
+                                        isEditMode: isEditMode,
+                                        isSelected: selectedRoasters.contains(roaster.objectID),
                                         onTap: {
-                                            selectedRoasterForDetail = roaster
+                                            if isEditMode {
+                                                toggleRoasterSelection(for: roaster)
+                                            } else {
+                                                selectedRoasterForDetail = roaster
+                                            }
                                         }
                                     )
                                     
@@ -145,6 +193,12 @@ struct AllLibraryView: View {
                                 .listRowSeparator(.hidden)
                                 .listRowInsets(EdgeInsets(top: 4, leading: 0, bottom: 4, trailing: 0))
                                 .swipeActions(edge: .trailing, allowsFullSwipe: true) {
+                                    Button(role: .destructive) {
+                                        navigationCoordinator.confirmDeleteRoaster(roaster)
+                                    } label: {
+                                        Label("Delete", systemImage: "trash")
+                                    }
+                                    
                                     Button {
                                         navigationCoordinator.presentEditRoaster(roaster)
                                     } label: {
@@ -165,10 +219,14 @@ struct AllLibraryView: View {
                                 VStack(spacing: 0) {
                                     GrinderLibraryRow(
                                         grinder: grinder,
-                                        isEditMode: false,
-                                        isSelected: false,
+                                        isEditMode: isEditMode,
+                                        isSelected: selectedGrinders.contains(grinder.objectID),
                                         onTap: {
-                                            selectedGrinderForDetail = grinder
+                                            if isEditMode {
+                                                toggleGrinderSelection(for: grinder)
+                                            } else {
+                                                selectedGrinderForDetail = grinder
+                                            }
                                         }
                                     )
                                     
@@ -181,6 +239,12 @@ struct AllLibraryView: View {
                                 .listRowSeparator(.hidden)
                                 .listRowInsets(EdgeInsets(top: 4, leading: 0, bottom: 4, trailing: 0))
                                 .swipeActions(edge: .trailing, allowsFullSwipe: true) {
+                                    Button(role: .destructive) {
+                                        navigationCoordinator.confirmDeleteGrinder(grinder)
+                                    } label: {
+                                        Label("Delete", systemImage: "trash")
+                                    }
+                                    
                                     Button {
                                         navigationCoordinator.presentEditGrinder(grinder)
                                     } label: {
@@ -211,6 +275,38 @@ struct AllLibraryView: View {
                 .presentationDetents([.medium, .large])
                 .presentationDragIndicator(.visible)
         }
+        .alert("Delete Items?", isPresented: $showingMultiDeleteAlert) {
+            Button("Cancel", role: .cancel) {}
+            Button("Delete", role: .destructive) {
+                deleteSelectedItems()
+            }
+        } message: {
+            Text("Are you sure you want to delete \(totalSelectedItems) selected item\(totalSelectedItems == 1 ? "" : "s")? This action cannot be undone.")
+        }
+        .alert("Delete Recipe?", isPresented: $navigationCoordinator.showingDeleteAlert) {
+            Button("Cancel", role: .cancel) {}
+            Button("Delete", role: .destructive) {
+                navigationCoordinator.deleteRecipe(in: viewContext)
+            }
+        } message: {
+            Text("This action cannot be undone.")
+        }
+        .alert("Delete Roaster?", isPresented: $navigationCoordinator.showingDeleteRoasterAlert) {
+            Button("Cancel", role: .cancel) {}
+            Button("Delete", role: .destructive) {
+                navigationCoordinator.deleteRoaster(in: viewContext)
+            }
+        } message: {
+            Text("This will also delete all associated recipes. This action cannot be undone.")
+        }
+        .alert("Delete Grinder?", isPresented: $navigationCoordinator.showingDeleteGrinderAlert) {
+            Button("Cancel", role: .cancel) {}
+            Button("Delete", role: .destructive) {
+                navigationCoordinator.deleteGrinder(in: viewContext)
+            }
+        } message: {
+            Text("Associated recipes will keep their data but lose grinder reference.")
+        }
     }
     
     private var emptyStateView: some View {
@@ -232,6 +328,68 @@ struct AllLibraryView: View {
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .padding(.top, 60)
+    }
+    
+    // MARK: - Selection Methods
+    private func toggleRecipeSelection(for recipe: Recipe) {
+        if selectedRecipes.contains(recipe.objectID) {
+            selectedRecipes.remove(recipe.objectID)
+        } else {
+            selectedRecipes.insert(recipe.objectID)
+        }
+    }
+    
+    private func toggleRoasterSelection(for roaster: Roaster) {
+        if selectedRoasters.contains(roaster.objectID) {
+            selectedRoasters.remove(roaster.objectID)
+        } else {
+            selectedRoasters.insert(roaster.objectID)
+        }
+    }
+    
+    private func toggleGrinderSelection(for grinder: Grinder) {
+        if selectedGrinders.contains(grinder.objectID) {
+            selectedGrinders.remove(grinder.objectID)
+        } else {
+            selectedGrinders.insert(grinder.objectID)
+        }
+    }
+    
+    // MARK: - Multi-Delete Methods
+    private func deleteSelectedItems() {
+        withAnimation {
+            // Delete recipes
+            for objectID in selectedRecipes {
+                if let recipe = viewContext.object(with: objectID) as? Recipe {
+                    viewContext.delete(recipe)
+                }
+            }
+            
+            // Delete roasters
+            for objectID in selectedRoasters {
+                if let roaster = viewContext.object(with: objectID) as? Roaster {
+                    viewContext.delete(roaster)
+                }
+            }
+            
+            // Delete grinders
+            for objectID in selectedGrinders {
+                if let grinder = viewContext.object(with: objectID) as? Grinder {
+                    viewContext.delete(grinder)
+                }
+            }
+            
+            do {
+                try viewContext.save()
+            } catch {
+                print("Error deleting items: \(error)")
+            }
+            
+            selectedRecipes.removeAll()
+            selectedRoasters.removeAll()
+            selectedGrinders.removeAll()
+            isEditMode = false
+        }
     }
 }
 

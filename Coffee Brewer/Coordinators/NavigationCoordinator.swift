@@ -52,6 +52,14 @@ class NavigationCoordinator: ObservableObject {
     @Published var showingDeleteAlert = false
     @Published var recipeToDelete: Recipe?
     
+    // MARK: - Delete Roaster State
+    @Published var showingDeleteRoasterAlert = false
+    @Published var roasterToDelete: Roaster?
+    
+    // MARK: - Delete Grinder State
+    @Published var showingDeleteGrinderAlert = false
+    @Published var grinderToDelete: Grinder?
+    
     // MARK: - Shared State
     @Published var selectedRoaster: Roaster?
     
@@ -138,6 +146,62 @@ class NavigationCoordinator: ObservableObject {
     func cancelDeleteRecipe() {
         recipeToDelete = nil
         showingDeleteAlert = false
+    }
+    
+    // MARK: - Roaster Deletion
+    func confirmDeleteRoaster(_ roaster: Roaster) {
+        roasterToDelete = roaster
+        showingDeleteRoasterAlert = true
+    }
+    
+    func deleteRoaster(in context: NSManagedObjectContext) {
+        guard let roaster = roasterToDelete else { return }
+        
+        withAnimation(.bouncy(duration: 0.5)) {
+            context.delete(roaster)
+            
+            do {
+                try context.save()
+            } catch {
+                print("Error deleting roaster: \(error)")
+            }
+        }
+        
+        roasterToDelete = nil
+        showingDeleteRoasterAlert = false
+    }
+    
+    func cancelDeleteRoaster() {
+        roasterToDelete = nil
+        showingDeleteRoasterAlert = false
+    }
+    
+    // MARK: - Grinder Deletion
+    func confirmDeleteGrinder(_ grinder: Grinder) {
+        grinderToDelete = grinder
+        showingDeleteGrinderAlert = true
+    }
+    
+    func deleteGrinder(in context: NSManagedObjectContext) {
+        guard let grinder = grinderToDelete else { return }
+        
+        withAnimation(.bouncy(duration: 0.5)) {
+            context.delete(grinder)
+            
+            do {
+                try context.save()
+            } catch {
+                print("Error deleting grinder: \(error)")
+            }
+        }
+        
+        grinderToDelete = nil
+        showingDeleteGrinderAlert = false
+    }
+    
+    func cancelDeleteGrinder() {
+        grinderToDelete = nil
+        showingDeleteGrinderAlert = false
     }
     
     // MARK: - Navigation Stack Management
