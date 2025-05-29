@@ -54,6 +54,13 @@ struct LibraryContainer: View {
             }
             .tint(BrewerColors.cream)
         }
+        .sheet(item: $navigationCoordinator.editingGrinder) { grinder in
+            NavigationStack {
+                EditGrinder(grinder: grinder, isPresented: $navigationCoordinator.editingGrinder)
+                    .environment(\.managedObjectContext, navigationCoordinator.editingGrinder?.managedObjectContext ?? PersistenceController.shared.container.viewContext)
+            }
+            .tint(BrewerColors.cream)
+        }
     }
     
     private var searchPlaceholder: String {
@@ -85,13 +92,8 @@ struct LibraryContent: View {
                 RoastersLibraryView(navigationCoordinator: navigationCoordinator, searchText: searchText)
                     .padding(.horizontal, 20)
             case .grinders:
-                ScrollView {
-                    GrindersLibraryView(navigationCoordinator: navigationCoordinator)
-                        .padding(.horizontal, 20)
-                        .padding(.top, 8)
-                    Spacer().frame(height: 100)
-                }
-                .scrollIndicators(.hidden)
+                GrindersLibraryView(navigationCoordinator: navigationCoordinator, searchText: searchText)
+                    .padding(.horizontal, 20)
             }
         }
     }
