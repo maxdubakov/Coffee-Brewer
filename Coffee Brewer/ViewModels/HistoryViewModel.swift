@@ -148,8 +148,7 @@ class HistoryViewModel: ObservableObject {
     }
     
     // MARK: - Core Data Management
-    
-    private func saveContext() {
+    func saveContext() {
         do {
             try context.save()
         } catch {

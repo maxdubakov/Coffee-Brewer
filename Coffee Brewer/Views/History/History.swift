@@ -8,8 +8,7 @@ struct History: View {
     // MARK: - State
     @StateObject private var viewModel = HistoryViewModel()
     @State private var showChartSelector = false
-    @State private var draggingChart: Chart?
-    @State private var dragOffset: CGSize = .zero
+    @State private var draggedChart: Chart?
     
     // MARK: - Fetch Request
     @FetchRequest(
@@ -85,24 +84,24 @@ struct History: View {
     // MARK: - Analytics View
     private var analyticsView: some View {
         ScrollView {
-            VStack(spacing: 0) {
+            LazyVStack(spacing: 0) {
                 // Chart widgets
-                ForEach(viewModel.charts) { chart in
+                ForEach(viewModel.charts, id: \.id) { chart in
                     ChartRow(
                         chart: chart,
                         viewModel: viewModel,
-                        brews: Array(brews),
-                        isDragging: draggingChart?.id == chart.id,
-                        dragOffset: draggingChart?.id == chart.id ? dragOffset : .zero
+                        brews: Array(brews)
                     )
                     .onDrag {
-                        self.draggingChart = chart
+                        let impactFeedback = UIImpactFeedbackGenerator(style: .medium)
+                        impactFeedback.impactOccurred()
+                        self.draggedChart = chart
                         return NSItemProvider(object: (chart.id?.uuidString ?? "") as NSString)
                     }
                     .onDrop(of: [.text], delegate: ChartDropDelegate(
                         chart: chart,
-                        charts: viewModel.charts,
-                        draggingChart: $draggingChart,
+                        charts: $viewModel.charts,
+                        draggedChart: $draggedChart,
                         viewModel: viewModel
                     ))
                 }
@@ -130,6 +129,11 @@ struct History: View {
             }
             .padding(.top, 8)
         }
+        .onDrop(of: [.text], isTargeted: nil) { providers in
+            // Global drop zone to reset dragging state if dropped outside specific areas
+            draggedChart = nil
+            return false
+        }
     }
 }
 
@@ -138,8 +142,6 @@ struct ChartRow: View {
     @ObservedObject var chart: Chart
     let viewModel: HistoryViewModel
     let brews: [Brew]
-    let isDragging: Bool
-    let dragOffset: CGSize
     @State private var localConfiguration: ChartConfiguration?
     
     var body: some View {
@@ -189,10 +191,6 @@ struct ChartRow: View {
                 // Refresh when axes change
                 localConfiguration = chart.toChartConfiguration()
             }
-            .opacity(isDragging ? 0.8 : 1.0)
-            .offset(dragOffset)
-            .scaleEffect(isDragging ? 0.95 : 1.0)
-            .animation(.easeInOut(duration: 0.2), value: isDragging)
         }
     }
 }
@@ -357,24 +355,39 @@ struct RecipeDetailTag: View {
 // MARK: - Drop Delegate
 struct ChartDropDelegate: DropDelegate {
     let chart: Chart
-    let charts: [Chart]
-    @Binding var draggingChart: Chart?
+    @Binding var charts: [Chart]
+    @Binding var draggedChart: Chart?
     let viewModel: HistoryViewModel
     
     func performDrop(info: DropInfo) -> Bool {
+        let successFeedback = UINotificationFeedbackGenerator()
+        successFeedback.notificationOccurred(.success)
+        draggedChart = nil
         return true
     }
     
     func dropEntered(info: DropInfo) {
-        guard let draggingChart = draggingChart,
-              draggingChart.id != chart.id,
-              let fromIndex = charts.firstIndex(where: { $0.id == draggingChart.id }),
-              let toIndex = charts.firstIndex(where: { $0.id == chart.id }) else {
+        guard let draggedChart = self.draggedChart,
+              draggedChart.id != chart.id else {
             return
         }
         
-        withAnimation {
-            viewModel.moveChart(from: IndexSet(integer: fromIndex), to: toIndex > fromIndex ? toIndex + 1 : toIndex)
+        let selectionFeedback = UISelectionFeedbackGenerator()
+        selectionFeedback.selectionChanged()
+        
+        guard let from = charts.firstIndex(where: { $0.id == draggedChart.id }),
+              let to = charts.firstIndex(where: { $0.id == chart.id }) else {
+            return
+        }
+        
+        withAnimation(.easeInOut(duration: 0.3)) {
+            charts.move(fromOffsets: IndexSet(integer: from), toOffset: to > from ? to + 1 : to)
+            
+            // Update Core Data with new order
+            for (index, chart) in charts.enumerated() {
+                chart.sortOrder = Int32(charts.count - index)
+            }
+            viewModel.saveContext()
         }
     }
 }
