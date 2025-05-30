@@ -15,8 +15,9 @@ enum AppDestination: Hashable {
     case brewRecipe(recipeID: NSManagedObjectID)
     case editRecipe(recipe: Recipe)
     
-    // History flow (future)
+    // History flow
     case brewDetail(brewID: NSManagedObjectID)
+    case chartDetail(chart: Chart)
 }
 
 // MARK: - Navigation Coordinator
@@ -92,6 +93,10 @@ class NavigationCoordinator: ObservableObject {
     func navigateToBrewRecipe(recipe: Recipe) {
         let recipeID = recipe.objectID
         homePath.append(AppDestination.brewRecipe(recipeID: recipeID))
+    }
+    
+    func navigateToChartDetail(chart: Chart) {
+        historyPath.append(AppDestination.chartDetail(chart: chart))
     }
     
     func presentEditRecipe(_ recipe: Recipe) {

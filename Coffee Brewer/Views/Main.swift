@@ -144,6 +144,10 @@ struct Main: View {
             
         case .brewDetail:
             Text("Brew Detail - Coming Soon")
+            
+        case .chartDetail(let chart):
+            ChartDetailView(chart: chart)
+                .environment(\.managedObjectContext, viewContext)
         }
     }
 

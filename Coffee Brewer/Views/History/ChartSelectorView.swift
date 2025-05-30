@@ -107,7 +107,7 @@ struct ChartSelectorView: View {
                                 )
                                 .padding(.horizontal, 20)
                                 
-                                // Chart preview widget styled like FlexibleChartWidget
+                                // Chart preview widget
                                 VStack(spacing: 0) {
                                     ChartPreview(
                                         xAxisConfiguration: selectedXAxis,

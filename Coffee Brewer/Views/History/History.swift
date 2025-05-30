@@ -4,11 +4,11 @@ import CoreData
 struct History: View {
     // MARK: - Environment
     @Environment(\.managedObjectContext) private var viewContext
+    @EnvironmentObject private var navigationCoordinator: NavigationCoordinator
     
     // MARK: - State
     @StateObject private var viewModel = HistoryViewModel()
     @State private var showChartSelector = false
-    @State private var draggedChart: Chart?
     
     // MARK: - Fetch Request
     @FetchRequest(
@@ -27,6 +27,15 @@ struct History: View {
                             .padding(.leading, 8)
                         
                         Spacer()
+                        
+                        Button(action: {
+                            showChartSelector = true
+                        }) {
+                            Image(systemName: "plus.circle.fill")
+                                .font(.title2)
+                                .foregroundColor(BrewerColors.chartPrimary)
+                        }
+                        .padding(.trailing, 8)
                     }
                     .padding(.top, 8)
                     
@@ -92,11 +101,6 @@ struct History: View {
             }
             .padding(.top, 8)
         }
-        .onDrop(of: [.text], isTargeted: nil) { providers in
-            // Global drop zone to reset dragging state if dropped outside specific areas
-            draggedChart = nil
-            return false
-        }
     }
     
     // MARK: - Minimalistic Stats Overview Section
@@ -161,43 +165,28 @@ struct History: View {
     // MARK: - Charts Section
     private var chartsSection: some View {
         VStack(alignment: .leading, spacing: 12) {
-            HStack {
-                Text("Charts")
-                    .font(.title2)
-                    .fontWeight(.semibold)
-                    .foregroundColor(BrewerColors.textPrimary)
-                
-                Spacer()
-                
-                Button(action: {
-                    showChartSelector = true
-                }) {
-                    Image(systemName: "plus.circle.fill")
-                        .font(.title2)
-                        .foregroundColor(BrewerColors.chartPrimary)
-                }
-            }
-            .padding(.horizontal)
+            Text("Charts")
+                .font(.title2)
+                .fontWeight(.semibold)
+                .foregroundColor(BrewerColors.textPrimary)
+                .padding(.horizontal)
             
             // Show all charts as minimized cards with navigation
-            ForEach(viewModel.charts, id: \.id) { chart in
-                MiniChartRow(
-                    chart: chart,
-                    brews: Array(brews)
-                )
-                .onDrag {
-                    let impactFeedback = UIImpactFeedbackGenerator(style: .medium)
-                    impactFeedback.impactOccurred()
-                    self.draggedChart = chart
-                    return NSItemProvider(object: (chart.id?.uuidString ?? "") as NSString)
+            List {
+                ForEach(viewModel.charts, id: \.id) { chart in
+                    MiniChartRow(
+                        chart: chart,
+                        brews: Array(brews)
+                    )
+                    .listRowBackground(Color.clear)
+                    .listRowSeparator(.hidden)
+                    .listRowInsets(EdgeInsets())
                 }
-                .onDrop(of: [.text], delegate: ChartDropDelegate(
-                    chart: chart,
-                    charts: $viewModel.charts,
-                    draggedChart: $draggedChart,
-                    viewModel: viewModel
-                ))
+                .onMove(perform: viewModel.moveChart)
             }
+            .listStyle(PlainListStyle())
+            .frame(height: CGFloat(viewModel.charts.count * 140)) // Approximate height per row
+            .scrollDisabled(true) // Disable scrolling since parent ScrollView handles it
         }
     }
     
@@ -261,7 +250,7 @@ struct History: View {
 struct MiniChartRow: View {
     @ObservedObject var chart: Chart
     let brews: [Brew]
-    @State private var showMaximizedChart = false
+    @EnvironmentObject private var navigationCoordinator: NavigationCoordinator
     
     private var chartConfiguration: ChartConfiguration? {
         chart.toChartConfiguration()
@@ -269,7 +258,7 @@ struct MiniChartRow: View {
     
     var body: some View {
         Button(action: {
-            showMaximizedChart = true
+            navigationCoordinator.navigateToChartDetail(chart: chart)
         }) {
             VStack(alignment: .leading, spacing: 12) {
                 // Title and Chevron
@@ -313,7 +302,7 @@ struct MiniChartRow: View {
                                 xAxis: configuration.xAxis.createAxis()!,
                                 yAxis: configuration.yAxis.createAxis()!,
                                 color: configuration.color?.toColor() ?? BrewerColors.chartPrimary
-                                // TODO: Add isMinimized parameter to ScatterPlotChart
+                                // Note: ScatterPlotChart minimized mode not yet implemented
                             )
                         }
                     }
@@ -323,90 +312,12 @@ struct MiniChartRow: View {
             .background(BrewerColors.cardBackground)
             .cornerRadius(12)
             .shadow(color: Color.black.opacity(0.1), radius: 2, x: 0, y: 1)
-            .padding(.horizontal)
+            .padding(.horizontal, 16)
         }
         .buttonStyle(PlainButtonStyle())
-        .fullScreenCover(isPresented: $showMaximizedChart) {
-            MaximizedChartView(chart: chart, brews: brews)
-        }
     }
 }
 
-// MARK: - Chart Row Component (Legacy)
-struct ChartRow: View {
-    @ObservedObject var chart: Chart
-    let viewModel: HistoryViewModel
-    let brews: [Brew]
-    let isExpanded: Bool?
-    @State private var localConfiguration: ChartConfiguration?
-    
-    init(chart: Chart, viewModel: HistoryViewModel, brews: [Brew], isExpanded: Bool? = nil) {
-        self.chart = chart
-        self.viewModel = viewModel
-        self.brews = brews
-        self.isExpanded = isExpanded
-    }
-    
-    var body: some View {
-        if let configuration = localConfiguration ?? chart.toChartConfiguration() {
-            FlexibleChartWidget(
-                configuration: Binding(
-                    get: {
-                        var config = localConfiguration ?? configuration
-                        if let forcedExpanded = isExpanded {
-                            config.isExpanded = forcedExpanded
-                        }
-                        return config
-                    },
-                    set: { newValue in
-                        localConfiguration = newValue
-                        // Don't update Core Data if expansion state is forced
-                        if isExpanded == nil {
-                            DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-                                if chart.isExpanded != newValue.isExpanded {
-                                    chart.isExpanded = newValue.isExpanded
-                                    viewModel.updateChart(chart)
-                                }
-                            }
-                        }
-                    }
-                ),
-                brews: brews,
-                onRemove: {
-                    withAnimation {
-                        viewModel.removeChart(chart)
-                    }
-                },
-                onConfigure: {
-                    viewModel.selectedChart = chart
-                }
-            )
-            .onAppear {
-                var config = chart.toChartConfiguration()
-                if let forcedExpanded = isExpanded {
-                    config?.isExpanded = forcedExpanded
-                }
-                localConfiguration = config
-            }
-            .onChange(of: chart.updatedAt) { _, _ in
-                // Refresh local configuration when chart is updated
-                localConfiguration = chart.toChartConfiguration()
-            }
-            .onChange(of: chart.title) { _, _ in
-                // Refresh when title changes
-                localConfiguration = chart.toChartConfiguration()
-            }
-            .onChange(of: chart.xAxisId) { _, _ in
-                // Refresh when axes change
-                localConfiguration = chart.toChartConfiguration()
-            }
-            .onChange(of: chart.yAxisId) { _, _ in
-                // Refresh when axes change
-                localConfiguration = chart.toChartConfiguration()
-            }
-        }
-    }
-}
 
 // MARK: - Brew History Card Component
 struct BrewHistoryCard: View {
@@ -675,45 +586,6 @@ struct CompactBrewCard: View {
     }
 }
 
-// MARK: - Drop Delegate
-struct ChartDropDelegate: DropDelegate {
-    let chart: Chart
-    @Binding var charts: [Chart]
-    @Binding var draggedChart: Chart?
-    let viewModel: HistoryViewModel
-    
-    func performDrop(info: DropInfo) -> Bool {
-        let successFeedback = UINotificationFeedbackGenerator()
-        successFeedback.notificationOccurred(.success)
-        draggedChart = nil
-        return true
-    }
-    
-    func dropEntered(info: DropInfo) {
-        guard let draggedChart = self.draggedChart,
-              draggedChart.id != chart.id else {
-            return
-        }
-        
-        let selectionFeedback = UISelectionFeedbackGenerator()
-        selectionFeedback.selectionChanged()
-        
-        guard let from = charts.firstIndex(where: { $0.id == draggedChart.id }),
-              let to = charts.firstIndex(where: { $0.id == chart.id }) else {
-            return
-        }
-        
-        withAnimation(.easeInOut(duration: 0.3)) {
-            charts.move(fromOffsets: IndexSet(integer: from), toOffset: to > from ? to + 1 : to)
-            
-            // Update Core Data with new order
-            for (index, chart) in charts.enumerated() {
-                chart.sortOrder = Int32(charts.count - index)
-            }
-            viewModel.saveContext()
-        }
-    }
-}
 
 // MARK: - Preview
 #Preview {
