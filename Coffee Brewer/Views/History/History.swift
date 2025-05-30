@@ -9,6 +9,9 @@ struct History: View {
     // MARK: - State
     @StateObject private var viewModel = HistoryViewModel()
     @State private var showChartSelector = false
+    @State private var isEditingCharts = false
+    @State private var selectedCharts = Set<NSManagedObjectID>()
+    @State private var showDeleteAlert = false
     
     // MARK: - Fetch Request
     @FetchRequest(
@@ -35,7 +38,7 @@ struct History: View {
                                 .font(.title2)
                                 .foregroundColor(BrewerColors.chartPrimary)
                         }
-                        .padding(.trailing, 8)
+                        .padding(.trailing, 16)
                     }
                     .padding(.top, 8)
                     
@@ -51,6 +54,14 @@ struct History: View {
             }
             .sheet(item: $viewModel.selectedChart) { chart in
                 ChartSelectorView(viewModel: viewModel, editingChart: chart)
+            }
+            .alert("Delete Charts", isPresented: $showDeleteAlert) {
+                Button("Cancel", role: .cancel) { }
+                Button("Delete", role: .destructive) {
+                    deleteSelectedCharts()
+                }
+            } message: {
+                Text("Are you sure you want to delete \(selectedCharts.count) chart\(selectedCharts.count == 1 ? "" : "s")? This action cannot be undone.")
             }
         }
     }
@@ -165,29 +176,94 @@ struct History: View {
     // MARK: - Charts Section
     private var chartsSection: some View {
         VStack(alignment: .leading, spacing: 12) {
-            Text("Charts")
-                .font(.title2)
-                .fontWeight(.semibold)
-                .foregroundColor(BrewerColors.textPrimary)
-                .padding(.horizontal)
+            HStack {
+                Text("Charts")
+                    .font(.title2)
+                    .fontWeight(.semibold)
+                    .foregroundColor(BrewerColors.textPrimary)
+                
+                Spacer()
+                
+                if !viewModel.charts.isEmpty {
+                    Button(action: {
+                        withAnimation {
+                            if isEditingCharts && !selectedCharts.isEmpty {
+                                // Show delete confirmation alert
+                                showDeleteAlert = true
+                            } else {
+                                // Toggle edit mode
+                                isEditingCharts.toggle()
+                                if !isEditingCharts {
+                                    selectedCharts.removeAll()
+                                }
+                            }
+                        }
+                    }) {
+                        if isEditingCharts && !selectedCharts.isEmpty {
+                            Text("Delete (\(selectedCharts.count))")
+                                .font(.subheadline)
+                                .fontWeight(.medium)
+                                .foregroundColor(.red)
+                        } else {
+                            Text(isEditingCharts ? "Done" : "Edit")
+                                .font(.subheadline)
+                                .fontWeight(.medium)
+                                .foregroundColor(BrewerColors.chartPrimary)
+                        }
+                    }
+                }
+            }
+            .padding(.horizontal)
             
             // Show all charts as minimized cards with navigation
-            List {
-                ForEach(viewModel.charts, id: \.id) { chart in
-                    MiniChartRow(
-                        chart: chart,
-                        brews: Array(brews)
-                    )
-                    .listRowBackground(Color.clear)
-                    .listRowSeparator(.hidden)
-                    .listRowInsets(EdgeInsets())
+            if isEditingCharts {
+                // Edit mode with selection
+                List(selection: $selectedCharts) {
+                    ForEach(viewModel.charts, id: \.objectID) { chart in
+                        MiniChartRow(
+                            chart: chart,
+                            brews: Array(brews)
+                        )
+                        .listRowBackground(Color.clear)
+                        .listRowSeparator(.hidden)
+                        .listRowInsets(EdgeInsets())
+                    }
+                    .onMove(perform: viewModel.moveChart)
                 }
-                .onMove(perform: viewModel.moveChart)
+                .listStyle(PlainListStyle())
+                .frame(height: CGFloat(viewModel.charts.count * 140)) // Approximate height per row
+                .scrollDisabled(true) // Disable scrolling since parent ScrollView handles it
+                .environment(\.editMode, .constant(.active))
+            } else {
+                // Normal mode
+                List {
+                    ForEach(viewModel.charts, id: \.id) { chart in
+                        MiniChartRow(
+                            chart: chart,
+                            brews: Array(brews)
+                        )
+                        .listRowBackground(Color.clear)
+                        .listRowSeparator(.hidden)
+                        .listRowInsets(EdgeInsets())
+                    }
+                    .onMove(perform: viewModel.moveChart)
+                }
+                .listStyle(PlainListStyle())
+                .frame(height: CGFloat(viewModel.charts.count * 140 + 20)) // Approximate height per row + padding
+                .scrollDisabled(true) // Disable scrolling since parent ScrollView handles it
             }
-            .listStyle(PlainListStyle())
-            .frame(height: CGFloat(viewModel.charts.count * 140)) // Approximate height per row
-            .scrollDisabled(true) // Disable scrolling since parent ScrollView handles it
         }
+    }
+    
+    // MARK: - Chart Deletion Methods
+    private func deleteSelectedCharts() {
+        for chartID in selectedCharts {
+            if let chart = viewModel.charts.first(where: { $0.objectID == chartID }) {
+                viewModel.removeChart(chart)
+            }
+        }
+        selectedCharts.removeAll()
+        isEditingCharts = false
     }
     
     // MARK: - Recent Activity Section
