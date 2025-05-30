@@ -56,12 +56,11 @@ struct TemporalAxis: ChartAxis {
         
         switch type {
         case .brewDate:
-            formatter.dateStyle = .medium
-            formatter.timeStyle = .none
+            formatter.dateFormat = "MM.dd"
         case .brewWeek:
-            formatter.dateFormat = "MMM d"
+            formatter.dateFormat = "MM.dd"
         case .brewMonth:
-            formatter.dateFormat = "MMM yyyy"
+            formatter.dateFormat = "MM.yy"
         case .dayOfWeek:
             formatter.dateFormat = "EEEE"
         case .timeOfDay:

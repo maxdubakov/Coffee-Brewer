@@ -33,109 +33,130 @@ struct BarChartView: View {
         .sorted { $0.average > $1.average }
     }
     
+    private var visibleBarCount: Int {
+        return min(aggregatedData.count, 4)
+    }
+    
     var body: some View {
-        Chart(aggregatedData, id: \.category) { item in
-            if xAxis.axisType == .categorical {
-                BarMark(
-                    x: .value(xAxis.displayName, item.category),
-                    y: .value(yAxis.displayName, item.average)
-                )
-                .foregroundStyle(
-                    LinearGradient(
-                        colors: [BrewerColors.chartPrimary, BrewerColors.chartSecondary],
-                        startPoint: .top,
-                        endPoint: .bottom
+        VStack(spacing: 0) {
+            HStack(alignment: .center, spacing: 0) {
+                // Y-axis label (fixed position)
+                Text(yAxis.displayName.uppercased())
+                    .font(.caption)
+                    .fontWeight(.bold)
+                    .foregroundColor(BrewerColors.textPrimary)
+                    .tracking(1.5)
+                    .rotationEffect(.degrees(-90))
+                    .fixedSize()
+                    .frame(width: 20, height: 250)
+                    .offset(x: 5)
+                
+                // Chart content (scrollable)
+                Chart(aggregatedData, id: \.category) { item in
+                if xAxis.axisType == .categorical {
+                    BarMark(
+                        x: .value(xAxis.displayName, item.category),
+                        y: .value(yAxis.displayName, item.average)
                     )
-                )
-                .cornerRadius(4)
-                .annotation(position: .top) {
-                    Text(String(format: "%.1f", item.average))
-                        .font(.caption2)
-                        .fontWeight(.semibold)
-                        .foregroundColor(BrewerColors.textSecondary)
-                }
-            } else {
-                BarMark(
-                    x: .value(xAxis.displayName, item.average),
-                    y: .value(yAxis.displayName, item.category)
-                )
-                .foregroundStyle(
-                    LinearGradient(
-                        colors: [BrewerColors.chartPrimary, BrewerColors.chartSecondary],
-                        startPoint: .leading,
-                        endPoint: .trailing
+                    .foregroundStyle(
+                        LinearGradient(
+                            colors: [BrewerColors.chartPrimary, BrewerColors.chartSecondary],
+                            startPoint: .top,
+                            endPoint: .bottom
+                        )
                     )
-                )
-                .cornerRadius(4)
-                .annotation(position: .trailing) {
-                    Text(String(format: "%.1f", item.average))
-                        .font(.caption2)
-                        .fontWeight(.semibold)
-                        .foregroundColor(BrewerColors.textSecondary)
+                    .cornerRadius(4)
+                    .annotation(position: .top) {
+                        Text(String(format: "%.1f", item.average))
+                            .font(.caption2)
+                            .fontWeight(.semibold)
+                            .foregroundColor(BrewerColors.textSecondary)
+                    }
+                } else {
+                    BarMark(
+                        x: .value(xAxis.displayName, item.average),
+                        y: .value(yAxis.displayName, item.category)
+                    )
+                    .foregroundStyle(
+                        LinearGradient(
+                            colors: [BrewerColors.chartPrimary, BrewerColors.chartSecondary],
+                            startPoint: .leading,
+                            endPoint: .trailing
+                        )
+                    )
+                    .cornerRadius(4)
+                    .annotation(position: .trailing) {
+                        Text(String(format: "%.1f", item.average))
+                            .font(.caption2)
+                            .fontWeight(.semibold)
+                            .foregroundColor(BrewerColors.textSecondary)
+                    }
                 }
             }
-        }
-        .chartXAxisLabel(position: .bottom, alignment: .center, spacing: 12) {
+            .chartXAxis {
+                AxisMarks { value in
+                    AxisValueLabel {
+                        if let text = value.as(String.self) {
+                            Text(text)
+                                .font(.caption2)
+                                .fontWeight(.medium)
+                                .foregroundColor(BrewerColors.textSecondary)
+                                .lineLimit(2)
+                                .multilineTextAlignment(.center)
+                                .fixedSize(horizontal: false, vertical: true)
+                                .frame(width: 70)
+                                .padding(.top, 4)
+                        } else if let number = value.as(Double.self) {
+                            Text(String(format: "%.1f", number))
+                                .font(.caption2)
+                                .fontWeight(.medium)
+                                .foregroundColor(BrewerColors.textSecondary)
+                        }
+                    }
+                    AxisGridLine()
+                        .foregroundStyle(BrewerColors.chartGrid)
+                    AxisTick()
+                        .foregroundStyle(BrewerColors.chartGrid)
+                }
+            }
+            .chartYAxis {
+                AxisMarks(position: .leading) { value in
+                    AxisValueLabel(anchor: .trailing) {
+                        if let text = value.as(String.self) {
+                            Text(text)
+                                .font(.caption2)
+                                .fontWeight(.medium)
+                                .foregroundColor(BrewerColors.textSecondary)
+                                .padding(.trailing, 4)
+                        } else if let number = value.as(Double.self) {
+                            Text(String(format: "%.1f", number))
+                                .font(.caption2)
+                                .fontWeight(.medium)
+                                .foregroundColor(BrewerColors.textSecondary)
+                                .padding(.trailing, 4)
+                        }
+                    }
+                    AxisGridLine()
+                        .foregroundStyle(BrewerColors.chartGrid)
+                    AxisTick()
+                        .foregroundStyle(BrewerColors.chartGrid)
+                }
+            }
+            .chartScrollableAxes(xAxis.axisType == .categorical ? .horizontal : [])
+            .chartXVisibleDomain(length: xAxis.axisType == .categorical ? visibleBarCount : aggregatedData.count)
+            .frame(minWidth: 300)
+            .padding(.horizontal)
+            .padding(.vertical, 8)
+            }
+            
+            // X-axis label (fixed position below chart)
             Text(xAxis.displayName.uppercased())
                 .font(.caption)
                 .fontWeight(.bold)
                 .foregroundColor(BrewerColors.textPrimary)
                 .tracking(1.5)
+                .padding(.top, 12)
         }
-        .chartYAxisLabel(position: .leading, alignment: .center, spacing: 20) {
-            Text(yAxis.displayName.uppercased())
-                .font(.caption)
-                .fontWeight(.bold)
-                .foregroundColor(BrewerColors.textPrimary)
-                .tracking(1.5)
-        }
-        .chartXAxis {
-            AxisMarks { value in
-                AxisValueLabel {
-                    if let text = value.as(String.self) {
-                        Text(text)
-                            .font(.caption2)
-                            .fontWeight(.medium)
-                            .foregroundColor(BrewerColors.textSecondary)
-                            .lineLimit(1)
-                    } else if let number = value.as(Double.self) {
-                        Text(String(format: "%.1f", number))
-                            .font(.caption2)
-                            .fontWeight(.medium)
-                            .foregroundColor(BrewerColors.textSecondary)
-                    }
-                }
-                AxisGridLine()
-                    .foregroundStyle(BrewerColors.chartGrid)
-                AxisTick()
-                    .foregroundStyle(BrewerColors.chartGrid)
-            }
-        }
-        .chartYAxis {
-            AxisMarks(position: .leading) { value in
-                AxisValueLabel(anchor: .trailing) {
-                    if let text = value.as(String.self) {
-                        Text(text)
-                            .font(.caption2)
-                            .fontWeight(.medium)
-                            .foregroundColor(BrewerColors.textSecondary)
-                            .padding(.trailing, 4)
-                    } else if let number = value.as(Double.self) {
-                        Text(String(format: "%.1f", number))
-                            .font(.caption2)
-                            .fontWeight(.medium)
-                            .foregroundColor(BrewerColors.textSecondary)
-                            .padding(.trailing, 4)
-                    }
-                }
-                AxisGridLine()
-                    .foregroundStyle(BrewerColors.chartGrid)
-                AxisTick()
-                    .foregroundStyle(BrewerColors.chartGrid)
-            }
-        }
-        .frame(height: 250)
-        .padding()
     }
 }
 
@@ -145,23 +166,45 @@ struct BarChartView: View {
         
         var body: some View {
             GlobalBackground {
-                BarChartView(
-                    brews: brews,
-                    xAxis: CategoricalAxis(type: .roasterName),
-                    yAxis: NumericAxis(type: .rating)
-                )
-                .onAppear {
-                    let context = PersistenceController.preview.container.viewContext
-                    let roasters = ["Blue Bottle", "Stumptown", "Intelligentsia", "Local Roaster"]
+                VStack(spacing: 40) {
+                    BarChartView(
+                        brews: brews,
+                        xAxis: CategoricalAxis(type: .roasterName),
+                        yAxis: NumericAxis(type: .rating)
+                    )
+                    .onAppear {
+                        let context = PersistenceController.preview.container.viewContext
+                        let roasters = ["Blue Bottle Co. and no", "Stumptown", "Intelligentsia", "Local Roaster"]
+                        
+                        for i in 0..<30 {
+                            let brew = Brew(context: context)
+                            brew.id = UUID()
+                            brew.date = Date().addingTimeInterval(TimeInterval(-i * 86400))
+                            brew.roasterName = roasters.randomElement()!
+                            brew.rating = Int16.random(in: 1...5)
+                            brew.recipeName = "Test Recipe \(i)"
+                            brews.append(brew)
+                        }
+                    }
                     
-                    for i in 0..<30 {
-                        let brew = Brew(context: context)
-                        brew.id = UUID()
-                        brew.date = Date().addingTimeInterval(TimeInterval(-i * 86400))
-                        brew.roasterName = roasters.randomElement()!
-                        brew.rating = Int16.random(in: 1...5)
-                        brew.recipeName = "Test Recipe \(i)"
-                        brews.append(brew)
+                    BarChartView(
+                        brews: brews,
+                        xAxis: NumericAxis(type: .rating),
+                        yAxis: CategoricalAxis(type: .roasterName),
+                    )
+                    .onAppear {
+                        let context = PersistenceController.preview.container.viewContext
+                        let roasters = ["Blue Bottle Co. and no", "Stumptown", "Intelligentsia", "Local Roaster"]
+                        
+                        for i in 0..<30 {
+                            let brew = Brew(context: context)
+                            brew.id = UUID()
+                            brew.date = Date().addingTimeInterval(TimeInterval(-i * 86400))
+                            brew.roasterName = roasters.randomElement()!
+                            brew.rating = Int16.random(in: 1...5)
+                            brew.recipeName = "Test Recipe \(i)"
+                            brews.append(brew)
+                        }
                     }
                 }
             }
