@@ -176,88 +176,110 @@ struct History: View {
     
     // MARK: - Charts Section
     private var chartsSection: some View {
-        VStack(alignment: .leading, spacing: 16) {
-            HStack {
-                Text("Charts")
-                    .font(.title2)
-                    .fontWeight(.semibold)
-                    .foregroundColor(BrewerColors.textPrimary)
-                
-                Spacer()
-                
-                if !viewModel.charts.isEmpty {
-                    Button(action: {
-                        withAnimation {
-                            if isEditingCharts && !selectedCharts.isEmpty {
-                                // Show delete confirmation alert
-                                showDeleteAlert = true
-                            } else {
-                                // Toggle edit mode
-                                isEditingCharts.toggle()
-                                if !isEditingCharts {
-                                    selectedCharts.removeAll()
+        GeometryReader { geometry in
+            VStack(alignment: .leading, spacing: 16) {
+                HStack {
+                    Text("Charts")
+                        .font(.title2)
+                        .fontWeight(.semibold)
+                        .foregroundColor(BrewerColors.textPrimary)
+                    
+                    Spacer()
+                    
+                    if !viewModel.charts.isEmpty {
+                        Button(action: {
+                            withAnimation {
+                                if isEditingCharts && !selectedCharts.isEmpty {
+                                    // Show delete confirmation alert
+                                    showDeleteAlert = true
+                                } else {
+                                    // Toggle edit mode
+                                    isEditingCharts.toggle()
+                                    if !isEditingCharts {
+                                        selectedCharts.removeAll()
+                                    }
                                 }
                             }
-                        }
-                    }) {
-                        if isEditingCharts && !selectedCharts.isEmpty {
-                            Text("Delete (\(selectedCharts.count))")
-                                .font(.subheadline)
-                                .fontWeight(.medium)
-                                .foregroundColor(.red)
-                        } else {
-                            Text(isEditingCharts ? "Done" : "Edit")
-                                .font(.subheadline)
-                                .fontWeight(.medium)
-                                .foregroundColor(BrewerColors.chartPrimary)
+                        }) {
+                            if isEditingCharts && !selectedCharts.isEmpty {
+                                Text("Delete (\(selectedCharts.count))")
+                                    .font(.system(size: 15, weight: .medium))
+                                    .foregroundColor(.red)
+                            } else {
+                                Text(isEditingCharts ? "Done" : "Edit")
+                                    .font(.system(size: 15, weight: .medium))
+                                    .foregroundColor(BrewerColors.chartPrimary)
+                            }
                         }
                     }
                 }
-            }
-            .padding(.horizontal)
-            
-            // Show all charts as minimized cards with navigation
-            if isEditingCharts {
-                // Edit mode with selection
-                List(selection: $selectedCharts) {
-                    ForEach(viewModel.charts, id: \.objectID) { chart in
-                        MiniChartRow(
-                            chart: chart,
-                            brews: Array(brews),
-                            viewModel: viewModel
-                        )
-                        .listRowBackground(Color.clear)
-                        .listRowSeparator(.hidden)
-                        .listRowInsets(EdgeInsets(top: 8, leading: 0, bottom: 8, trailing: 0))
+                .padding(.horizontal)
+                
+                // Show all charts as minimized cards with navigation
+                if isEditingCharts {
+                    // Edit mode with selection
+                    List(selection: $selectedCharts) {
+                        ForEach(viewModel.charts, id: \.objectID) { chart in
+                            MiniChartRow(
+                                chart: chart,
+                                brews: Array(brews),
+                                viewModel: viewModel
+                            )
+                            .listRowBackground(Color.clear)
+                            .listRowSeparator(.hidden)
+                            .listRowInsets(EdgeInsets(top: 8, leading: 0, bottom: 8, trailing: 0))
+                        }
+                        .onMove(perform: viewModel.moveChart)
                     }
-                    .onMove(perform: viewModel.moveChart)
-                }
-                .listStyle(PlainListStyle())
-                .frame(minHeight: CGFloat(viewModel.charts.count * 170))
-                .scrollDisabled(true) // Disable scrolling since parent ScrollView handles it
-                .environment(\.editMode, .constant(.active))
-                .padding(.bottom, 20) // Add padding to prevent last chart from being cut off
-            } else {
-                // Normal mode
-                List {
-                    ForEach(viewModel.charts, id: \.id) { chart in
-                        MiniChartRow(
-                            chart: chart,
-                            brews: Array(brews),
-                            viewModel: viewModel
-                        )
-                        .listRowBackground(Color.clear)
-                        .listRowSeparator(.hidden)
-                        .listRowInsets(EdgeInsets(top: 16, leading: 0, bottom: 16, trailing: 0))
+                    .listStyle(PlainListStyle())
+                    .frame(width: geometry.size.width)
+                    .frame(minHeight: calculateListHeight(chartCount: viewModel.charts.count, width: geometry.size.width))
+                    .scrollDisabled(true) // Disable scrolling since parent ScrollView handles it
+                    .environment(\.editMode, .constant(.active))
+                    .padding(.bottom, 20) // Add padding to prevent last chart from being cut off
+                } else {
+                    // Normal mode
+                    List {
+                        ForEach(viewModel.charts, id: \.id) { chart in
+                            MiniChartRow(
+                                chart: chart,
+                                brews: Array(brews),
+                                viewModel: viewModel
+                            )
+                            .listRowBackground(Color.clear)
+                            .listRowSeparator(.hidden)
+                            .listRowInsets(EdgeInsets(top: 16, leading: 0, bottom: 16, trailing: 0))
+                        }
+                        .onMove(perform: viewModel.moveChart)
                     }
-                    .onMove(perform: viewModel.moveChart)
+                    .listStyle(PlainListStyle())
+                    .frame(width: geometry.size.width)
+                    .frame(minHeight: calculateListHeight(chartCount: viewModel.charts.count, width: geometry.size.width))
+                    .scrollDisabled(true) // Disable scrolling since parent ScrollView handles it
+                    .padding(.bottom, 20) // Add padding to prevent last chart from being cut off
                 }
-                .listStyle(PlainListStyle())
-                .frame(minHeight: CGFloat(viewModel.charts.count * 210))
-                .scrollDisabled(true) // Disable scrolling since parent ScrollView handles it
-                .padding(.bottom, 20) // Add padding to prevent last chart from being cut off
             }
         }
+        .frame(minHeight: CGFloat(viewModel.charts.count * 200))
+    }
+    
+    // Helper function to calculate proper list height based on chart dimensions
+    private func calculateListHeight(chartCount: Int, width: CGFloat) -> CGFloat {
+        // Calculate chart height based on width using the aspect ratio from chart views
+        let chartPadding: CGFloat = 32 // 16 top + 16 bottom from list row insets
+        let chartContentPadding: CGFloat = 32 // padding inside MiniChartRow
+        let titleHeight: CGFloat = 30 // approximate height for title and chevron
+        
+        // Width minus horizontal paddings
+        let effectiveWidth = width - 32 // 16 padding on each side from MiniChartRow
+        
+        // Calculate chart height based on aspect ratio (3.0 for minimized charts)
+        let chartHeight = effectiveWidth / 3.0
+        
+        // Total height per chart row
+        let rowHeight = chartHeight + titleHeight + chartPadding + chartContentPadding
+        
+        return CGFloat(chartCount) * rowHeight
     }
     
     // MARK: - Chart Deletion Methods
