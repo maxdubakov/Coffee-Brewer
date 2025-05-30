@@ -9,12 +9,9 @@ struct BarChartView: View {
     let color: Color
     
     private var aggregatedData: [(category: String, average: Double, count: Int)] {
-        // Determine which axis is categorical and which is numeric
-        let (categoryAxis, numericAxis) = if xAxis.axisType == .categorical {
-            (xAxis, yAxis)
-        } else {
-            (yAxis, xAxis)
-        }
+        // X-axis is categorical, Y-axis is numeric
+        let categoryAxis = xAxis
+        let numericAxis = yAxis
         
         // Group brews by category
         var groups: [String: [Double]] = [:]
@@ -43,7 +40,6 @@ struct BarChartView: View {
             HStack(alignment: .center, spacing: 0) {
                 // Chart content (scrollable)
                 Charts.Chart(aggregatedData, id: \.category) { item in
-                if xAxis.axisType == .categorical {
                     BarMark(
                         x: .value(xAxis.displayName, item.category),
                         y: .value(yAxis.displayName, item.average)
@@ -62,26 +58,6 @@ struct BarChartView: View {
                             .fontWeight(.semibold)
                             .foregroundColor(BrewerColors.textSecondary)
                     }
-                } else {
-                    BarMark(
-                        x: .value(xAxis.displayName, item.average),
-                        y: .value(yAxis.displayName, item.category)
-                    )
-                    .foregroundStyle(
-                        LinearGradient(
-                            colors: [color, color.opacity(0.7)],
-                            startPoint: .leading,
-                            endPoint: .trailing
-                        )
-                    )
-                    .cornerRadius(8)
-                    .annotation(position: .trailing) {
-                        Text(String(format: "%.1f", item.average))
-                            .font(.caption2)
-                            .fontWeight(.semibold)
-                            .foregroundColor(BrewerColors.textSecondary)
-                    }
-                }
             }
             .chartXAxis {
                 AxisMarks { value in
@@ -96,11 +72,6 @@ struct BarChartView: View {
                                 .fixedSize(horizontal: false, vertical: true)
                                 .frame(width: 70)
                                 .padding(.top, 4)
-                        } else if let number = value.as(Double.self) {
-                            Text(String(format: "%.1f", number))
-                                .font(.caption2)
-                                .fontWeight(.medium)
-                                .foregroundColor(BrewerColors.textSecondary)
                         }
                     }
                     AxisGridLine()
@@ -112,13 +83,7 @@ struct BarChartView: View {
             .chartYAxis {
                 AxisMarks(position: .leading) { value in
                     AxisValueLabel(anchor: .trailing) {
-                        if let text = value.as(String.self) {
-                            Text(text)
-                                .font(.caption2)
-                                .fontWeight(.medium)
-                                .foregroundColor(BrewerColors.textSecondary)
-                                .padding(.trailing, 4)
-                        } else if let number = value.as(Double.self) {
+                        if let number = value.as(Double.self) {
                             Text(String(format: "%.1f", number))
                                 .font(.caption2)
                                 .fontWeight(.medium)
@@ -132,8 +97,8 @@ struct BarChartView: View {
                         .foregroundStyle(BrewerColors.chartGrid)
                 }
             }
-            .chartScrollableAxes(xAxis.axisType == .categorical ? .horizontal : [])
-            .chartXVisibleDomain(length: xAxis.axisType == .categorical ? visibleBarCount : aggregatedData.count)
+            .chartScrollableAxes(.horizontal)
+            .chartXVisibleDomain(length: visibleBarCount)
             .frame(minWidth: 300)
             .frame(height: 250)
             .padding(.horizontal)
@@ -171,26 +136,6 @@ struct BarChartView: View {
                         }
                     }
                     
-                    BarChartView(
-                        brews: brews,
-                        xAxis: NumericAxis(type: .rating),
-                        yAxis: CategoricalAxis(type: .roasterName),
-                        color: BrewerColors.espresso
-                    )
-                    .onAppear {
-                        let context = PersistenceController.preview.container.viewContext
-                        let roasters = ["Blue Bottle Co. and no", "Stumptown", "Intelligentsia", "Local Roaster"]
-                        
-                        for i in 0..<30 {
-                            let brew = Brew(context: context)
-                            brew.id = UUID()
-                            brew.date = Date().addingTimeInterval(TimeInterval(-i * 86400))
-                            brew.roasterName = roasters.randomElement()!
-                            brew.rating = Int16.random(in: 1...5)
-                            brew.recipeName = "Test Recipe \(i)"
-                            brews.append(brew)
-                        }
-                    }
                 }
             }
         }

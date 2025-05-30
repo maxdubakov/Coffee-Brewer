@@ -31,6 +31,11 @@ struct ChartSelectorView: View {
         ("Temporal", TemporalAxis.allAxes)
     ]
     
+    private let xAxisOnlyAxes: [(String, [any ChartAxis])] = [
+        ("Categorical", CategoricalAxis.allAxes),
+        ("Temporal", TemporalAxis.allAxes)
+    ]
+    
     private var canCreateChart: Bool {
         selectedXAxis != nil && selectedYAxis != nil && selectedXAxis?.axisId != selectedYAxis?.axisId
     }
@@ -124,7 +129,7 @@ struct ChartSelectorView: View {
                                     FormAxisPickerField(
                                         title: "X-Axis (Horizontal)",
                                         field: .name,
-                                        axes: allAxes,
+                                        axes: xAxisOnlyAxes,
                                         selection: $selectedXAxis,
                                         focusedField: $focusedField,
                                         disabledAxisId: nil

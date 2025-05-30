@@ -9,11 +9,9 @@ struct TimeSeriesChart: View {
     let color: Color
     
     private var timeSeriesData: [(date: Date, value: Double, label: String)] {
-        let (temporalAxis, numericAxis) = if xAxis.axisType == .temporal {
-            (xAxis, yAxis)
-        } else {
-            (yAxis, xAxis)
-        }
+        // X-axis is temporal, Y-axis is numeric
+        let temporalAxis = xAxis
+        let numericAxis = yAxis
         
         guard let temporal = temporalAxis as? TemporalAxis else { return [] }
         
@@ -53,101 +51,53 @@ struct TimeSeriesChart: View {
     
     var body: some View {
         Charts.Chart(timeSeriesData, id: \.date) { item in
-            if xAxis.axisType == .temporal {
-                AreaMark(
-                    x: .value(xAxis.displayName, item.date),
-                    y: .value(yAxis.displayName, item.value)
+            AreaMark(
+                x: .value(xAxis.displayName, item.date),
+                y: .value(yAxis.displayName, item.value)
+            )
+            .foregroundStyle(
+                LinearGradient(
+                    colors: [
+                        color.opacity(0.5),
+                        color.opacity(0.0)
+                    ],
+                    startPoint: .top,
+                    endPoint: .bottom
                 )
-                .foregroundStyle(
-                    LinearGradient(
-                        colors: [
-                            color.opacity(0.5),
-                            color.opacity(0.0)
-                        ],
-                        startPoint: .top,
-                        endPoint: .bottom
+            )
+            
+            // Main line
+            LineMark(
+                x: .value(xAxis.displayName, item.date),
+                y: .value(yAxis.displayName, item.value)
+            )
+            .foregroundStyle(color)
+            .lineStyle(StrokeStyle(lineWidth: 3, lineCap: .round, lineJoin: .round))
+            .interpolationMethod(.catmullRom)
+            
+            // Points with subtle shadow
+            PointMark(
+                x: .value(xAxis.displayName, item.date),
+                y: .value(yAxis.displayName, item.value)
+            )
+            .foregroundStyle(color)
+            .symbolSize(80)
+            .symbol {
+                Circle()
+                    .fill(color)
+                    .frame(width: 8, height: 8)
+                    .background(
+                        Circle()
+                            .fill(color.opacity(0.1))
+                            .frame(width: 16, height: 16)
                     )
-                )
-                
-                // Main line
-                LineMark(
-                    x: .value(xAxis.displayName, item.date),
-                    y: .value(yAxis.displayName, item.value)
-                )
-                .foregroundStyle(color)
-                .lineStyle(StrokeStyle(lineWidth: 3, lineCap: .round, lineJoin: .round))
-                .interpolationMethod(.catmullRom)
-                
-                // Points with subtle shadow
-                PointMark(
-                    x: .value(xAxis.displayName, item.date),
-                    y: .value(yAxis.displayName, item.value)
-                )
-                .foregroundStyle(color)
-                .symbolSize(80)
-                .symbol {
-                    Circle()
-                        .fill(color)
-                        .frame(width: 8, height: 8)
-                        .background(
-                            Circle()
-                                .fill(color.opacity(0.1))
-                                .frame(width: 16, height: 16)
-                        )
-                }
-            } else {
-                // Horizontal orientation
-                AreaMark(
-                    x: .value(xAxis.displayName, item.value),
-                    y: .value(yAxis.displayName, item.date)
-                )
-                .foregroundStyle(
-                    LinearGradient(
-                        colors: [
-                            color.opacity(0.1),
-                            color.opacity(0.02)
-                        ],
-                        startPoint: .leading,
-                        endPoint: .trailing
-                    )
-                )
-                
-                LineMark(
-                    x: .value(xAxis.displayName, item.value),
-                    y: .value(yAxis.displayName, item.date)
-                )
-                .foregroundStyle(color)
-                .lineStyle(StrokeStyle(lineWidth: 3, lineCap: .round, lineJoin: .round))
-                .interpolationMethod(.catmullRom)
-                
-                PointMark(
-                    x: .value(xAxis.displayName, item.value),
-                    y: .value(yAxis.displayName, item.date)
-                )
-                .foregroundStyle(color)
-                .symbolSize(80)
-                .symbol {
-                    Circle()
-                        .fill(color)
-                        .frame(width: 8, height: 8)
-                        .background(
-                            Circle()
-                                .fill(color.opacity(0.1))
-                                .frame(width: 16, height: 16)
-                        )
-                }
             }
         }
         .chartXAxis {
             AxisMarks { value in
                 AxisValueLabel {
-                    if xAxis.axisType == .temporal, let date = value.as(Date.self) {
+                    if let date = value.as(Date.self) {
                         Text(formatAxisDate(date))
-                            .font(.caption2)
-                            .fontWeight(.medium)
-                            .foregroundColor(BrewerColors.textSecondary)
-                    } else if xAxis.axisType == .numeric, let number = value.as(Double.self) {
-                        Text(formatAxisNumber(number))
                             .font(.caption2)
                             .fontWeight(.medium)
                             .foregroundColor(BrewerColors.textSecondary)
@@ -162,13 +112,7 @@ struct TimeSeriesChart: View {
         .chartYAxis {
             AxisMarks(position: .leading) { value in
                 AxisValueLabel(anchor: .trailing) {
-                    if yAxis.axisType == .temporal, let date = value.as(Date.self) {
-                        Text(formatAxisDate(date))
-                            .font(.caption2)
-                            .fontWeight(.medium)
-                            .foregroundColor(BrewerColors.textSecondary)
-                            .padding(.trailing, 4)
-                    } else if yAxis.axisType == .numeric, let number = value.as(Double.self) {
+                    if let number = value.as(Double.self) {
                         Text(formatAxisNumber(number))
                             .font(.caption2)
                             .fontWeight(.medium)
@@ -189,17 +133,12 @@ struct TimeSeriesChart: View {
     private func formatAxisDate(_ date: Date) -> String {
         if let temporal = xAxis as? TemporalAxis {
             return temporal.formatDate(date)
-        } else if let temporal = yAxis as? TemporalAxis {
-            return temporal.formatDate(date)
         }
         return ""
     }
     
     private func formatAxisNumber(_ number: Double) -> String {
-        // Format based on which axis is being formatted
-        if xAxis.axisType == .numeric, let numeric = xAxis as? NumericAxis {
-            return numeric.formatValue(number)
-        } else if yAxis.axisType == .numeric, let numeric = yAxis as? NumericAxis {
+        if let numeric = yAxis as? NumericAxis {
             return numeric.formatValue(number)
         }
         return String(format: "%.1f", number)
