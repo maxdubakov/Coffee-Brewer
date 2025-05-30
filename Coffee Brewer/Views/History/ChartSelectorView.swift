@@ -7,6 +7,7 @@ struct ChartSelectorView: View {
     @State private var selectedXAxis: AxisConfiguration?
     @State private var selectedYAxis: AxisConfiguration?
     @State private var chartTitle: String = ""
+    @State private var focusedField: FocusedField?
     
     private let allAxes: [(String, [any ChartAxis])] = [
         ("Numeric", NumericAxis.allAxes),
@@ -21,6 +22,16 @@ struct ChartSelectorView: View {
     private var suggestedTitle: String {
         guard let xAxis = selectedXAxis, let yAxis = selectedYAxis else { return "" }
         return "\(yAxis.displayName) by \(xAxis.displayName)"
+    }
+    
+    private var currentChartType: ChartType {
+        guard let xAxis = selectedXAxis, let yAxis = selectedYAxis else {
+            return .scatterPlot // Default
+        }
+        return ChartResolver.resolveChartType(
+            xAxisType: xAxis.axisType,
+            yAxisType: yAxis.axisType
+        )
     }
     
     var body: some View {
@@ -42,128 +53,92 @@ struct ChartSelectorView: View {
                         
                         Spacer()
                         
-                        Button("Add") {
-                            createChart()
-                        }
-                        .foregroundColor(canCreateChart ? BrewerColors.chartPrimary : BrewerColors.textSecondary.opacity(0.5))
-                        .disabled(!canCreateChart)
+                        Text("Cancel")
+                            .foregroundColor(.clear)
                     }
                     .padding()
                     
                     CustomDivider()
                     
-                    ScrollView {
-                        VStack(alignment: .leading, spacing: 24) {
-                            // X-Axis Selection
-                            VStack(alignment: .leading, spacing: 12) {
-                                Text("X-AXIS (HORIZONTAL)")
-                                    .font(.caption)
-                                    .fontWeight(.bold)
-                                    .foregroundColor(BrewerColors.textPrimary)
-                                    .tracking(1.5)
-                                
-                                ForEach(allAxes, id: \.0) { groupName, axes in
-                                    VStack(alignment: .leading, spacing: 8) {
-                                        Text(groupName)
-                                            .font(.caption2)
-                                            .foregroundColor(BrewerColors.textSecondary)
-                                        
-                                        ForEach(axes, id: \.id) { axis in
-                                            AxisSelectionRow(
-                                                axis: axis,
-                                                isSelected: selectedXAxis?.axisId == axis.id,
-                                                action: {
-                                                    selectedXAxis = AxisConfiguration(from: axis)
-                                                    updateChartTitle()
-                                                }
-                                            )
-                                        }
-                                    }
-                                }
-                            }
-                            .padding(.horizontal)
-                            
-                            CustomDivider()
-                            
-                            // Y-Axis Selection
-                            VStack(alignment: .leading, spacing: 12) {
-                                Text("Y-AXIS (VERTICAL)")
-                                    .font(.caption)
-                                    .fontWeight(.bold)
-                                    .foregroundColor(BrewerColors.textPrimary)
-                                    .tracking(1.5)
-                                
-                                ForEach(allAxes, id: \.0) { groupName, axes in
-                                    VStack(alignment: .leading, spacing: 8) {
-                                        Text(groupName)
-                                            .font(.caption2)
-                                            .foregroundColor(BrewerColors.textSecondary)
-                                        
-                                        ForEach(axes, id: \.id) { axis in
-                                            AxisSelectionRow(
-                                                axis: axis,
-                                                isSelected: selectedYAxis?.axisId == axis.id,
-                                                isDisabled: selectedXAxis?.axisId == axis.id,
-                                                action: {
-                                                    selectedYAxis = AxisConfiguration(from: axis)
-                                                    updateChartTitle()
-                                                }
-                                            )
-                                        }
-                                    }
-                                }
-                            }
-                            .padding(.horizontal)
-                            
-                            CustomDivider()
-                            
-                            // Chart Title
-                            VStack(alignment: .leading, spacing: 12) {
-                                Text("CHART TITLE")
-                                    .font(.caption)
-                                    .fontWeight(.bold)
-                                    .foregroundColor(BrewerColors.textPrimary)
-                                    .tracking(1.5)
-                                
-                                TextField("Chart Title", text: $chartTitle)
-                                    .textFieldStyle(RoundedBorderTextFieldStyle())
-                                    .foregroundColor(BrewerColors.textPrimary)
-                            }
-                            .padding(.horizontal)
-                            
-                            // Preview
-                            if let xAxis = selectedXAxis, let yAxis = selectedYAxis {
-                                VStack(alignment: .leading, spacing: 12) {
-                                    Text("PREVIEW")
-                                        .font(.caption)
-                                        .fontWeight(.bold)
-                                        .foregroundColor(BrewerColors.textPrimary)
-                                        .tracking(1.5)
-                                        .padding(.horizontal)
+                    FixedBottomLayout(
+                        contentPadding: EdgeInsets(top: 20, leading: 0, bottom: 0, trailing: 0)
+                    ) {
+                        VStack(alignment: .leading, spacing: 30) {
+                            // Chart Preview Section
+                            VStack(alignment: .leading, spacing: 18) {
+                                HStack(spacing: 8) {
+                                    Image(systemName: "chart.xyaxis.line")
+                                        .foregroundColor(BrewerColors.caramel)
+                                        .font(.system(size: 16))
                                     
-                                    let chartType = ChartResolver.resolveChartType(
-                                        xAxisType: xAxis.axisType,
-                                        yAxisType: yAxis.axisType
+                                    SecondaryHeader(title: "Chart Preview")
+                                }
+                                .padding(.horizontal, 20)
+                                
+                                // Chart preview widget styled like FlexibleChartWidget
+                                VStack(spacing: 0) {
+                                    ChartPreview(
+                                        xAxisTitle: selectedXAxis?.displayName,
+                                        yAxisTitle: selectedYAxis?.displayName,
+                                        chartType: currentChartType
                                     )
-                                    
-                                    HStack {
-                                        Image(systemName: iconForChartType(chartType))
-                                            .font(.title2)
-                                            .foregroundColor(BrewerColors.chartPrimary)
-                                        
-                                        Text(nameForChartType(chartType))
-                                            .font(.headline)
-                                            .foregroundColor(BrewerColors.textPrimary)
+                                }
+                                .background(BrewerColors.cardBackground)
+                                .cornerRadius(12)
+                                .shadow(color: Color.black.opacity(0.1), radius: 2, x: 0, y: 1)
+                                .padding(.horizontal)
+                            }
+                            
+                            // Axis Selection Section
+                            VStack(alignment: .leading, spacing: 18) {
+                                FormGroup {
+                                    FormAxisPickerField(
+                                        title: "X",
+                                        field: .name,
+                                        axes: allAxes,
+                                        selection: $selectedXAxis,
+                                        focusedField: $focusedField,
+                                        disabledAxisId: nil
+                                    )
+                                    .onChange(of: selectedXAxis) { _, _ in
+                                        updateChartTitle()
                                     }
-                                    .padding()
-                                    .frame(maxWidth: .infinity)
-                                    .background(BrewerColors.surface)
-                                    .cornerRadius(12)
-                                    .padding(.horizontal)
+                                    
+                                    Divider()
+                                    
+                                    FormAxisPickerField(
+                                        title: "Y-Axis (Vertical)",
+                                        field: .waterml,
+                                        axes: allAxes,
+                                        selection: $selectedYAxis,
+                                        focusedField: $focusedField,
+                                        disabledAxisId: selectedXAxis?.axisId
+                                    )
+                                    .onChange(of: selectedYAxis) { _, _ in
+                                        updateChartTitle()
+                                    }
+                                    
+                                    Divider()
+                                    
+                                    FormKeyboardInputField(
+                                        title: "Chart Title",
+                                        field: .notes,
+                                        keyboardType: .default,
+                                        valueToString: { $0 },
+                                        stringToValue: { $0 },
+                                        value: $chartTitle,
+                                        focusedField: $focusedField
+                                    )
                                 }
                             }
                         }
-                        .padding(.vertical)
+                    } actions: {
+                        StandardButton(
+                            title: "Save Chart",
+                            action: createChart,
+                            style: .primary
+                        )
+                        .disabled(!canCreateChart)
                     }
                 }
             }
@@ -180,67 +155,15 @@ struct ChartSelectorView: View {
     private func createChart() {
         guard let xAxis = selectedXAxis, let yAxis = selectedYAxis else { return }
         
-        let configuration = ChartConfiguration(
+        let title = chartTitle.isEmpty ? suggestedTitle : chartTitle
+        
+        viewModel.addChart(
             xAxis: xAxis,
             yAxis: yAxis,
-            title: chartTitle.isEmpty ? suggestedTitle : chartTitle
+            title: title
         )
         
-        viewModel.addChart(configuration: configuration)
         dismiss()
-    }
-    
-    private func iconForChartType(_ type: ChartType) -> String {
-        switch type {
-        case .scatterPlot:
-            return "chart.dots.scatter"
-        case .barChart:
-            return "chart.bar"
-        case .timeSeries:
-            return "chart.line.uptrend.xyaxis"
-        }
-    }
-    
-    private func nameForChartType(_ type: ChartType) -> String {
-        switch type {
-        case .scatterPlot:
-            return "Scatter Plot"
-        case .barChart:
-            return "Bar Chart"
-        case .timeSeries:
-            return "Time Series"
-        }
-    }
-}
-
-struct AxisSelectionRow: View {
-    let axis: any ChartAxis
-    let isSelected: Bool
-    var isDisabled: Bool = false
-    let action: () -> Void
-    
-    var body: some View {
-        Button(action: action) {
-            HStack {
-                Text(axis.displayName)
-                    .font(.system(size: 16))
-                    .foregroundColor(isDisabled ? BrewerColors.textSecondary.opacity(0.3) : BrewerColors.textPrimary)
-                
-                Spacer()
-                
-                if isSelected {
-                    Image(systemName: "checkmark.circle.fill")
-                        .foregroundColor(BrewerColors.chartPrimary)
-                }
-            }
-            .padding(.vertical, 12)
-            .padding(.horizontal, 16)
-            .background(
-                RoundedRectangle(cornerRadius: 10)
-                    .fill(isSelected ? BrewerColors.chartPrimary.opacity(0.1) : BrewerColors.surface)
-            )
-        }
-        .disabled(isDisabled)
     }
 }
 

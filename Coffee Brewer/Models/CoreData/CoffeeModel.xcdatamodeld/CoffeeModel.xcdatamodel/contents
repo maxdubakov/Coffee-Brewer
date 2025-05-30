@@ -69,4 +69,22 @@
         <attribute name="waterAmount" optional="YES" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES"/>
         <relationship name="recipe" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="Recipe" inverseName="stages" inverseEntity="Recipe"/>
     </entity>
+    <entity name="Chart" representedClassName="Chart" syncable="YES" codeGenerationType="class">
+        <attribute name="chartType" optional="YES" attributeType="String"/>
+        <attribute name="color" optional="YES" attributeType="String"/>
+        <attribute name="createdAt" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
+        <attribute name="id" optional="YES" attributeType="UUID" usesScalarValueType="NO"/>
+        <attribute name="isArchived" optional="YES" attributeType="Boolean" defaultValueString="NO" usesScalarValueType="YES"/>
+        <attribute name="isExpanded" optional="YES" attributeType="Boolean" defaultValueString="YES" usesScalarValueType="YES"/>
+        <attribute name="notes" optional="YES" attributeType="String"/>
+        <attribute name="sortOrder" optional="YES" attributeType="Integer 32" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="title" optional="YES" attributeType="String"/>
+        <attribute name="updatedAt" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
+        <attribute name="xAxisDisplayName" optional="YES" attributeType="String"/>
+        <attribute name="xAxisId" optional="YES" attributeType="String"/>
+        <attribute name="xAxisType" optional="YES" attributeType="String"/>
+        <attribute name="yAxisDisplayName" optional="YES" attributeType="String"/>
+        <attribute name="yAxisId" optional="YES" attributeType="String"/>
+        <attribute name="yAxisType" optional="YES" attributeType="String"/>
+    </entity>
 </model>

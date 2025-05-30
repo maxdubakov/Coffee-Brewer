@@ -8,7 +8,7 @@ struct ScatterPlotChart: View {
     let yAxis: any ChartAxis
     
     var body: some View {
-        Chart {
+        Charts.Chart {
             ForEach(brews, id: \.objectID) { brew in
                 if let xValue = xAxis.extractValue(from: brew as Brew) as? NumericAxisValue,
                    let yValue = yAxis.extractValue(from: brew as Brew) as? NumericAxisValue {

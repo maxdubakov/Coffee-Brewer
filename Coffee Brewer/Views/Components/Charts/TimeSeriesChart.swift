@@ -51,7 +51,7 @@ struct TimeSeriesChart: View {
     }
     
     var body: some View {
-        Chart(timeSeriesData, id: \.date) { item in
+        Charts.Chart(timeSeriesData, id: \.date) { item in
             if xAxis.axisType == .temporal {
                 // Area under the line for subtle depth
                 AreaMark(

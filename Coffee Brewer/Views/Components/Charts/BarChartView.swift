@@ -52,7 +52,7 @@ struct BarChartView: View {
                     .offset(x: 5)
                 
                 // Chart content (scrollable)
-                Chart(aggregatedData, id: \.category) { item in
+                Charts.Chart(aggregatedData, id: \.category) { item in
                 if xAxis.axisType == .categorical {
                     BarMark(
                         x: .value(xAxis.displayName, item.category),

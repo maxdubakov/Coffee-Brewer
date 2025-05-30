@@ -19,7 +19,7 @@ struct ChartConfiguration: Identifiable, Codable {
     }
 }
 
-struct AxisConfiguration: Codable {
+struct AxisConfiguration: Codable, Equatable {
     let axisType: AxisType
     let axisId: String
     let displayName: String
