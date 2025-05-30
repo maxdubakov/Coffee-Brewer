@@ -102,7 +102,7 @@ struct ChartSelectorView: View {
                             VStack(alignment: .leading, spacing: 18) {
                                 FormGroup {
                                     FormAxisPickerField(
-                                        title: "X",
+                                        title: "X-Axis (Horizontal)",
                                         field: .name,
                                         axes: allAxes,
                                         selection: $selectedXAxis,

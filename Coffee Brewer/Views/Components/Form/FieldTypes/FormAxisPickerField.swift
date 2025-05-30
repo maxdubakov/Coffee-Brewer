@@ -9,11 +9,27 @@ struct FormAxisPickerField: View {
     let disabledAxisId: String?
     
     var body: some View {
-        FormField {
-            Menu {
-                menuContent
-            } label: {
-                menuLabel
+        VStack(alignment: .leading, spacing: 0) {
+            FormField {
+                FormPlaceholderText(value: title)
+                
+                Spacer()
+                
+                Menu {
+                    menuContent
+                } label: {
+                    HStack(spacing: 8) {
+                        if let selection = selection {
+                            FormValueText(value: selection.displayName)
+                        } else {
+                            FormPlaceholderText(value: "Select")
+                        }
+                        
+                        Image(systemName: "chevron.down")
+                            .font(.caption)
+                            .foregroundColor(BrewerColors.textSecondary)
+                    }
+                }
             }
         }
         .onTapGesture {
@@ -45,24 +61,6 @@ struct FormAxisPickerField: View {
             )
         }
         .disabled(disabledAxisId == axis.id)
-    }
-    
-    private var menuLabel: some View {
-        HStack {
-            VStack(alignment: .leading, spacing: 4) {
-                FormPlaceholderText(value: title)
-                
-                let displayText = selection?.displayName ?? "Select \(title)"
-                FormValueText(value: displayText)
-            }
-            
-            Spacer()
-            
-            Image(systemName: "chevron.down")
-                .font(.caption)
-                .foregroundColor(BrewerColors.textSecondary)
-        }
-        .padding(.vertical, 4)
     }
 }
 
