@@ -83,6 +83,13 @@ struct ChartSelectorView: View {
                                 }
                                 .padding(.horizontal, 20)
                                 
+                                // Chart Title Field (standalone, custom styling)
+                                FormTitleField(
+                                    placeholder: "Enter Chart Title",
+                                    text: $chartTitle
+                                )
+                                .padding(.horizontal, 20)
+                                
                                 // Chart preview widget styled like FlexibleChartWidget
                                 VStack(spacing: 0) {
                                     ChartPreview(
@@ -127,17 +134,6 @@ struct ChartSelectorView: View {
                                         updateChartTitle()
                                     }
                                     
-                                    Divider()
-                                    
-                                    FormKeyboardInputField(
-                                        title: "Chart Title",
-                                        field: .notes,
-                                        keyboardType: .default,
-                                        valueToString: { $0 },
-                                        stringToValue: { $0 },
-                                        value: $chartTitle,
-                                        focusedField: $focusedField
-                                    )
                                 }
                             }
                         }
