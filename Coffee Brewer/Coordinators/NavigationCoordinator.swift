@@ -103,6 +103,12 @@ class NavigationCoordinator: ObservableObject {
         historyPath.append(AppDestination.chartDetail(chart: chart))
     }
     
+    func navigateToLibraryBrews() {
+        _selectedTab = .home
+        // This will be used to trigger library navigation with brews tab
+        NotificationCenter.default.post(name: .navigateToLibraryBrews, object: nil)
+    }
+    
     func presentEditRecipe(_ recipe: Recipe) {
         editingRecipe = recipe
     }
@@ -359,4 +365,5 @@ class NavigationCoordinator: ObservableObject {
 
 extension Notification.Name {
     static let recipeDeleted = Notification.Name("recipeDeleted")
+    static let navigateToLibraryBrews = Notification.Name("navigateToLibraryBrews")
 }

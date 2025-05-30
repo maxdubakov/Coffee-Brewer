@@ -100,13 +100,12 @@ struct History: View {
                 // Statistics Overview Cards
                 statsOverviewSection
                 
-                // Recent Activity Section  
-                recentActivitySection
-                
                 // Charts Section
                 if !viewModel.charts.isEmpty {
                     chartsSection
                 }
+                
+                recentActivitySection
                 
                 // Add extra space at bottom for tab bar
                 Color.clear.frame(height: 100)
@@ -295,20 +294,46 @@ struct History: View {
     
     // MARK: - Recent Activity Section
     private var recentActivitySection: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            HStack {
-                Text("Recent Activity")
-                    .font(.title2)
-                    .fontWeight(.semibold)
-                    .foregroundColor(BrewerColors.textPrimary)
-                Spacer()
-            }
-            .padding(.horizontal)
+        VStack(alignment: .leading, spacing: 16) {
+            // Header
+            Text("Recent Activity")
+                .font(.title2)
+                .fontWeight(.semibold)
+                .foregroundColor(BrewerColors.textPrimary)
+                .padding(.horizontal)
             
-            ScrollView(.horizontal, showsIndicators: false) {
-                HStack(spacing: 12) {
-                    ForEach(brews.prefix(5), id: \.self) { brew in
-                        CompactBrewCard(brew: brew)
+            // Scrollable brew list
+            ScrollView {
+                LazyVStack(spacing: 0) {
+                    ForEach(Array(brews.prefix(20).enumerated()), id: \.element.id) { index, brew in
+                        VStack(spacing: 0) {
+                            RecentBrewRow(brew: brew)
+                                .padding(.horizontal)
+                            
+                            if index < min(19, brews.count - 1) {
+                                CustomDivider()
+                                    .padding(.leading, 64)
+                            }
+                        }
+                    }
+                }
+                .padding(.bottom, 16)
+            }
+            .frame(maxHeight: 400) // Limit height to make it scrollable
+            
+            // See All in Library link
+            if brews.count > 20 {
+                Button(action: {
+                    navigationCoordinator.navigateToLibraryBrews()
+                }) {
+                    HStack {
+                        Text("See All in Library")
+                            .font(.system(size: 15, weight: .medium))
+                            .foregroundColor(BrewerColors.caramel)
+                        
+                        Image(systemName: "arrow.right")
+                            .font(.system(size: 12, weight: .medium))
+                            .foregroundColor(BrewerColors.caramel)
                     }
                 }
                 .padding(.horizontal)
@@ -611,6 +636,66 @@ struct StatCell: View {
         }
         .frame(maxWidth: .infinity)
         .frame(height: 100)
+        .contentShape(Rectangle())
+    }
+}
+
+// MARK: - Recent Brew Row Component
+struct RecentBrewRow: View {
+    let brew: Brew
+    
+    var body: some View {
+        HStack(spacing: 12) {
+            // Coffee cup icon
+            Image(systemName: "cup.and.saucer.fill")
+                .font(.system(size: 16, weight: .medium))
+                .foregroundColor(BrewerColors.caramel)
+                .frame(width: 20, height: 20)
+            
+            // Brew Info
+            VStack(alignment: .leading, spacing: 3) {
+                Text(brew.name ?? brew.recipeName ?? "Untitled Brew")
+                    .font(.system(size: 15, weight: .medium))
+                    .foregroundColor(BrewerColors.cream)
+                    .lineLimit(1)
+                
+                HStack(spacing: 6) {
+                    if let date = brew.date {
+                        Text(date, style: .date)
+                            .font(.system(size: 12))
+                            .foregroundColor(BrewerColors.textSecondary)
+                    }
+                    
+                    if brew.rating > 0 {
+                        Text("•")
+                            .font(.system(size: 9))
+                            .foregroundColor(BrewerColors.textSecondary.opacity(0.4))
+                        
+                        HStack(spacing: 2) {
+                            ForEach(0..<5) { index in
+                                Image(systemName: index < Int(brew.rating) ? "star.fill" : "star")
+                                    .font(.system(size: 9))
+                                    .foregroundColor(index < Int(brew.rating) ? BrewerColors.caramel : BrewerColors.textSecondary.opacity(0.3))
+                            }
+                        }
+                    }
+                    
+                    if let roasterName = brew.roasterName {
+                        Text("•")
+                            .font(.system(size: 9))
+                            .foregroundColor(BrewerColors.textSecondary.opacity(0.4))
+                        
+                        Text(roasterName)
+                            .font(.system(size: 12))
+                            .foregroundColor(BrewerColors.textSecondary)
+                            .lineLimit(1)
+                    }
+                }
+            }
+            
+            Spacer()
+        }
+        .padding(.vertical, 10)
         .contentShape(Rectangle())
     }
 }

@@ -62,6 +62,10 @@ struct LibraryContainer: View {
             }
             .tint(BrewerColors.cream)
         }
+        .onReceive(NotificationCenter.default.publisher(for: .navigateToLibraryBrews)) { _ in
+            showLibraryMode = true
+            selectedLibraryTab = .brews
+        }
     }
     
     private var searchPlaceholder: String {
