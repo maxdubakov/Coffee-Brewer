@@ -3,11 +3,19 @@ import SwiftUI
 struct ChartSelectorView: View {
     @ObservedObject var viewModel: HistoryViewModel
     @Environment(\.dismiss) private var dismiss
+    @Environment(\.managedObjectContext) private var viewContext
     
     @State private var selectedXAxis: AxisConfiguration?
     @State private var selectedYAxis: AxisConfiguration?
     @State private var chartTitle: String = ""
     @State private var focusedField: FocusedField?
+    
+    // Fetch brews for chart preview
+    @FetchRequest(
+        entity: Brew.entity(),
+        sortDescriptors: [NSSortDescriptor(keyPath: \Brew.date, ascending: false)],
+        animation: .default
+    ) private var brews: FetchedResults<Brew>
     
     private let allAxes: [(String, [any ChartAxis])] = [
         ("Numeric", NumericAxis.allAxes),
@@ -78,9 +86,10 @@ struct ChartSelectorView: View {
                                 // Chart preview widget styled like FlexibleChartWidget
                                 VStack(spacing: 0) {
                                     ChartPreview(
-                                        xAxisTitle: selectedXAxis?.displayName,
-                                        yAxisTitle: selectedYAxis?.displayName,
-                                        chartType: currentChartType
+                                        xAxisConfiguration: selectedXAxis,
+                                        yAxisConfiguration: selectedYAxis,
+                                        chartType: currentChartType,
+                                        brews: Array(brews)
                                     )
                                 }
                                 .background(BrewerColors.cardBackground)
