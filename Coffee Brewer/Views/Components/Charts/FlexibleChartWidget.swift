@@ -7,8 +7,6 @@ struct FlexibleChartWidget: View {
     let onRemove: () -> Void
     let onConfigure: () -> Void
     
-    @State private var isExpanded: Bool = true
-    
     var body: some View {
         VStack(spacing: 0) {
             // Header
@@ -26,18 +24,19 @@ struct FlexibleChartWidget: View {
                             .foregroundColor(BrewerColors.textSecondary)
                             .font(.system(size: 16))
                     }
+                    .buttonStyle(PlainButtonStyle())
                     
                     // Expand/Collapse button
                     Button(action: {
                         withAnimation(.easeInOut(duration: 0.2)) {
-                            isExpanded.toggle()
-                            configuration.isExpanded = isExpanded
+                            configuration.isExpanded.toggle()
                         }
                     }) {
-                        Image(systemName: isExpanded ? "chevron.up" : "chevron.down")
+                        Image(systemName: configuration.isExpanded ? "chevron.up" : "chevron.down")
                             .foregroundColor(BrewerColors.textSecondary)
                             .font(.system(size: 16))
                     }
+                    .buttonStyle(PlainButtonStyle())
                     
                     // Remove button
                     Button(action: onRemove) {
@@ -45,12 +44,13 @@ struct FlexibleChartWidget: View {
                             .foregroundColor(BrewerColors.textSecondary)
                             .font(.system(size: 16))
                     }
+                    .buttonStyle(PlainButtonStyle())
                 }
             }
             .padding()
             .background(BrewerColors.cardBackground)
             
-            if isExpanded {
+            if configuration.isExpanded {
                 CustomDivider()
                 
                 // Chart content

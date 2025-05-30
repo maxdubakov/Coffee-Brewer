@@ -106,53 +106,86 @@ struct History: View {
     
     // MARK: - Analytics View
     private var analyticsView: some View {
-        ScrollView {
-            LazyVStack(spacing: 0) {
-                // Chart widgets
-                ForEach(viewModel.chartConfigurations) { configuration in
-                    FlexibleChartWidget(
-                        configuration: .constant(configuration),
-                        brews: Array(brews),
-                        onRemove: {
-                            withAnimation {
-                                if let index = viewModel.chartConfigurations.firstIndex(where: { $0.id == configuration.id }) {
-                                    viewModel.removeChart(at: index)
-                                }
-                            }
-                        },
-                        onConfigure: {
-                            viewModel.selectedConfiguration = configuration
-                        }
-                    )
-                    .onTapGesture {
-                        withAnimation(.easeInOut(duration: 0.2)) {
-                            viewModel.toggleExpanded(for: configuration)
-                        }
-                    }
+        List {
+            // Chart widgets section
+            Section {
+                ForEach(viewModel.charts) { chart in
+                    ChartRow(chart: chart, viewModel: viewModel, brews: Array(brews))
+                        .listRowInsets(EdgeInsets())
+                        .listRowBackground(Color.clear)
+                        .listRowSeparator(.hidden)
+                        .deleteDisabled(true)
+                        .swipeActions(edge: .trailing, allowsFullSwipe: false) { }
+                        .swipeActions(edge: .leading, allowsFullSwipe: false) { }
+                        .onTapGesture { }  // Prevent row selection
                 }
-                
-                // Recent brews section
-                if !brews.isEmpty {
-                    VStack(alignment: .leading, spacing: 12) {
-                        Text("RECENT BREWS")
-                            .font(.caption)
-                            .fontWeight(.bold)
-                            .foregroundColor(BrewerColors.textPrimary)
-                            .tracking(1.5)
-                            .padding(.horizontal, 18)
-                            .padding(.top, 24)
-                        
-                        ForEach(brews.prefix(5), id: \.self) { brew in
-                            BrewHistoryCard(brew: brew)
-                                .padding(.horizontal, 18)
-                        }
-                    }
-                }
-                
-                // Add extra space at bottom for tab bar
-                Spacer().frame(height: 100)
+                .onMove(perform: viewModel.moveChart)
+                .onDelete { _ in }  // Provide empty delete handler to prevent default behavior
             }
-            .padding(.top, 8)
+            .listSectionSeparator(.hidden)
+            
+            // Recent brews section
+            if !brews.isEmpty {
+                Section {
+                    ForEach(brews.prefix(5), id: \.self) { brew in
+                        BrewHistoryCard(brew: brew)
+                            .listRowInsets(EdgeInsets(top: 6, leading: 18, bottom: 6, trailing: 18))
+                            .listRowBackground(Color.clear)
+                            .listRowSeparator(.hidden)
+                    }
+                } header: {
+                    Text("RECENT BREWS")
+                        .font(.caption)
+                        .fontWeight(.bold)
+                        .foregroundColor(BrewerColors.textPrimary)
+                        .tracking(1.5)
+                        .padding(.top, 12)
+                        .listRowInsets(EdgeInsets())
+                }
+                .listSectionSeparator(.hidden)
+            }
+            
+            // Add extra space at bottom for tab bar
+            Section {
+                Spacer()
+                    .frame(height: 80)
+                    .listRowBackground(Color.clear)
+            }
+            .listSectionSeparator(.hidden)
+        }
+        .listStyle(PlainListStyle())
+        .scrollContentBackground(.hidden)
+        .padding(.top, 8)
+    }
+}
+
+// MARK: - Chart Row Component
+struct ChartRow: View {
+    @ObservedObject var chart: Chart
+    let viewModel: HistoryViewModel
+    let brews: [Brew]
+    
+    var body: some View {
+        if var configuration = chart.toChartConfiguration() {
+            FlexibleChartWidget(
+                configuration: Binding(
+                    get: { configuration },
+                    set: { newValue in
+                        configuration = newValue
+                        chart.isExpanded = newValue.isExpanded
+                        viewModel.updateChart(chart)
+                    }
+                ),
+                brews: brews,
+                onRemove: {
+                    withAnimation {
+                        viewModel.removeChart(chart)
+                    }
+                },
+                onConfigure: {
+                    viewModel.selectedChart = chart
+                }
+            )
         }
     }
 }
