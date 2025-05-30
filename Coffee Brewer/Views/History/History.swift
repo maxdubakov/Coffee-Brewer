@@ -20,22 +20,13 @@ struct History: View {
     var body: some View {
         GlobalBackground {
             ZStack {
-                VStack(alignment: .leading, spacing: 0) {
+                VStack(alignment: .leading, spacing: 20) {
                     // Header
                     HStack {
                         PageTitleH1("Analytics")
-                            .padding(.horizontal)
+                            .padding(.leading, 8)
                         
                         Spacer()
-                        
-                        Button(action: {
-                            showChartSelector = true
-                        }) {
-                            Image(systemName: "plus.circle.fill")
-                                .font(.title2)
-                                .foregroundColor(BrewerColors.chartPrimary)
-                        }
-                        .padding(.trailing)
                     }
                     .padding(.top, 8)
                     
@@ -84,22 +75,17 @@ struct History: View {
     // MARK: - Analytics View
     private var analyticsView: some View {
         ScrollView {
-            LazyVStack(spacing: 16) {
+            LazyVStack(spacing: 40) {
                 // Statistics Overview Cards
                 statsOverviewSection
                 
-                // Featured Charts Section
+                // Charts Section
                 if !viewModel.charts.isEmpty {
-                    featuredChartsSection
+                    chartsSection
                 }
                 
                 // Recent Activity Section  
                 recentActivitySection
-                
-                // All Charts Section
-                if !viewModel.charts.isEmpty {
-                    allChartsSection
-                }
                 
                 // Add extra space at bottom for tab bar
                 Spacer().frame(height: 100)
@@ -113,74 +99,92 @@ struct History: View {
         }
     }
     
-    // MARK: - Stats Overview Section
+    // MARK: - Minimalistic Stats Overview Section
     private var statsOverviewSection: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            HStack {
-                Text("Overview")
-                    .font(.title2)
-                    .fontWeight(.semibold)
-                    .foregroundColor(BrewerColors.textPrimary)
-                Spacer()
-            }
-            .padding(.horizontal)
+        VStack(alignment: .leading, spacing: 20) {
+            // Simple section title
+            Text("Overview")
+                .font(.title2)
+                .fontWeight(.semibold)
+                .foregroundColor(BrewerColors.textPrimary)
+                .padding(.horizontal)
             
-            LazyVGrid(columns: [
-                GridItem(.flexible()),
-                GridItem(.flexible())
-            ], spacing: 12) {
-                StatsCard(
-                    title: "Total Brews",
-                    value: "\(brews.count)",
-                    icon: "cup.and.saucer.fill",
-                    color: BrewerColors.caramel
-                )
+            // Clean 2x2 stats table
+            VStack(spacing: 0) {
+                HStack(spacing: 0) {
+                    // Total Brews
+                    StatCell(
+                        value: "\(brews.count)",
+                        description: "Total Brews"
+                    )
+                    
+                    // Divider
+                    Rectangle()
+                        .fill(BrewerColors.divider)
+                        .frame(width: 1)
+                    
+                    // Average Rating
+                    StatCell(
+                        value: String(format: "%.1f", averageRating),
+                        description: "Average Rating"
+                    )
+                }
                 
-                StatsCard(
-                    title: "Avg Rating",
-                    value: String(format: "%.1f", averageRating),
-                    icon: "star.fill",
-                    color: BrewerColors.chartPrimary
-                )
+                // Horizontal divider
+                Rectangle()
+                    .fill(BrewerColors.divider)
+                    .frame(height: 1)
                 
-                StatsCard(
-                    title: "This Week",
-                    value: "\(brewsThisWeek)",
-                    icon: "calendar",
-                    color: BrewerColors.chartTertiary
-                )
-                
-                StatsCard(
-                    title: "Favorite",
-                    value: favoriteRoaster,
-                    icon: "heart.fill",
-                    color: BrewerColors.mocha,
-                    isLarge: true
-                )
+                HStack(spacing: 0) {
+                    // This Week
+                    StatCell(
+                        value: "\(brewsThisWeek)",
+                        description: "This Week"
+                    )
+                    
+                    // Divider
+                    Rectangle()
+                        .fill(BrewerColors.divider)
+                        .frame(width: 1)
+                    
+                    // Weekly Average Rating
+                    StatCell(
+                        value: String(format: "%.1f", weeklyAverageRating),
+                        description: "This Week Avg"
+                    )
+                }
             }
             .padding(.horizontal)
         }
     }
     
-    // MARK: - Featured Charts Section
-    private var featuredChartsSection: some View {
+    // MARK: - Charts Section
+    private var chartsSection: some View {
         VStack(alignment: .leading, spacing: 12) {
             HStack {
-                Text("Insights")
+                Text("Charts")
                     .font(.title2)
                     .fontWeight(.semibold)
                     .foregroundColor(BrewerColors.textPrimary)
+                
                 Spacer()
+                
+                Button(action: {
+                    showChartSelector = true
+                }) {
+                    Image(systemName: "plus.circle.fill")
+                        .font(.title2)
+                        .foregroundColor(BrewerColors.chartPrimary)
+                }
             }
             .padding(.horizontal)
             
-            // Show first 2 charts expanded by default
-            ForEach(viewModel.charts.prefix(2), id: \.id) { chart in
+            // Show all charts
+            ForEach(viewModel.charts, id: \.id) { chart in
                 ChartRow(
                     chart: chart,
                     viewModel: viewModel,
-                    brews: Array(brews),
-                    isExpanded: true
+                    brews: Array(brews)
                 )
                 .onDrag {
                     let impactFeedback = UIImpactFeedbackGenerator(style: .medium)
@@ -221,40 +225,6 @@ struct History: View {
         }
     }
     
-    // MARK: - All Charts Section
-    private var allChartsSection: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            HStack {
-                Text("All Charts")
-                    .font(.title2)
-                    .fontWeight(.semibold)
-                    .foregroundColor(BrewerColors.textPrimary)
-                Spacer()
-            }
-            .padding(.horizontal)
-            
-            // Show remaining charts (after first 2)
-            ForEach(viewModel.charts.dropFirst(2), id: \.id) { chart in
-                ChartRow(
-                    chart: chart,
-                    viewModel: viewModel,
-                    brews: Array(brews)
-                )
-                .onDrag {
-                    let impactFeedback = UIImpactFeedbackGenerator(style: .medium)
-                    impactFeedback.impactOccurred()
-                    self.draggedChart = chart
-                    return NSItemProvider(object: (chart.id?.uuidString ?? "") as NSString)
-                }
-                .onDrop(of: [.text], delegate: ChartDropDelegate(
-                    chart: chart,
-                    charts: $viewModel.charts,
-                    draggedChart: $draggedChart,
-                    viewModel: viewModel
-                ))
-            }
-        }
-    }
     
     // MARK: - Computed Properties
     private var averageRating: Double {
@@ -272,12 +242,19 @@ struct History: View {
         }.count
     }
     
-    private var favoriteRoaster: String {
-        let roasterNames = brews.compactMap { $0.roasterName }
-        let roasterCounts = Dictionary(grouping: roasterNames, by: { $0 })
-            .mapValues { $0.count }
+    private var weeklyAverageRating: Double {
+        let calendar = Calendar.current
+        let oneWeekAgo = calendar.date(byAdding: .weekOfYear, value: -1, to: Date()) ?? Date()
         
-        return roasterCounts.max(by: { $0.value < $1.value })?.key ?? "None"
+        let weeklyBrews = brews.filter { brew in
+            guard let date = brew.date else { return false }
+            return date >= oneWeekAgo
+        }
+        
+        let ratings = weeklyBrews.map { Double($0.rating) }.filter { $0 > 0 }
+        guard !ratings.isEmpty else { return 0.0 }
+        
+        return ratings.reduce(0, +) / Double(ratings.count)
     }
 }
 
@@ -514,59 +491,38 @@ struct RecipeDetailTag: View {
     }
 }
 
-// MARK: - Stats Card Component
-struct StatsCard: View {
-    let title: String
+// MARK: - Minimalistic Stat Cell Component
+struct StatCell: View {
     let value: String
-    let icon: String
-    let color: Color
-    let isLarge: Bool
+    let description: String
+    let isText: Bool
     
-    init(title: String, value: String, icon: String, color: Color, isLarge: Bool = false) {
-        self.title = title
+    init(value: String, description: String, isText: Bool = false) {
         self.value = value
-        self.icon = icon
-        self.color = color
-        self.isLarge = isLarge
+        self.description = description
+        self.isText = isText
     }
     
     var body: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            HStack {
-                Image(systemName: icon)
-                    .foregroundColor(color)
-                    .font(.system(size: 20))
-                
-                Spacer()
-            }
+        VStack(spacing: 12) {
+            // Large statistic value
+            Text(value)
+                .font(isText ? .title2 : .largeTitle)
+                .fontWeight(.bold)
+                .foregroundColor(BrewerColors.textPrimary)
+                .lineLimit(1)
+                .minimumScaleFactor(0.7)
             
-            VStack(alignment: .leading, spacing: 4) {
-                Text(value)
-                    .font(isLarge ? .title2 : .title3)
-                    .fontWeight(.bold)
-                    .foregroundColor(BrewerColors.textPrimary)
-                    .lineLimit(1)
-                    .minimumScaleFactor(0.7)
-                
-                Text(title)
-                    .font(.caption)
-                    .foregroundColor(BrewerColors.textSecondary)
-                    .textCase(.uppercase)
-                    .tracking(0.5)
-            }
+            // Description text
+            Text(description)
+                .font(.caption)
+                .foregroundColor(BrewerColors.textSecondary)
+                .multilineTextAlignment(.center)
+                .lineLimit(2)
         }
-        .padding(16)
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .frame(height: isLarge ? 100 : 80)
-        .background(
-            RoundedRectangle(cornerRadius: 12)
-                .fill(BrewerColors.cardBackground)
-                .overlay(
-                    RoundedRectangle(cornerRadius: 12)
-                        .strokeBorder(color.opacity(0.2), lineWidth: 1)
-                )
-        )
-        .shadow(color: Color.black.opacity(0.05), radius: 2, x: 0, y: 1)
+        .frame(maxWidth: .infinity)
+        .frame(height: 100)
+        .contentShape(Rectangle())
     }
 }
 
