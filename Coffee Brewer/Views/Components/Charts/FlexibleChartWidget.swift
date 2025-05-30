@@ -6,10 +6,11 @@ struct FlexibleChartWidget: View {
     let brews: [Brew]
     let onRemove: () -> Void
     let onConfigure: () -> Void
+    @State private var showDeleteAlert = false
     
     var body: some View {
         VStack(spacing: 0) {
-            // Header - Always visible, no animation
+            // Header - Tappable to expand/collapse
             HStack {
                 Text(configuration.title)
                     .font(.headline)
@@ -26,23 +27,12 @@ struct FlexibleChartWidget: View {
                     }
                     .buttonStyle(PlainButtonStyle())
                     
-                    // Expand/Collapse button
-                    Button(action: {
-                        withAnimation(.easeInOut(duration: 0.3)) {
-                            configuration.isExpanded.toggle()
-                        }
-                    }) {
-                        Image(systemName: configuration.isExpanded ? "chevron.up" : "chevron.down")
-                            .foregroundColor(BrewerColors.textSecondary)
-                            .font(.system(size: 16))
-                            .animation(.easeInOut(duration: 0.3), value: configuration.isExpanded)
-                    }
-                    .buttonStyle(PlainButtonStyle())
-                    
                     // Remove button
-                    Button(action: onRemove) {
+                    Button(action: {
+                        showDeleteAlert = true
+                    }) {
                         Image(systemName: "xmark")
-                            .foregroundColor(BrewerColors.textSecondary)
+                            .foregroundColor(Color(red: 0.9, green: 0.25, blue: 0.25))
                             .font(.system(size: 16))
                     }
                     .buttonStyle(PlainButtonStyle())
@@ -50,6 +40,12 @@ struct FlexibleChartWidget: View {
             }
             .padding()
             .background(BrewerColors.cardBackground)
+            .contentShape(Rectangle()) // Make entire header tappable
+            .onTapGesture {
+                withAnimation(.easeInOut(duration: 0.3)) {
+                    configuration.isExpanded.toggle()
+                }
+            }
             
             // Animated content container
             VStack(spacing: 0) {
@@ -73,6 +69,14 @@ struct FlexibleChartWidget: View {
         .shadow(color: Color.black.opacity(0.1), radius: 2, x: 0, y: 1)
         .padding(.horizontal)
         .padding(.vertical, 8)
+        .alert("Delete Chart?", isPresented: $showDeleteAlert) {
+            Button("Cancel", role: .cancel) {}
+            Button("Delete", role: .destructive) {
+                onRemove()
+            }
+        } message: {
+            Text("This chart will be permanently removed from your analytics.")
+        }
     }
     
     @ViewBuilder

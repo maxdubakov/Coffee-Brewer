@@ -46,33 +46,6 @@ struct History: View {
                         analyticsView
                     }
                 }
-                
-                // Floating action button for adding charts
-                if !brews.isEmpty && viewModel.chartConfigurations.isEmpty {
-                    VStack {
-                        Spacer()
-                        HStack {
-                            Spacer()
-                            Button(action: {
-                                showChartSelector = true
-                            }) {
-                                HStack {
-                                    Image(systemName: "chart.line.uptrend.xyaxis")
-                                    Text("Add Chart")
-                                }
-                                .font(.headline)
-                                .foregroundColor(BrewerColors.background)
-                                .padding(.horizontal, 20)
-                                .padding(.vertical, 12)
-                                .background(BrewerColors.chartPrimary)
-                                .cornerRadius(25)
-                                .shadow(color: Color.black.opacity(0.2), radius: 4, x: 0, y: 2)
-                            }
-                            .padding(.trailing, 20)
-                            .padding(.bottom, 100)
-                        }
-                    }
-                }
             }
             .sheet(isPresented: $showChartSelector) {
                 ChartSelectorView(viewModel: viewModel)
