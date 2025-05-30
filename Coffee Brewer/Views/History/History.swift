@@ -8,6 +8,8 @@ struct History: View {
     // MARK: - State
     @StateObject private var viewModel = HistoryViewModel()
     @State private var showChartSelector = false
+    @State private var draggingChart: Chart?
+    @State private var dragOffset: CGSize = .zero
     
     // MARK: - Fetch Request
     @FetchRequest(
@@ -106,56 +108,52 @@ struct History: View {
     
     // MARK: - Analytics View
     private var analyticsView: some View {
-        List {
-            // Chart widgets section
-            Section {
+        ScrollView {
+            VStack(spacing: 0) {
+                // Chart widgets
                 ForEach(viewModel.charts) { chart in
-                    ChartRow(chart: chart, viewModel: viewModel, brews: Array(brews))
-                        .listRowInsets(EdgeInsets())
-                        .listRowBackground(Color.clear)
-                        .listRowSeparator(.hidden)
-                        .deleteDisabled(true)
-                        .swipeActions(edge: .trailing, allowsFullSwipe: false) { }
-                        .swipeActions(edge: .leading, allowsFullSwipe: false) { }
-                        .onTapGesture { }  // Prevent row selection
-                }
-                .onMove(perform: viewModel.moveChart)
-                .onDelete { _ in }  // Provide empty delete handler to prevent default behavior
-            }
-            .listSectionSeparator(.hidden)
-            
-            // Recent brews section
-            if !brews.isEmpty {
-                Section {
-                    ForEach(brews.prefix(5), id: \.self) { brew in
-                        BrewHistoryCard(brew: brew)
-                            .listRowInsets(EdgeInsets(top: 6, leading: 18, bottom: 6, trailing: 18))
-                            .listRowBackground(Color.clear)
-                            .listRowSeparator(.hidden)
+                    ChartRow(
+                        chart: chart,
+                        viewModel: viewModel,
+                        brews: Array(brews),
+                        isDragging: draggingChart?.id == chart.id,
+                        dragOffset: draggingChart?.id == chart.id ? dragOffset : .zero
+                    )
+                    .onDrag {
+                        self.draggingChart = chart
+                        return NSItemProvider(object: (chart.id?.uuidString ?? "") as NSString)
                     }
-                } header: {
-                    Text("RECENT BREWS")
-                        .font(.caption)
-                        .fontWeight(.bold)
-                        .foregroundColor(BrewerColors.textPrimary)
-                        .tracking(1.5)
-                        .padding(.top, 12)
-                        .listRowInsets(EdgeInsets())
+                    .onDrop(of: [.text], delegate: ChartDropDelegate(
+                        chart: chart,
+                        charts: viewModel.charts,
+                        draggingChart: $draggingChart,
+                        viewModel: viewModel
+                    ))
                 }
-                .listSectionSeparator(.hidden)
+                
+                // Recent brews section
+                if !brews.isEmpty {
+                    VStack(alignment: .leading, spacing: 12) {
+                        Text("RECENT BREWS")
+                            .font(.caption)
+                            .fontWeight(.bold)
+                            .foregroundColor(BrewerColors.textPrimary)
+                            .tracking(1.5)
+                            .padding(.horizontal, 18)
+                            .padding(.top, 24)
+                        
+                        ForEach(brews.prefix(5), id: \.self) { brew in
+                            BrewHistoryCard(brew: brew)
+                                .padding(.horizontal, 18)
+                        }
+                    }
+                }
+                
+                // Add extra space at bottom for tab bar
+                Spacer().frame(height: 100)
             }
-            
-            // Add extra space at bottom for tab bar
-            Section {
-                Spacer()
-                    .frame(height: 80)
-                    .listRowBackground(Color.clear)
-            }
-            .listSectionSeparator(.hidden)
+            .padding(.top, 8)
         }
-        .listStyle(PlainListStyle())
-        .scrollContentBackground(.hidden)
-        .padding(.top, 8)
     }
 }
 
@@ -164,16 +162,26 @@ struct ChartRow: View {
     @ObservedObject var chart: Chart
     let viewModel: HistoryViewModel
     let brews: [Brew]
+    let isDragging: Bool
+    let dragOffset: CGSize
+    @State private var localConfiguration: ChartConfiguration?
     
     var body: some View {
-        if var configuration = chart.toChartConfiguration() {
+        if let configuration = localConfiguration ?? chart.toChartConfiguration() {
             FlexibleChartWidget(
                 configuration: Binding(
-                    get: { configuration },
+                    get: {
+                        localConfiguration ?? configuration
+                    },
                     set: { newValue in
-                        configuration = newValue
-                        chart.isExpanded = newValue.isExpanded
-                        viewModel.updateChart(chart)
+                        localConfiguration = newValue
+                        // Debounce Core Data updates
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                            if chart.isExpanded != newValue.isExpanded {
+                                chart.isExpanded = newValue.isExpanded
+                                viewModel.updateChart(chart)
+                            }
+                        }
                     }
                 ),
                 brews: brews,
@@ -186,6 +194,13 @@ struct ChartRow: View {
                     viewModel.selectedChart = chart
                 }
             )
+            .onAppear {
+                localConfiguration = chart.toChartConfiguration()
+            }
+            .opacity(isDragging ? 0.8 : 1.0)
+            .offset(dragOffset)
+            .scaleEffect(isDragging ? 0.95 : 1.0)
+            .animation(.easeInOut(duration: 0.2), value: isDragging)
         }
     }
 }
@@ -344,6 +359,31 @@ struct RecipeDetailTag: View {
                         .strokeBorder(color.opacity(0.2), lineWidth: 0.5)
                 )
         )
+    }
+}
+
+// MARK: - Drop Delegate
+struct ChartDropDelegate: DropDelegate {
+    let chart: Chart
+    let charts: [Chart]
+    @Binding var draggingChart: Chart?
+    let viewModel: HistoryViewModel
+    
+    func performDrop(info: DropInfo) -> Bool {
+        return true
+    }
+    
+    func dropEntered(info: DropInfo) {
+        guard let draggingChart = draggingChart,
+              draggingChart.id != chart.id,
+              let fromIndex = charts.firstIndex(where: { $0.id == draggingChart.id }),
+              let toIndex = charts.firstIndex(where: { $0.id == chart.id }) else {
+            return
+        }
+        
+        withAnimation {
+            viewModel.moveChart(from: IndexSet(integer: fromIndex), to: toIndex > fromIndex ? toIndex + 1 : toIndex)
+        }
     }
 }
 

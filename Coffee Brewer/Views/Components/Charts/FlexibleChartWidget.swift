@@ -9,7 +9,7 @@ struct FlexibleChartWidget: View {
     
     var body: some View {
         VStack(spacing: 0) {
-            // Header
+            // Header - Always visible, no animation
             HStack {
                 Text(configuration.title)
                     .font(.headline)
@@ -28,13 +28,14 @@ struct FlexibleChartWidget: View {
                     
                     // Expand/Collapse button
                     Button(action: {
-                        withAnimation(.easeInOut(duration: 0.2)) {
+                        withAnimation(.easeInOut(duration: 0.3)) {
                             configuration.isExpanded.toggle()
                         }
                     }) {
                         Image(systemName: configuration.isExpanded ? "chevron.up" : "chevron.down")
                             .foregroundColor(BrewerColors.textSecondary)
                             .font(.system(size: 16))
+                            .animation(.easeInOut(duration: 0.3), value: configuration.isExpanded)
                     }
                     .buttonStyle(PlainButtonStyle())
                     
@@ -50,15 +51,19 @@ struct FlexibleChartWidget: View {
             .padding()
             .background(BrewerColors.cardBackground)
             
+            // Animated content container
             if configuration.isExpanded {
-                CustomDivider()
-                
-                // Chart content
-                chartView
-                    .transition(.asymmetric(
-                        insertion: .push(from: .top).combined(with: .opacity),
-                        removal: .push(from: .bottom).combined(with: .opacity)
-                    ))
+                VStack(spacing: 0) {
+                    CustomDivider()
+                    
+                    // Chart content
+                    chartView
+                }
+                .transition(.asymmetric(
+                    insertion: .move(edge: .top).combined(with: .opacity),
+                    removal: .move(edge: .top).combined(with: .opacity)
+                ))
+                .animation(.easeInOut(duration: 0.3), value: configuration.isExpanded)
             }
         }
         .background(BrewerColors.cardBackground)
