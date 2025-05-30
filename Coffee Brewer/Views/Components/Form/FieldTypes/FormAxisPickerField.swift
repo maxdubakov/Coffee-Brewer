@@ -8,6 +8,15 @@ struct FormAxisPickerField: View {
     @Binding var focusedField: FocusedField?
     let disabledAxisId: String?
     
+    private var commonAxes: [any ChartAxis] {
+        let allAxes = axes.flatMap { $0.1 }
+        let commonIds = ["brewDate", "rating", "temperature", "ratio", "roasterName", "grinderName"]
+        
+        return commonIds.compactMap { id in
+            allAxes.first { $0.id == id }
+        }
+    }
+    
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
             FormField {
@@ -16,7 +25,43 @@ struct FormAxisPickerField: View {
                 Spacer()
                 
                 Menu {
-                    menuContent
+                    // Popular/Common axes at top level
+                    ForEach(commonAxes, id: \.id) { axis in
+                        Button(action: {
+                            if disabledAxisId != axis.id {
+                                selection = AxisConfiguration(from: axis)
+                            }
+                        }) {
+                            let isSelected = selection?.axisId == axis.id
+                            Label(
+                                axis.displayName,
+                                systemImage: isSelected ? "checkmark" : ""
+                            )
+                        }
+                        .disabled(disabledAxisId == axis.id)
+                    }
+                    
+                    Divider()
+                    
+                    // Categorized axes
+                    ForEach(axes, id: \.0) { groupName, axesList in
+                        Menu(groupName) {
+                            ForEach(axesList, id: \.id) { axis in
+                                Button(action: {
+                                    if disabledAxisId != axis.id {
+                                        selection = AxisConfiguration(from: axis)
+                                    }
+                                }) {
+                                    let isSelected = selection?.axisId == axis.id
+                                    Label(
+                                        axis.displayName,
+                                        systemImage: isSelected ? "checkmark" : ""
+                                    )
+                                }
+                                .disabled(disabledAxisId == axis.id)
+                            }
+                        }
+                    }
                 } label: {
                     HStack(spacing: 8) {
                         if let selection = selection {
@@ -37,31 +82,6 @@ struct FormAxisPickerField: View {
         }
     }
     
-    @ViewBuilder
-    private var menuContent: some View {
-        ForEach(axes, id: \.0) { groupName, axesList in
-            Section(groupName) {
-                ForEach(axesList, id: \.id) { axis in
-                    menuButton(for: axis)
-                }
-            }
-        }
-    }
-    
-    private func menuButton(for axis: any ChartAxis) -> some View {
-        Button(action: {
-            if disabledAxisId != axis.id {
-                selection = AxisConfiguration(from: axis)
-            }
-        }) {
-            let isSelected = selection?.axisId == axis.id
-            Label(
-                axis.displayName,
-                systemImage: isSelected ? "checkmark" : ""
-            )
-        }
-        .disabled(disabledAxisId == axis.id)
-    }
 }
 
 #Preview {

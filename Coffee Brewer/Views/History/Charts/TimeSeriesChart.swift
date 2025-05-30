@@ -138,20 +138,6 @@ struct TimeSeriesChart: View {
                 }
             }
         }
-        .chartXAxisLabel(position: .bottom, alignment: .center, spacing: 12) {
-            Text(xAxis.displayName.uppercased())
-                .font(.caption)
-                .fontWeight(.bold)
-                .foregroundColor(BrewerColors.textPrimary)
-                .tracking(1.5)
-        }
-        .chartYAxisLabel(position: .leading, alignment: .center, spacing: 20) {
-            Text(yAxis.displayName.uppercased())
-                .font(.caption)
-                .fontWeight(.bold)
-                .foregroundColor(BrewerColors.textPrimary)
-                .tracking(1.5)
-        }
         .chartXAxis {
             AxisMarks { value in
                 AxisValueLabel {

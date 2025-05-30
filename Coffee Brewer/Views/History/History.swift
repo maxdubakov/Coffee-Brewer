@@ -84,44 +84,21 @@ struct History: View {
     // MARK: - Analytics View
     private var analyticsView: some View {
         ScrollView {
-            LazyVStack(spacing: 0) {
-                // Chart widgets
-                ForEach(viewModel.charts, id: \.id) { chart in
-                    ChartRow(
-                        chart: chart,
-                        viewModel: viewModel,
-                        brews: Array(brews)
-                    )
-                    .onDrag {
-                        let impactFeedback = UIImpactFeedbackGenerator(style: .medium)
-                        impactFeedback.impactOccurred()
-                        self.draggedChart = chart
-                        return NSItemProvider(object: (chart.id?.uuidString ?? "") as NSString)
-                    }
-                    .onDrop(of: [.text], delegate: ChartDropDelegate(
-                        chart: chart,
-                        charts: $viewModel.charts,
-                        draggedChart: $draggedChart,
-                        viewModel: viewModel
-                    ))
+            LazyVStack(spacing: 16) {
+                // Statistics Overview Cards
+                statsOverviewSection
+                
+                // Featured Charts Section
+                if !viewModel.charts.isEmpty {
+                    featuredChartsSection
                 }
                 
-                // Recent brews section
-                if !brews.isEmpty {
-                    VStack(alignment: .leading, spacing: 12) {
-                        Text("RECENT BREWS")
-                            .font(.caption)
-                            .fontWeight(.bold)
-                            .foregroundColor(BrewerColors.textPrimary)
-                            .tracking(1.5)
-                            .padding(.horizontal, 18)
-                            .padding(.top, 24)
-                        
-                        ForEach(brews.prefix(5), id: \.self) { brew in
-                            BrewHistoryCard(brew: brew)
-                                .padding(.horizontal, 18)
-                        }
-                    }
+                // Recent Activity Section  
+                recentActivitySection
+                
+                // All Charts Section
+                if !viewModel.charts.isEmpty {
+                    allChartsSection
                 }
                 
                 // Add extra space at bottom for tab bar
@@ -135,6 +112,173 @@ struct History: View {
             return false
         }
     }
+    
+    // MARK: - Stats Overview Section
+    private var statsOverviewSection: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            HStack {
+                Text("Overview")
+                    .font(.title2)
+                    .fontWeight(.semibold)
+                    .foregroundColor(BrewerColors.textPrimary)
+                Spacer()
+            }
+            .padding(.horizontal)
+            
+            LazyVGrid(columns: [
+                GridItem(.flexible()),
+                GridItem(.flexible())
+            ], spacing: 12) {
+                StatsCard(
+                    title: "Total Brews",
+                    value: "\(brews.count)",
+                    icon: "cup.and.saucer.fill",
+                    color: BrewerColors.caramel
+                )
+                
+                StatsCard(
+                    title: "Avg Rating",
+                    value: String(format: "%.1f", averageRating),
+                    icon: "star.fill",
+                    color: BrewerColors.chartPrimary
+                )
+                
+                StatsCard(
+                    title: "This Week",
+                    value: "\(brewsThisWeek)",
+                    icon: "calendar",
+                    color: BrewerColors.chartTertiary
+                )
+                
+                StatsCard(
+                    title: "Favorite",
+                    value: favoriteRoaster,
+                    icon: "heart.fill",
+                    color: BrewerColors.mocha,
+                    isLarge: true
+                )
+            }
+            .padding(.horizontal)
+        }
+    }
+    
+    // MARK: - Featured Charts Section
+    private var featuredChartsSection: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            HStack {
+                Text("Insights")
+                    .font(.title2)
+                    .fontWeight(.semibold)
+                    .foregroundColor(BrewerColors.textPrimary)
+                Spacer()
+            }
+            .padding(.horizontal)
+            
+            // Show first 2 charts expanded by default
+            ForEach(viewModel.charts.prefix(2), id: \.id) { chart in
+                ChartRow(
+                    chart: chart,
+                    viewModel: viewModel,
+                    brews: Array(brews),
+                    isExpanded: true
+                )
+                .onDrag {
+                    let impactFeedback = UIImpactFeedbackGenerator(style: .medium)
+                    impactFeedback.impactOccurred()
+                    self.draggedChart = chart
+                    return NSItemProvider(object: (chart.id?.uuidString ?? "") as NSString)
+                }
+                .onDrop(of: [.text], delegate: ChartDropDelegate(
+                    chart: chart,
+                    charts: $viewModel.charts,
+                    draggedChart: $draggedChart,
+                    viewModel: viewModel
+                ))
+            }
+        }
+    }
+    
+    // MARK: - Recent Activity Section
+    private var recentActivitySection: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            HStack {
+                Text("Recent Activity")
+                    .font(.title2)
+                    .fontWeight(.semibold)
+                    .foregroundColor(BrewerColors.textPrimary)
+                Spacer()
+            }
+            .padding(.horizontal)
+            
+            ScrollView(.horizontal, showsIndicators: false) {
+                HStack(spacing: 12) {
+                    ForEach(brews.prefix(5), id: \.self) { brew in
+                        CompactBrewCard(brew: brew)
+                    }
+                }
+                .padding(.horizontal)
+            }
+        }
+    }
+    
+    // MARK: - All Charts Section
+    private var allChartsSection: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            HStack {
+                Text("All Charts")
+                    .font(.title2)
+                    .fontWeight(.semibold)
+                    .foregroundColor(BrewerColors.textPrimary)
+                Spacer()
+            }
+            .padding(.horizontal)
+            
+            // Show remaining charts (after first 2)
+            ForEach(viewModel.charts.dropFirst(2), id: \.id) { chart in
+                ChartRow(
+                    chart: chart,
+                    viewModel: viewModel,
+                    brews: Array(brews)
+                )
+                .onDrag {
+                    let impactFeedback = UIImpactFeedbackGenerator(style: .medium)
+                    impactFeedback.impactOccurred()
+                    self.draggedChart = chart
+                    return NSItemProvider(object: (chart.id?.uuidString ?? "") as NSString)
+                }
+                .onDrop(of: [.text], delegate: ChartDropDelegate(
+                    chart: chart,
+                    charts: $viewModel.charts,
+                    draggedChart: $draggedChart,
+                    viewModel: viewModel
+                ))
+            }
+        }
+    }
+    
+    // MARK: - Computed Properties
+    private var averageRating: Double {
+        let ratings = brews.map { Double($0.rating) }.filter { $0 > 0 }
+        guard !ratings.isEmpty else { return 0.0 }
+        return ratings.reduce(0, +) / Double(ratings.count)
+    }
+    
+    private var brewsThisWeek: Int {
+        let calendar = Calendar.current
+        let oneWeekAgo = calendar.date(byAdding: .weekOfYear, value: -1, to: Date()) ?? Date()
+        return brews.filter { brew in
+            guard let date = brew.date else { return false }
+            return date >= oneWeekAgo
+        }.count
+    }
+    
+    private var favoriteRoaster: String {
+        let roasterNames = brews.compactMap { $0.roasterName }
+        let roasterCounts = Dictionary(grouping: roasterNames, by: { $0 })
+            .mapValues { $0.count }
+        
+        return roasterCounts.max(by: { $0.value < $1.value })?.key ?? "None"
+    }
 }
 
 // MARK: - Chart Row Component
@@ -142,22 +286,36 @@ struct ChartRow: View {
     @ObservedObject var chart: Chart
     let viewModel: HistoryViewModel
     let brews: [Brew]
+    let isExpanded: Bool?
     @State private var localConfiguration: ChartConfiguration?
+    
+    init(chart: Chart, viewModel: HistoryViewModel, brews: [Brew], isExpanded: Bool? = nil) {
+        self.chart = chart
+        self.viewModel = viewModel
+        self.brews = brews
+        self.isExpanded = isExpanded
+    }
     
     var body: some View {
         if let configuration = localConfiguration ?? chart.toChartConfiguration() {
             FlexibleChartWidget(
                 configuration: Binding(
                     get: {
-                        localConfiguration ?? configuration
+                        var config = localConfiguration ?? configuration
+                        if let forcedExpanded = isExpanded {
+                            config.isExpanded = forcedExpanded
+                        }
+                        return config
                     },
                     set: { newValue in
                         localConfiguration = newValue
-                        // Debounce Core Data updates
-                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-                            if chart.isExpanded != newValue.isExpanded {
-                                chart.isExpanded = newValue.isExpanded
-                                viewModel.updateChart(chart)
+                        // Don't update Core Data if expansion state is forced
+                        if isExpanded == nil {
+                            DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                                if chart.isExpanded != newValue.isExpanded {
+                                    chart.isExpanded = newValue.isExpanded
+                                    viewModel.updateChart(chart)
+                                }
                             }
                         }
                     }
@@ -173,7 +331,11 @@ struct ChartRow: View {
                 }
             )
             .onAppear {
-                localConfiguration = chart.toChartConfiguration()
+                var config = chart.toChartConfiguration()
+                if let forcedExpanded = isExpanded {
+                    config?.isExpanded = forcedExpanded
+                }
+                localConfiguration = config
             }
             .onChange(of: chart.updatedAt) { _, _ in
                 // Refresh local configuration when chart is updated
@@ -349,6 +511,137 @@ struct RecipeDetailTag: View {
                         .strokeBorder(color.opacity(0.2), lineWidth: 0.5)
                 )
         )
+    }
+}
+
+// MARK: - Stats Card Component
+struct StatsCard: View {
+    let title: String
+    let value: String
+    let icon: String
+    let color: Color
+    let isLarge: Bool
+    
+    init(title: String, value: String, icon: String, color: Color, isLarge: Bool = false) {
+        self.title = title
+        self.value = value
+        self.icon = icon
+        self.color = color
+        self.isLarge = isLarge
+    }
+    
+    var body: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            HStack {
+                Image(systemName: icon)
+                    .foregroundColor(color)
+                    .font(.system(size: 20))
+                
+                Spacer()
+            }
+            
+            VStack(alignment: .leading, spacing: 4) {
+                Text(value)
+                    .font(isLarge ? .title2 : .title3)
+                    .fontWeight(.bold)
+                    .foregroundColor(BrewerColors.textPrimary)
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.7)
+                
+                Text(title)
+                    .font(.caption)
+                    .foregroundColor(BrewerColors.textSecondary)
+                    .textCase(.uppercase)
+                    .tracking(0.5)
+            }
+        }
+        .padding(16)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .frame(height: isLarge ? 100 : 80)
+        .background(
+            RoundedRectangle(cornerRadius: 12)
+                .fill(BrewerColors.cardBackground)
+                .overlay(
+                    RoundedRectangle(cornerRadius: 12)
+                        .strokeBorder(color.opacity(0.2), lineWidth: 1)
+                )
+        )
+        .shadow(color: Color.black.opacity(0.05), radius: 2, x: 0, y: 1)
+    }
+}
+
+// MARK: - Compact Brew Card Component
+struct CompactBrewCard: View {
+    @ObservedObject var brew: Brew
+    
+    private var recipeName: String {
+        if let recipe = brew.recipe {
+            return recipe.name ?? "Unknown Recipe"
+        } else {
+            return brew.recipeName ?? "Deleted Recipe"
+        }
+    }
+    
+    private var roasterName: String {
+        if let recipe = brew.recipe {
+            return recipe.roaster?.name ?? "Unknown"
+        } else {
+            return brew.roasterName ?? "Unknown"
+        }
+    }
+    
+    private var ratingStars: String {
+        let rating = Int(brew.rating)
+        return String(repeating: "★", count: rating)
+    }
+    
+    private var daysSince: String {
+        guard let date = brew.date else { return "" }
+        let days = Calendar.current.dateComponents([.day], from: date, to: Date()).day ?? 0
+        return days == 0 ? "Today" : "\(days)d ago"
+    }
+    
+    var body: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            // Header with date
+            HStack {
+                Text(daysSince)
+                    .font(.caption)
+                    .foregroundColor(BrewerColors.textSecondary)
+                
+                Spacer()
+                
+                if brew.rating > 0 {
+                    Text(ratingStars)
+                        .font(.caption)
+                        .foregroundColor(BrewerColors.caramel)
+                }
+            }
+            
+            // Recipe info
+            VStack(alignment: .leading, spacing: 4) {
+                Text(recipeName)
+                    .font(.system(size: 14, weight: .semibold))
+                    .foregroundColor(BrewerColors.textPrimary)
+                    .lineLimit(2)
+                
+                Text(roasterName)
+                    .font(.caption)
+                    .foregroundColor(BrewerColors.textSecondary)
+                    .lineLimit(1)
+            }
+        }
+        .padding(12)
+        .frame(width: 140, height: 90)
+        .background(
+            RoundedRectangle(cornerRadius: 12)
+                .fill(BrewerColors.cardBackground)
+                .overlay(
+                    RoundedRectangle(cornerRadius: 12)
+                        .strokeBorder(BrewerColors.divider, lineWidth: 0.5)
+                )
+        )
+        .shadow(color: Color.black.opacity(0.05), radius: 1, x: 0, y: 1)
     }
 }
 

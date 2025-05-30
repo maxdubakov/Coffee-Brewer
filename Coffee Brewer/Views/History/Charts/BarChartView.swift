@@ -41,17 +41,6 @@ struct BarChartView: View {
     var body: some View {
         VStack(spacing: 0) {
             HStack(alignment: .center, spacing: 0) {
-                // Y-axis label (fixed position)
-                Text(yAxis.displayName.uppercased())
-                    .font(.caption)
-                    .fontWeight(.bold)
-                    .foregroundColor(BrewerColors.textPrimary)
-                    .tracking(1.5)
-                    .rotationEffect(.degrees(-90))
-                    .fixedSize()
-                    .frame(width: 20, height: 250)
-                    .offset(x: 5)
-                
                 // Chart content (scrollable)
                 Charts.Chart(aggregatedData, id: \.category) { item in
                 if xAxis.axisType == .categorical {
@@ -61,12 +50,12 @@ struct BarChartView: View {
                     )
                     .foregroundStyle(
                         LinearGradient(
-                            colors: [color, color.opacity(0.7)],
+                            colors: [color, color.opacity(0.5), color.opacity(0.3),  .black.opacity(0.05)],
                             startPoint: .top,
                             endPoint: .bottom
                         )
                     )
-                    .cornerRadius(4)
+                    .cornerRadius(8)
                     .annotation(position: .top) {
                         Text(String(format: "%.1f", item.average))
                             .font(.caption2)
@@ -85,7 +74,7 @@ struct BarChartView: View {
                             endPoint: .trailing
                         )
                     )
-                    .cornerRadius(4)
+                    .cornerRadius(8)
                     .annotation(position: .trailing) {
                         Text(String(format: "%.1f", item.average))
                             .font(.caption2)
@@ -146,17 +135,10 @@ struct BarChartView: View {
             .chartScrollableAxes(xAxis.axisType == .categorical ? .horizontal : [])
             .chartXVisibleDomain(length: xAxis.axisType == .categorical ? visibleBarCount : aggregatedData.count)
             .frame(minWidth: 300)
+            .frame(height: 250)
             .padding(.horizontal)
             .padding(.vertical, 8)
             }
-            
-            // X-axis label (fixed position below chart)
-            Text(xAxis.displayName.uppercased())
-                .font(.caption)
-                .fontWeight(.bold)
-                .foregroundColor(BrewerColors.textPrimary)
-                .tracking(1.5)
-                .padding(.top, 12)
         }
     }
 }
