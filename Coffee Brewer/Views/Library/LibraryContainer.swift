@@ -74,6 +74,8 @@ struct LibraryContainer: View {
             return "Search roasters..."
         case .grinders:
             return "Search grinders..."
+        case .brews:
+            return "Search brews..."
         }
     }
 }
@@ -99,6 +101,9 @@ struct LibraryContent: View {
                     .padding(.horizontal, 20)
             case .grinders:
                 GrindersLibraryView(navigationCoordinator: navigationCoordinator, searchText: searchText)
+                    .padding(.horizontal, 20)
+            case .brews:
+                BrewsLibraryView(navigationCoordinator: navigationCoordinator, searchText: searchText)
                     .padding(.horizontal, 20)
             }
         }

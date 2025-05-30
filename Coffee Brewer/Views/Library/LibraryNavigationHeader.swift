@@ -5,6 +5,7 @@ enum LibraryTab: String, CaseIterable {
     case recipes = "Recipes"
     case roasters = "Roasters" 
     case grinders = "Grinders"
+    case brews = "Brews"
 }
 
 // MARK: - Library Tab Pills

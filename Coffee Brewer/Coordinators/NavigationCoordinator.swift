@@ -61,6 +61,10 @@ class NavigationCoordinator: ObservableObject {
     @Published var showingDeleteGrinderAlert = false
     @Published var grinderToDelete: Grinder?
     
+    // MARK: - Delete Brew State
+    @Published var showingDeleteBrewAlert = false
+    @Published var brewToDelete: Brew?
+    
     // MARK: - Shared State
     @Published var selectedRoaster: Roaster?
     
@@ -207,6 +211,34 @@ class NavigationCoordinator: ObservableObject {
     func cancelDeleteGrinder() {
         grinderToDelete = nil
         showingDeleteGrinderAlert = false
+    }
+    
+    // MARK: - Brew Deletion
+    func confirmDeleteBrew(_ brew: Brew) {
+        brewToDelete = brew
+        showingDeleteBrewAlert = true
+    }
+    
+    func deleteBrew(in context: NSManagedObjectContext) {
+        guard let brew = brewToDelete else { return }
+        
+        withAnimation(.bouncy(duration: 0.5)) {
+            context.delete(brew)
+            
+            do {
+                try context.save()
+            } catch {
+                print("Error deleting brew: \(error)")
+            }
+        }
+        
+        brewToDelete = nil
+        showingDeleteBrewAlert = false
+    }
+    
+    func cancelDeleteBrew() {
+        brewToDelete = nil
+        showingDeleteBrewAlert = false
     }
     
     // MARK: - Navigation Stack Management

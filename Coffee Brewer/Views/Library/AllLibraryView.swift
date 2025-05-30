@@ -25,6 +25,12 @@ struct AllLibraryView: View {
     )
     private var grinders: FetchedResults<Grinder>
     
+    @FetchRequest(
+        sortDescriptors: [NSSortDescriptor(keyPath: \Brew.date, ascending: false)],
+        animation: .default
+    )
+    private var brews: FetchedResults<Brew>
+    
     @State private var selectedRoasterForDetail: Roaster?
     @State private var selectedGrinderForDetail: Grinder?
     
@@ -33,6 +39,7 @@ struct AllLibraryView: View {
     @State private var selectedRecipes: Set<NSManagedObjectID> = []
     @State private var selectedRoasters: Set<NSManagedObjectID> = []
     @State private var selectedGrinders: Set<NSManagedObjectID> = []
+    @State private var selectedBrews: Set<NSManagedObjectID> = []
     @State private var showingMultiDeleteAlert = false
     
     private var filteredRecipes: [Recipe] {
@@ -76,12 +83,27 @@ struct AllLibraryView: View {
         }
     }
     
+    private var filteredBrews: [Brew] {
+        let allBrews = Array(brews)
+        if searchText.isEmpty {
+            return allBrews
+        } else {
+            return allBrews.filter { brew in
+                let nameMatch = brew.name?.localizedCaseInsensitiveContains(searchText) ?? false
+                let recipeNameMatch = brew.recipeName?.localizedCaseInsensitiveContains(searchText) ?? false
+                let roasterNameMatch = brew.roasterName?.localizedCaseInsensitiveContains(searchText) ?? false
+                let notesMatch = brew.notes?.localizedCaseInsensitiveContains(searchText) ?? false
+                return nameMatch || recipeNameMatch || roasterNameMatch || notesMatch
+            }
+        }
+    }
+    
     private var hasAnyItems: Bool {
-        !filteredRecipes.isEmpty || !filteredRoasters.isEmpty || !filteredGrinders.isEmpty
+        !filteredRecipes.isEmpty || !filteredRoasters.isEmpty || !filteredGrinders.isEmpty || !filteredBrews.isEmpty
     }
     
     private var totalSelectedItems: Int {
-        selectedRecipes.count + selectedRoasters.count + selectedGrinders.count
+        selectedRecipes.count + selectedRoasters.count + selectedGrinders.count + selectedBrews.count
     }
     
     var body: some View {
@@ -96,6 +118,7 @@ struct AllLibraryView: View {
                                 selectedRecipes.removeAll()
                                 selectedRoasters.removeAll()
                                 selectedGrinders.removeAll()
+                                selectedBrews.removeAll()
                             }
                         }
                     }
@@ -257,6 +280,45 @@ struct AllLibraryView: View {
                             SectionHeaderView(title: "Grinders", count: filteredGrinders.count)
                         }
                     }
+                    
+                    // Brews Section
+                    if !filteredBrews.isEmpty {
+                        Section {
+                            ForEach(Array(filteredBrews.enumerated()), id: \.element.id) { index, brew in
+                                VStack(spacing: 0) {
+                                    BrewLibraryRow(
+                                        brew: brew,
+                                        isEditMode: isEditMode,
+                                        isSelected: selectedBrews.contains(brew.objectID),
+                                        onTap: {
+                                            if isEditMode {
+                                                toggleBrewSelection(for: brew)
+                                            } else {
+                                                // Navigation to brew detail can be added later
+                                            }
+                                        }
+                                    )
+                                    
+                                    if index < filteredBrews.count - 1 {
+                                        CustomDivider()
+                                            .padding(.leading, 44)
+                                    }
+                                }
+                                .listRowBackground(Color.clear)
+                                .listRowSeparator(.hidden)
+                                .listRowInsets(EdgeInsets(top: 4, leading: 0, bottom: 4, trailing: 0))
+                                .swipeActions(edge: .trailing, allowsFullSwipe: true) {
+                                    Button(role: .destructive) {
+                                        navigationCoordinator.confirmDeleteBrew(brew)
+                                    } label: {
+                                        Label("Delete", systemImage: "trash")
+                                    }
+                                }
+                            }
+                        } header: {
+                            SectionHeaderView(title: "Brews", count: filteredBrews.count)
+                        }
+                    }
                 }
                 .listStyle(PlainListStyle())
                 .scrollContentBackground(.hidden)
@@ -307,6 +369,14 @@ struct AllLibraryView: View {
         } message: {
             Text("Associated recipes will keep their data but lose grinder reference.")
         }
+        .alert("Delete Brew?", isPresented: $navigationCoordinator.showingDeleteBrewAlert) {
+            Button("Cancel", role: .cancel) {}
+            Button("Delete", role: .destructive) {
+                navigationCoordinator.deleteBrew(in: viewContext)
+            }
+        } message: {
+            Text("This action cannot be undone.")
+        }
     }
     
     private var emptyStateView: some View {
@@ -320,7 +390,7 @@ struct AllLibraryView: View {
                 .foregroundColor(BrewerColors.textSecondary)
             
             if searchText.isEmpty {
-                Text("Create recipes, roasters, and grinders to get started")
+                Text("Create recipes, roasters, grinders, and track your brews")
                     .font(.system(size: 14))
                     .foregroundColor(BrewerColors.textSecondary.opacity(0.8))
                     .multilineTextAlignment(.center)
@@ -355,6 +425,14 @@ struct AllLibraryView: View {
         }
     }
     
+    private func toggleBrewSelection(for brew: Brew) {
+        if selectedBrews.contains(brew.objectID) {
+            selectedBrews.remove(brew.objectID)
+        } else {
+            selectedBrews.insert(brew.objectID)
+        }
+    }
+    
     // MARK: - Multi-Delete Methods
     private func deleteSelectedItems() {
         withAnimation {
@@ -379,6 +457,13 @@ struct AllLibraryView: View {
                 }
             }
             
+            // Delete brews
+            for objectID in selectedBrews {
+                if let brew = viewContext.object(with: objectID) as? Brew {
+                    viewContext.delete(brew)
+                }
+            }
+            
             do {
                 try viewContext.save()
             } catch {
@@ -388,6 +473,7 @@ struct AllLibraryView: View {
             selectedRecipes.removeAll()
             selectedRoasters.removeAll()
             selectedGrinders.removeAll()
+            selectedBrews.removeAll()
             isEditMode = false
         }
     }
