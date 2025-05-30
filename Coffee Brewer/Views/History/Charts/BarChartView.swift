@@ -8,13 +8,16 @@ struct BarChartView: View {
     let yAxis: any ChartAxis
     let color: Color
     let isMinimized: Bool
+    var onBarTapped: ((String, Double) -> Void)?
+    @State private var animateChart = false
     
-    init(brews: [Brew], xAxis: any ChartAxis, yAxis: any ChartAxis, color: Color, isMinimized: Bool = false) {
+    init(brews: [Brew], xAxis: any ChartAxis, yAxis: any ChartAxis, color: Color, isMinimized: Bool = false, onBarTapped: ((String, Double) -> Void)? = nil) {
         self.brews = brews
         self.xAxis = xAxis
         self.yAxis = yAxis
         self.color = color
         self.isMinimized = isMinimized
+        self.onBarTapped = onBarTapped
     }
     
     private var aggregatedData: [(category: String, average: Double, count: Int)] {
@@ -46,56 +49,67 @@ struct BarChartView: View {
     
     var body: some View {
         VStack(spacing: 0) {
-            HStack(alignment: .center, spacing: 0) {
-                // Chart content (scrollable)
-                Charts.Chart(aggregatedData, id: \.category) { item in
-                    let barMark = BarMark(
-                        x: .value(xAxis.displayName, item.category),
-                        y: .value(yAxis.displayName, item.average)
+            // Chart content
+            Charts.Chart(aggregatedData, id: \.category) { item in
+                BarMark(
+                    x: .value(xAxis.displayName, item.category),
+                    y: .value(yAxis.displayName, animateChart ? item.average : 0)
+                )
+                .foregroundStyle(
+                    LinearGradient(
+                        colors: [
+                            color,
+                            color.opacity(0.7),
+                            color.opacity(0.5)
+                        ],
+                        startPoint: .top,
+                        endPoint: .bottom
                     )
-                    .foregroundStyle(
-                        LinearGradient(
-                            colors: [color, color.opacity(0.5), color.opacity(0.3), .black.opacity(0.05)],
-                            startPoint: .top,
-                            endPoint: .bottom
-                        )
-                    )
-                    .cornerRadius(8)
-                    
-                    if isMinimized {
-                        barMark
-                    } else {
-                        barMark.annotation(position: .top) {
+                )
+                .cornerRadius(isMinimized ? 6 : 10)
+                .opacity(animateChart ? 1 : 0)
+                .annotation(position: .top) {
+                    if !isMinimized && animateChart {
+                        VStack(spacing: 2) {
                             Text(String(format: "%.1f", item.average))
-                                .font(.caption2)
-                                .fontWeight(.semibold)
+                                .font(.system(size: 13, weight: .bold, design: .rounded))
                                 .foregroundColor(BrewerColors.textPrimary)
+                            
+                            if item.count > 1 {
+                                Text("n=\(item.count)")
+                                    .font(.system(size: 10))
+                                    .foregroundColor(BrewerColors.textSecondary)
+                            }
                         }
                     }
+                }
             }
-            .chartXAxis(isMinimized ? .hidden : .visible)
-            .chartYAxis(isMinimized ? .hidden : .visible)
             .chartXAxis {
                 if !isMinimized {
                     AxisMarks { value in
                         AxisValueLabel {
                             if let text = value.as(String.self) {
                                 Text(text)
-                                    .font(.caption2)
-                                    .fontWeight(.medium)
-                                    .foregroundColor(BrewerColors.textSecondary)
+                                    .font(.system(size: 11, weight: .medium))
+                                    .foregroundColor(BrewerColors.textPrimary)
                                     .lineLimit(2)
                                     .multilineTextAlignment(.center)
                                     .fixedSize(horizontal: false, vertical: true)
-                                    .frame(width: 70)
-                                    .padding(.top, 4)
+                                    .frame(maxWidth: 80)
+                                    .padding(.top, 8)
                             }
                         }
                         AxisGridLine()
                             .foregroundStyle(BrewerColors.chartGrid)
-                        AxisTick()
-                            .foregroundStyle(BrewerColors.chartGrid)
                     }
+                }
+            }
+            .chartXAxisLabel(alignment: .center) {
+                if !isMinimized {
+                    Text(xAxis.displayName)
+                        .font(.system(size: 13, weight: .semibold))
+                        .foregroundColor(BrewerColors.textSecondary)
+                        .padding(.top, 16)
                 }
             }
             .chartYAxis {
@@ -104,25 +118,62 @@ struct BarChartView: View {
                         AxisValueLabel(anchor: .trailing) {
                             if let number = value.as(Double.self) {
                                 Text(String(format: "%.1f", number))
-                                    .font(.caption2)
-                                    .fontWeight(.medium)
+                                    .font(.system(size: 11, weight: .medium))
                                     .foregroundColor(BrewerColors.textSecondary)
-                                    .padding(.trailing, 4)
+                                    .padding(.trailing, 8)
                             }
                         }
                         AxisGridLine()
                             .foregroundStyle(BrewerColors.chartGrid)
-                        AxisTick()
-                            .foregroundStyle(BrewerColors.chartGrid)
+                    }
+                }
+            }
+            .chartYAxisLabel(position: .leading) {
+                if !isMinimized {
+                    Text(yAxis.displayName)
+                        .font(.system(size: 13, weight: .semibold))
+                        .foregroundColor(BrewerColors.textSecondary)
+                        .rotationEffect(.degrees(180))
+                        .padding(.top, 10)
+                }
+            }
+            .chartPlotStyle { plotArea in
+                plotArea
+                    .background(Color.clear)
+            }
+            .chartBackground { _ in
+                if !aggregatedData.isEmpty && onBarTapped != nil {
+                    GeometryReader { geometry in
+                        ForEach(aggregatedData.indices, id: \.self) { index in
+                            Rectangle()
+                                .fill(Color.clear)
+                                .contentShape(Rectangle())
+                                .frame(width: geometry.size.width / CGFloat(visibleBarCount))
+                                .position(
+                                    x: (CGFloat(index) + 0.5) * geometry.size.width / CGFloat(visibleBarCount),
+                                    y: geometry.size.height / 2
+                                )
+                                .onTapGesture {
+                                    let item = aggregatedData[index]
+                                    onBarTapped?(item.category, item.average)
+                                    
+                                    // Haptic feedback
+                                    let impactFeedback = UIImpactFeedbackGenerator(style: .light)
+                                    impactFeedback.impactOccurred()
+                                }
+                        }
                     }
                 }
             }
             .chartScrollableAxes(.horizontal)
             .chartXVisibleDomain(length: visibleBarCount)
-            .frame(minWidth: isMinimized ? 200 : 300)
-            .frame(minHeight: isMinimized ? 80 : 200, maxHeight: isMinimized ? 120 : 300)
-            .padding(.horizontal, isMinimized ? 0 : 16)
-            .padding(.vertical, isMinimized ? 0 : 8)
+            .frame(minHeight: isMinimized ? 100 : 350)
+            .padding(.horizontal, isMinimized ? 0 : 0)
+            .padding(.vertical, isMinimized ? 0 : 0)
+            .onAppear {
+                withAnimation(.easeOut(duration: 0.8).delay(0.1)) {
+                    animateChart = true
+                }
             }
         }
     }

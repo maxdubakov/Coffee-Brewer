@@ -4,6 +4,7 @@ import CoreData
 struct ChartDetailView: View {
     @ObservedObject var chart: Chart
     @State private var showEditSheet = false
+    @State private var selectedDataPoint: (category: String, value: Double)? = nil
     @Environment(\.managedObjectContext) private var viewContext
     
     @FetchRequest(
@@ -18,18 +19,27 @@ struct ChartDetailView: View {
     
     var body: some View {
         GlobalBackground {
-            ScrollView {
-                VStack(alignment: .leading, spacing: 20) {
-                    // Chart Title
-                    Text(chart.title ?? "Chart")
-                        .font(.title2)
-                        .fontWeight(.semibold)
-                        .foregroundColor(BrewerColors.textPrimary)
-                        .padding(.horizontal)
-                        .padding(.top)
+            ScrollView(showsIndicators: false) {
+                VStack(spacing: 0) {
+                    // Premium Header Section
+                    VStack(alignment: .leading, spacing: 4) {
+                        // Title with gradient
+                        Text(chart.title ?? "Chart")
+                            .font(.title2)
+                            .fontWeight(.semibold)
+                            .foregroundColor(BrewerColors.textPrimary)
+                        
+                        // Data points as secondary text
+                        Text("\(brews.count) data points")
+                            .font(.system(size: 13))
+                            .foregroundColor(BrewerColors.textSecondary)
+                    }
+                    .padding(.horizontal)
+                    .padding(.top)
                     
-                    // Maximized Chart
+                    // Premium Chart Container
                     if let configuration = chartConfiguration {
+                        // Chart content
                         Group {
                             switch configuration.chartType {
                             case .barChart:
@@ -38,8 +48,18 @@ struct ChartDetailView: View {
                                     xAxis: configuration.xAxis.createAxis()!,
                                     yAxis: configuration.yAxis.createAxis()!,
                                     color: configuration.color?.toColor() ?? BrewerColors.chartPrimary,
-                                    isMinimized: false
+                                    isMinimized: false,
+                                    onBarTapped: { category, value in
+                                        withAnimation(.spring(response: 0.3, dampingFraction: 0.8)) {
+                                            if selectedDataPoint?.category == category {
+                                                selectedDataPoint = nil
+                                            } else {
+                                                selectedDataPoint = (category: category, value: value)
+                                            }
+                                        }
+                                    }
                                 )
+                                .frame(minHeight: 400, maxHeight: 500)
                             case .timeSeries:
                                 TimeSeriesChart(
                                     brews: Array(brews),
@@ -48,6 +68,7 @@ struct ChartDetailView: View {
                                     color: configuration.color?.toColor() ?? BrewerColors.chartPrimary,
                                     isMinimized: false
                                 )
+                                .frame(minHeight: 400, maxHeight: 500)
                             case .scatterPlot:
                                 ScatterPlotChart(
                                     brews: Array(brews),
@@ -55,77 +76,84 @@ struct ChartDetailView: View {
                                     yAxis: configuration.yAxis.createAxis()!,
                                     color: configuration.color?.toColor() ?? BrewerColors.chartPrimary
                                 )
+                                .frame(minHeight: 400, maxHeight: 500)
                             }
                         }
-                        .background(BrewerColors.cardBackground)
-                        .cornerRadius(12)
-                        .shadow(color: Color.black.opacity(0.1), radius: 2, x: 0, y: 1)
                         .padding(.horizontal)
+                        .padding(.top, 20)
                     }
                     
-                    // Chart Info Section
-                    VStack(alignment: .leading, spacing: 12) {
-                        Text("Chart Details")
-                            .font(.headline)
-                            .foregroundColor(BrewerColors.textPrimary)
-                        
-                        if let config = chartConfiguration {
-                            VStack(alignment: .leading, spacing: 8) {
-                                HStack {
-                                    Text("X-Axis:")
-                                        .fontWeight(.medium)
-                                        .foregroundColor(BrewerColors.textSecondary)
-                                    Text(config.xAxis.displayName)
-                                        .foregroundColor(BrewerColors.textPrimary)
-                                }
-                                
-                                HStack {
-                                    Text("Y-Axis:")
-                                        .fontWeight(.medium)
-                                        .foregroundColor(BrewerColors.textSecondary)
-                                    Text(config.yAxis.displayName)
-                                        .foregroundColor(BrewerColors.textPrimary)
-                                }
-                                
-                                HStack {
-                                    Text("Chart Type:")
-                                        .fontWeight(.medium)
-                                        .foregroundColor(BrewerColors.textSecondary)
-                                    Text(config.chartType.rawValue.capitalized)
-                                        .foregroundColor(BrewerColors.textPrimary)
-                                }
-                                
-                                HStack {
-                                    Text("Data Points:")
-                                        .fontWeight(.medium)
-                                        .foregroundColor(BrewerColors.textSecondary)
-                                    Text("\(brews.count) brews")
-                                        .foregroundColor(BrewerColors.textPrimary)
-                                }
+                    // Selected data point detail (if applicable)
+                    if let dataPoint = selectedDataPoint {
+                        VStack(spacing: 12) {
+                            HStack {
+                                Text("Selected")
+                                    .font(.system(size: 12, weight: .medium))
+                                    .foregroundColor(BrewerColors.textSecondary)
+                                Spacer()
                             }
-                            .font(.subheadline)
+                            
+                            HStack {
+                                VStack(alignment: .leading, spacing: 4) {
+                                    Text(dataPoint.category)
+                                        .font(.system(size: 16, weight: .bold))
+                                        .foregroundColor(BrewerColors.cream)
+                                    Text("Average Value")
+                                        .font(.system(size: 12))
+                                        .foregroundColor(BrewerColors.textSecondary)
+                                }
+                                
+                                Spacer()
+                                
+                                Text(String(format: "%.1f", dataPoint.value))
+                                    .font(.system(size: 24, weight: .bold, design: .rounded))
+                                    .foregroundStyle(
+                                        LinearGradient(
+                                            colors: [BrewerColors.chartPrimary, BrewerColors.caramel],
+                                            startPoint: .leading,
+                                            endPoint: .trailing
+                                        )
+                                    )
+                            }
                         }
+                        .padding(16)
+                        .background(
+                            RoundedRectangle(cornerRadius: 16)
+                                .fill(BrewerColors.surface.opacity(0.6))
+                                .overlay(
+                                    RoundedRectangle(cornerRadius: 16)
+                                        .strokeBorder(BrewerColors.chartPrimary.opacity(0.3), lineWidth: 1)
+                                )
+                        )
+                        .padding(.horizontal, 20)
+                        .padding(.top, 20)
+                        .transition(.scale.combined(with: .opacity))
                     }
-                    .padding()
-                    .background(BrewerColors.cardBackground)
-                    .cornerRadius(12)
-                    .padding(.horizontal)
                     
-                    // Add extra space at bottom for safe area
+                    // Add extra space at bottom
                     Spacer().frame(height: 100)
                 }
             }
         }
-        .navigationTitle(chart.title ?? "Chart")
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
             ToolbarItem(placement: .navigationBarTrailing) {
                 Button(action: {
                     showEditSheet = true
                 }) {
-                    Text("Edit")
-                        .font(.body)
-                        .foregroundColor(BrewerColors.chartPrimary)
+                    HStack(spacing: 4) {
+                        Image(systemName: "slider.horizontal.3")
+                            .font(.system(size: 14))
+                        Text("Edit")
+                            .font(.system(size: 15, weight: .medium))
+                    }
+                    .foregroundColor(BrewerColors.chartPrimary)
+                    .padding(.horizontal, 12)
+                    .padding(.vertical, 6)
+                    .background(
+                        Capsule()
+                            .fill(BrewerColors.chartPrimary.opacity(0.15))
+                    )
                 }
             }
         }
@@ -134,6 +162,27 @@ struct ChartDetailView: View {
                 viewModel: HistoryViewModel(context: viewContext),
                 editingChart: chart
             )
+        }
+    }
+}
+
+// MARK: - Extensions for Axis Configuration
+extension AxisConfiguration {
+    var shortName: String {
+        switch displayName {
+        case "Roaster": return "Roaster"
+        case "Grinder": return "Grinder"
+        case "Recipe": return "Recipe"
+        case "Bean Origin": return "Origin"
+        case "Rating": return "Rating"
+        case "Water Temperature": return "Temp"
+        case "Grind Size": return "Grind"
+        case "Brew Time": return "Time"
+        case "Bean Weight": return "Beans"
+        case "Water Amount": return "Water"
+        case "Number of Brews": return "Count"
+        case "Brew Date": return "Date"
+        default: return displayName
         }
     }
 }
