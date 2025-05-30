@@ -78,7 +78,7 @@ struct ChartPreview: View {
         }
         .chartXScale(domain: 0...10)
         .chartYScale(domain: 0...10)
-        .frame(height: 250)
+        .frame(minHeight: 200, maxHeight: 300)
         .padding()
         .overlay(
             Group {

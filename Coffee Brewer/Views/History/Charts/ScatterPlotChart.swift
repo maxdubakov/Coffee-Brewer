@@ -81,7 +81,7 @@ struct ScatterPlotChart: View {
                     .foregroundStyle(BrewerColors.chartGrid)
             }
         }
-        .frame(height: 250)
+        .frame(minHeight: 200, maxHeight: 300)
         .padding()
     }
 }

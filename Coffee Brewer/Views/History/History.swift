@@ -12,6 +12,7 @@ struct History: View {
     @State private var isEditingCharts = false
     @State private var selectedCharts = Set<NSManagedObjectID>()
     @State private var showDeleteAlert = false
+    @State private var chartRowHeight: CGFloat = 0
     
     // MARK: - Fetch Request
     @FetchRequest(
@@ -95,20 +96,20 @@ struct History: View {
     // MARK: - Analytics View
     private var analyticsView: some View {
         ScrollView {
-            LazyVStack(spacing: 40) {
+            LazyVStack(spacing: 32) {
                 // Statistics Overview Cards
                 statsOverviewSection
+                
+                // Recent Activity Section  
+                recentActivitySection
                 
                 // Charts Section
                 if !viewModel.charts.isEmpty {
                     chartsSection
                 }
                 
-                // Recent Activity Section  
-                recentActivitySection
-                
                 // Add extra space at bottom for tab bar
-                Spacer().frame(height: 100)
+                Color.clear.frame(height: 100)
             }
             .padding(.top, 8)
         }
@@ -175,7 +176,7 @@ struct History: View {
     
     // MARK: - Charts Section
     private var chartsSection: some View {
-        VStack(alignment: .leading, spacing: 12) {
+        VStack(alignment: .leading, spacing: 16) {
             HStack {
                 Text("Charts")
                     .font(.title2)
@@ -227,14 +228,15 @@ struct History: View {
                         )
                         .listRowBackground(Color.clear)
                         .listRowSeparator(.hidden)
-                        .listRowInsets(EdgeInsets())
+                        .listRowInsets(EdgeInsets(top: 8, leading: 0, bottom: 8, trailing: 0))
                     }
                     .onMove(perform: viewModel.moveChart)
                 }
                 .listStyle(PlainListStyle())
-                .frame(height: CGFloat(viewModel.charts.count * 140)) // Approximate height per row
+                .frame(minHeight: CGFloat(viewModel.charts.count * 170))
                 .scrollDisabled(true) // Disable scrolling since parent ScrollView handles it
                 .environment(\.editMode, .constant(.active))
+                .padding(.bottom, 20) // Add padding to prevent last chart from being cut off
             } else {
                 // Normal mode
                 List {
@@ -246,13 +248,14 @@ struct History: View {
                         )
                         .listRowBackground(Color.clear)
                         .listRowSeparator(.hidden)
-                        .listRowInsets(EdgeInsets())
+                        .listRowInsets(EdgeInsets(top: 16, leading: 0, bottom: 16, trailing: 0))
                     }
                     .onMove(perform: viewModel.moveChart)
                 }
                 .listStyle(PlainListStyle())
-                .frame(height: CGFloat(viewModel.charts.count * 140 + 20)) // Approximate height per row + padding
+                .frame(minHeight: CGFloat(viewModel.charts.count * 210))
                 .scrollDisabled(true) // Disable scrolling since parent ScrollView handles it
+                .padding(.bottom, 20) // Add padding to prevent last chart from being cut off
             }
         }
     }

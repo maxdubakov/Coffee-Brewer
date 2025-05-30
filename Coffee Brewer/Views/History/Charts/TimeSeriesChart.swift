@@ -143,7 +143,7 @@ struct TimeSeriesChart: View {
                 }
             }
         }
-        .frame(height: isMinimized ? 100 : 250)
+        .frame(minHeight: isMinimized ? 80 : 200, maxHeight: isMinimized ? 120 : 300)
         .padding(isMinimized ? 0 : 16)
     }
     

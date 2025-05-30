@@ -120,7 +120,7 @@ struct BarChartView: View {
             .chartScrollableAxes(.horizontal)
             .chartXVisibleDomain(length: visibleBarCount)
             .frame(minWidth: isMinimized ? 200 : 300)
-            .frame(height: isMinimized ? 100 : 250)
+            .frame(minHeight: isMinimized ? 80 : 200, maxHeight: isMinimized ? 120 : 300)
             .padding(.horizontal, isMinimized ? 0 : 16)
             .padding(.vertical, isMinimized ? 0 : 8)
             }
