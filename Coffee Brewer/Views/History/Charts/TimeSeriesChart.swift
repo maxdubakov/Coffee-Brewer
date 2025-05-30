@@ -7,6 +7,15 @@ struct TimeSeriesChart: View {
     let xAxis: any ChartAxis
     let yAxis: any ChartAxis
     let color: Color
+    let isMinimized: Bool
+    
+    init(brews: [Brew], xAxis: any ChartAxis, yAxis: any ChartAxis, color: Color, isMinimized: Bool = false) {
+        self.brews = brews
+        self.xAxis = xAxis
+        self.yAxis = yAxis
+        self.color = color
+        self.isMinimized = isMinimized
+    }
     
     private var timeSeriesData: [(date: Date, value: Double, label: String)] {
         // X-axis is temporal, Y-axis is numeric
@@ -75,59 +84,67 @@ struct TimeSeriesChart: View {
             .lineStyle(StrokeStyle(lineWidth: 3, lineCap: .round, lineJoin: .round))
             .interpolationMethod(.catmullRom)
             
-            // Points with subtle shadow
-            PointMark(
-                x: .value(xAxis.displayName, item.date),
-                y: .value(yAxis.displayName, item.value)
-            )
-            .foregroundStyle(color)
-            .symbolSize(80)
-            .symbol {
-                Circle()
-                    .fill(color)
-                    .frame(width: 8, height: 8)
-                    .background(
-                        Circle()
-                            .fill(color.opacity(0.1))
-                            .frame(width: 16, height: 16)
-                    )
+            // Points with subtle shadow (only show in maximized mode)
+            if !isMinimized {
+                PointMark(
+                    x: .value(xAxis.displayName, item.date),
+                    y: .value(yAxis.displayName, item.value)
+                )
+                .foregroundStyle(color)
+                .symbolSize(80)
+                .symbol {
+                    Circle()
+                        .fill(color)
+                        .frame(width: 8, height: 8)
+                        .background(
+                            Circle()
+                                .fill(color.opacity(0.1))
+                                .frame(width: 16, height: 16)
+                        )
+                }
             }
         }
+        .chartXAxis(isMinimized ? .hidden : .visible)
+        .chartYAxis(isMinimized ? .hidden : .visible)
         .chartXAxis {
-            AxisMarks { value in
-                AxisValueLabel {
-                    if let date = value.as(Date.self) {
-                        Text(formatAxisDate(date))
-                            .font(.caption2)
-                            .fontWeight(.medium)
-                            .foregroundColor(BrewerColors.textSecondary)
+            if !isMinimized {
+                AxisMarks { value in
+                    AxisValueLabel {
+                        if let date = value.as(Date.self) {
+                            Text(formatAxisDate(date))
+                                .font(.caption2)
+                                .fontWeight(.medium)
+                                .foregroundColor(BrewerColors.textPrimary)
+                        }
                     }
+                    AxisGridLine()
+                        .foregroundStyle(BrewerColors.chartGrid)
+                    AxisTick()
+                        .foregroundStyle(BrewerColors.chartGrid)
                 }
-                AxisGridLine()
-                    .foregroundStyle(BrewerColors.chartGrid)
-                AxisTick()
-                    .foregroundStyle(BrewerColors.chartGrid)
             }
         }
         .chartYAxis {
-            AxisMarks(position: .leading) { value in
-                AxisValueLabel(anchor: .trailing) {
-                    if let number = value.as(Double.self) {
-                        Text(formatAxisNumber(number))
-                            .font(.caption2)
-                            .fontWeight(.medium)
-                            .foregroundColor(BrewerColors.textSecondary)
-                            .padding(.trailing, 4)
+            if !isMinimized {
+                AxisMarks(position: .leading) { value in
+                    AxisValueLabel(anchor: .trailing) {
+                        if let number = value.as(Double.self) {
+                            Text(formatAxisNumber(number))
+                                .font(.caption2)
+                                .fontWeight(.medium)
+                                .foregroundColor(BrewerColors.textPrimary)
+                                .padding(.trailing, 4)
+                        }
                     }
+                    AxisGridLine()
+                        .foregroundStyle(BrewerColors.chartGrid)
+                    AxisTick()
+                        .foregroundStyle(BrewerColors.chartGrid)
                 }
-                AxisGridLine()
-                    .foregroundStyle(BrewerColors.chartGrid)
-                AxisTick()
-                    .foregroundStyle(BrewerColors.chartGrid)
             }
         }
-        .frame(height: 250)
-        .padding()
+        .frame(height: isMinimized ? 100 : 250)
+        .padding(isMinimized ? 0 : 16)
     }
     
     private func formatAxisDate(_ date: Date) -> String {
@@ -151,12 +168,33 @@ struct TimeSeriesChart: View {
         
         var body: some View {
             GlobalBackground {
-                TimeSeriesChart(
-                    brews: brews,
-                    xAxis: TemporalAxis(type: .brewDate),
-                    yAxis: NumericAxis(type: .rating),
-                    color: BrewerColors.chartPrimary
-                )
+                VStack(spacing: 40) {
+                    // Minimized version
+                    Text("Minimized Time Series Chart")
+                        .font(.headline)
+                        .foregroundColor(BrewerColors.textPrimary)
+                    
+                    TimeSeriesChart(
+                        brews: brews,
+                        xAxis: TemporalAxis(type: .brewDate),
+                        yAxis: NumericAxis(type: .rating),
+                        color: BrewerColors.chartPrimary,
+                        isMinimized: true
+                    )
+                    
+                    // Maximized version
+                    Text("Maximized Time Series Chart")
+                        .font(.headline)
+                        .foregroundColor(BrewerColors.textPrimary)
+                    
+                    TimeSeriesChart(
+                        brews: brews,
+                        xAxis: TemporalAxis(type: .brewDate),
+                        yAxis: NumericAxis(type: .rating),
+                        color: BrewerColors.chartPrimary,
+                        isMinimized: false
+                    )
+                }
                 .onAppear {
                     let context = PersistenceController.preview.container.viewContext
                     

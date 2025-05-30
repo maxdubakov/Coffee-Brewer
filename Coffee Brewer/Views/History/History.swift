@@ -179,11 +179,10 @@ struct History: View {
             }
             .padding(.horizontal)
             
-            // Show all charts
+            // Show all charts as minimized cards with navigation
             ForEach(viewModel.charts, id: \.id) { chart in
-                ChartRow(
+                MiniChartRow(
                     chart: chart,
-                    viewModel: viewModel,
                     brews: Array(brews)
                 )
                 .onDrag {
@@ -258,7 +257,82 @@ struct History: View {
     }
 }
 
-// MARK: - Chart Row Component
+// MARK: - Mini Chart Row Component
+struct MiniChartRow: View {
+    @ObservedObject var chart: Chart
+    let brews: [Brew]
+    @State private var showMaximizedChart = false
+    
+    private var chartConfiguration: ChartConfiguration? {
+        chart.toChartConfiguration()
+    }
+    
+    var body: some View {
+        Button(action: {
+            showMaximizedChart = true
+        }) {
+            VStack(alignment: .leading, spacing: 12) {
+                // Title and Chevron
+                HStack {
+                    Text(chart.title ?? "Chart")
+                        .font(.system(size: 16, weight: .semibold))
+                        .foregroundColor(BrewerColors.textPrimary)
+                        .lineLimit(1)
+                        .multilineTextAlignment(.leading)
+                    
+                    Spacer()
+                    
+                    Image(systemName: "chevron.right")
+                        .font(.system(size: 14, weight: .medium))
+                        .foregroundColor(BrewerColors.textSecondary)
+                }
+                
+                // Minimized Chart
+                if let configuration = chartConfiguration {
+                    Group {
+                        switch configuration.chartType {
+                        case .barChart:
+                            BarChartView(
+                                brews: brews,
+                                xAxis: configuration.xAxis.createAxis()!,
+                                yAxis: configuration.yAxis.createAxis()!,
+                                color: configuration.color?.toColor() ?? BrewerColors.chartPrimary,
+                                isMinimized: true
+                            )
+                        case .timeSeries:
+                            TimeSeriesChart(
+                                brews: brews,
+                                xAxis: configuration.xAxis.createAxis()!,
+                                yAxis: configuration.yAxis.createAxis()!,
+                                color: configuration.color?.toColor() ?? BrewerColors.chartPrimary,
+                                isMinimized: true
+                            )
+                        case .scatterPlot:
+                            ScatterPlotChart(
+                                brews: brews,
+                                xAxis: configuration.xAxis.createAxis()!,
+                                yAxis: configuration.yAxis.createAxis()!,
+                                color: configuration.color?.toColor() ?? BrewerColors.chartPrimary
+                                // TODO: Add isMinimized parameter to ScatterPlotChart
+                            )
+                        }
+                    }
+                }
+            }
+            .padding(16)
+            .background(BrewerColors.cardBackground)
+            .cornerRadius(12)
+            .shadow(color: Color.black.opacity(0.1), radius: 2, x: 0, y: 1)
+            .padding(.horizontal)
+        }
+        .buttonStyle(PlainButtonStyle())
+        .fullScreenCover(isPresented: $showMaximizedChart) {
+            MaximizedChartView(chart: chart, brews: brews)
+        }
+    }
+}
+
+// MARK: - Chart Row Component (Legacy)
 struct ChartRow: View {
     @ObservedObject var chart: Chart
     let viewModel: HistoryViewModel

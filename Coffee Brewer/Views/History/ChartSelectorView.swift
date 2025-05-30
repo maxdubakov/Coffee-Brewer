@@ -102,7 +102,7 @@ struct ChartSelectorView: View {
                                 
                                 // Chart Title Field (standalone, custom styling)
                                 FormTitleField(
-                                    placeholder: "Enter Chart Title",
+                                    placeholder: "Chart Title (e.g Weekly Rating)",
                                     text: $chartTitle
                                 )
                                 .padding(.horizontal, 20)
