@@ -2,7 +2,9 @@ import SwiftUI
 import CoreData
 
 struct ChartDetailView: View {
-    let chart: Chart
+    @ObservedObject var chart: Chart
+    @State private var showEditSheet = false
+    @Environment(\.managedObjectContext) private var viewContext
     
     @FetchRequest(
         entity: Brew.entity(),
@@ -116,6 +118,23 @@ struct ChartDetailView: View {
         }
         .navigationTitle(chart.title ?? "Chart")
         .navigationBarTitleDisplayMode(.inline)
+        .toolbar {
+            ToolbarItem(placement: .navigationBarTrailing) {
+                Button(action: {
+                    showEditSheet = true
+                }) {
+                    Text("Edit")
+                        .font(.body)
+                        .foregroundColor(BrewerColors.chartPrimary)
+                }
+            }
+        }
+        .sheet(isPresented: $showEditSheet) {
+            ChartSelectorView(
+                viewModel: HistoryViewModel(context: viewContext),
+                editingChart: chart
+            )
+        }
     }
 }
 

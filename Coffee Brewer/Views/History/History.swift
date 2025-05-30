@@ -222,7 +222,8 @@ struct History: View {
                     ForEach(viewModel.charts, id: \.objectID) { chart in
                         MiniChartRow(
                             chart: chart,
-                            brews: Array(brews)
+                            brews: Array(brews),
+                            viewModel: viewModel
                         )
                         .listRowBackground(Color.clear)
                         .listRowSeparator(.hidden)
@@ -240,7 +241,8 @@ struct History: View {
                     ForEach(viewModel.charts, id: \.id) { chart in
                         MiniChartRow(
                             chart: chart,
-                            brews: Array(brews)
+                            brews: Array(brews),
+                            viewModel: viewModel
                         )
                         .listRowBackground(Color.clear)
                         .listRowSeparator(.hidden)
@@ -326,6 +328,7 @@ struct History: View {
 struct MiniChartRow: View {
     @ObservedObject var chart: Chart
     let brews: [Brew]
+    let viewModel: HistoryViewModel
     @EnvironmentObject private var navigationCoordinator: NavigationCoordinator
     
     private var chartConfiguration: ChartConfiguration? {
