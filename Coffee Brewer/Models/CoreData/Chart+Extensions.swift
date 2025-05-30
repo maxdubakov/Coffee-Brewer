@@ -129,6 +129,28 @@ extension Chart {
         updateTimestamp()
     }
     
+    func updateConfiguration(xAxis: AxisConfiguration, yAxis: AxisConfiguration, title: String) {
+        self.title = title
+        
+        // Update X-Axis properties
+        self.xAxisType = xAxis.axisType.rawValue
+        self.xAxisId = xAxis.axisId
+        self.xAxisDisplayName = xAxis.displayName
+        
+        // Update Y-Axis properties
+        self.yAxisType = yAxis.axisType.rawValue
+        self.yAxisId = yAxis.axisId
+        self.yAxisDisplayName = yAxis.displayName
+        
+        // Update chart type based on new axis types
+        self.chartType = ChartResolver.resolveChartType(
+            xAxisType: xAxis.axisType,
+            yAxisType: yAxis.axisType
+        ).rawValue
+        
+        updateTimestamp()
+    }
+    
     // MARK: - Chart Configuration Compatibility
     
     /// Creates a ChartConfiguration from this Chart entity for compatibility with existing code

@@ -5,10 +5,17 @@ struct ChartSelectorView: View {
     @Environment(\.dismiss) private var dismiss
     @Environment(\.managedObjectContext) private var viewContext
     
+    let editingChart: Chart?
+    
     @State private var selectedXAxis: AxisConfiguration?
     @State private var selectedYAxis: AxisConfiguration?
     @State private var chartTitle: String = ""
     @State private var focusedField: FocusedField?
+    
+    init(viewModel: HistoryViewModel, editingChart: Chart? = nil) {
+        self.viewModel = viewModel
+        self.editingChart = editingChart
+    }
     
     // Fetch brews for chart preview
     @FetchRequest(
@@ -25,6 +32,10 @@ struct ChartSelectorView: View {
     
     private var canCreateChart: Bool {
         selectedXAxis != nil && selectedYAxis != nil && selectedXAxis?.axisId != selectedYAxis?.axisId
+    }
+    
+    private var isEditingMode: Bool {
+        editingChart != nil
     }
     
     private var suggestedTitle: String {
@@ -55,7 +66,7 @@ struct ChartSelectorView: View {
                         
                         Spacer()
                         
-                        Text("Add Chart")
+                        Text(isEditingMode ? "Edit Chart" : "Add Chart")
                             .font(.headline)
                             .foregroundColor(BrewerColors.textPrimary)
                         
@@ -139,8 +150,8 @@ struct ChartSelectorView: View {
                         }
                     } actions: {
                         StandardButton(
-                            title: "Save Chart",
-                            action: createChart,
+                            title: isEditingMode ? "Update Chart" : "Save Chart",
+                            action: isEditingMode ? updateChart : createChart,
                             style: .primary
                         )
                         .disabled(!canCreateChart)
@@ -149,6 +160,18 @@ struct ChartSelectorView: View {
             }
             .navigationBarHidden(true)
         }
+        .onAppear {
+            initializeForEditing()
+        }
+    }
+    
+    private func initializeForEditing() {
+        guard let chart = editingChart, let configuration = chart.toChartConfiguration() else { return }
+        
+        // Set the current chart values
+        selectedXAxis = configuration.xAxis
+        selectedYAxis = configuration.yAxis
+        chartTitle = configuration.title
     }
     
     private func updateChartTitle() {
@@ -167,6 +190,19 @@ struct ChartSelectorView: View {
             yAxis: yAxis,
             title: title
         )
+        
+        dismiss()
+    }
+    
+    private func updateChart() {
+        guard let chart = editingChart,
+              let xAxis = selectedXAxis,
+              let yAxis = selectedYAxis else { return }
+        
+        let title = chartTitle.isEmpty ? suggestedTitle : chartTitle
+        
+        viewModel.updateChart(chart, xAxis: xAxis, yAxis: yAxis, title: title)
+        viewModel.selectedChart = nil // Clear selection
         
         dismiss()
     }

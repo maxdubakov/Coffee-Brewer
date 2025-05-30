@@ -23,7 +23,7 @@ struct FlexibleChartWidget: View {
                     Button(action: onConfigure) {
                         Image(systemName: "gear")
                             .foregroundColor(BrewerColors.textSecondary)
-                            .font(.system(size: 16))
+                            .font(.system(size: 18, weight: .light))
                     }
                     .buttonStyle(PlainButtonStyle())
                     
@@ -33,7 +33,7 @@ struct FlexibleChartWidget: View {
                     }) {
                         Image(systemName: "xmark")
                             .foregroundColor(Color(red: 0.9, green: 0.25, blue: 0.25))
-                            .font(.system(size: 16))
+                            .font(.system(size: 22, weight: .light))
                     }
                     .buttonStyle(PlainButtonStyle())
                 }

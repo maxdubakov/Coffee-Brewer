@@ -50,6 +50,9 @@ struct History: View {
             .sheet(isPresented: $showChartSelector) {
                 ChartSelectorView(viewModel: viewModel)
             }
+            .sheet(item: $viewModel.selectedChart) { chart in
+                ChartSelectorView(viewModel: viewModel, editingChart: chart)
+            }
         }
     }
     
@@ -168,6 +171,22 @@ struct ChartRow: View {
                 }
             )
             .onAppear {
+                localConfiguration = chart.toChartConfiguration()
+            }
+            .onChange(of: chart.updatedAt) { _, _ in
+                // Refresh local configuration when chart is updated
+                localConfiguration = chart.toChartConfiguration()
+            }
+            .onChange(of: chart.title) { _, _ in
+                // Refresh when title changes
+                localConfiguration = chart.toChartConfiguration()
+            }
+            .onChange(of: chart.xAxisId) { _, _ in
+                // Refresh when axes change
+                localConfiguration = chart.toChartConfiguration()
+            }
+            .onChange(of: chart.yAxisId) { _, _ in
+                // Refresh when axes change
                 localConfiguration = chart.toChartConfiguration()
             }
             .opacity(isDragging ? 0.8 : 1.0)

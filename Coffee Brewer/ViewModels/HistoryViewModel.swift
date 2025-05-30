@@ -85,6 +85,12 @@ class HistoryViewModel: ObservableObject {
         loadCharts()
     }
     
+    func updateChart(_ chart: Chart, xAxis: AxisConfiguration, yAxis: AxisConfiguration, title: String) {
+        chart.updateConfiguration(xAxis: xAxis, yAxis: yAxis, title: title)
+        saveContext()
+        loadCharts()
+    }
+    
     func moveChart(from source: IndexSet, to destination: Int) {
         // Update sort orders based on new positions
         var updatedCharts = charts
