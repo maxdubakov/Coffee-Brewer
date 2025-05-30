@@ -52,19 +52,21 @@ struct FlexibleChartWidget: View {
             .background(BrewerColors.cardBackground)
             
             // Animated content container
-            if configuration.isExpanded {
-                VStack(spacing: 0) {
+            VStack(spacing: 0) {
+                if configuration.isExpanded {
                     CustomDivider()
+                        .transition(.opacity)
                     
                     // Chart content
                     chartView
+                        .transition(.asymmetric(
+                            insertion: .move(edge: .top).combined(with: .opacity),
+                            removal: .move(edge: .top).combined(with: .opacity)
+                        ))
                 }
-                .transition(.asymmetric(
-                    insertion: .move(edge: .top).combined(with: .opacity),
-                    removal: .move(edge: .top).combined(with: .opacity)
-                ))
-                .animation(.easeInOut(duration: 0.3), value: configuration.isExpanded)
             }
+            .clipped() // Prevent content from overflowing into title area
+            .animation(.easeInOut(duration: 0.3), value: configuration.isExpanded)
         }
         .background(BrewerColors.cardBackground)
         .cornerRadius(12)
