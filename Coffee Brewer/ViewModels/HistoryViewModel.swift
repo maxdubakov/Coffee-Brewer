@@ -1,10 +1,8 @@
 import SwiftUI
 import CoreData
-import Combine
 
 class HistoryViewModel: ObservableObject {
     @Published var charts: [Chart] = []
-    @Published var showAddChartSheet = false
     @Published var selectedChart: Chart?
     
     private let context: NSManagedObjectContext
@@ -156,39 +154,4 @@ class HistoryViewModel: ObservableObject {
         }
     }
     
-    // MARK: - Compatibility Methods (for existing code)
-    
-    /// Legacy compatibility - converts charts to ChartConfiguration
-    var chartConfigurations: [ChartConfiguration] {
-        return charts.compactMap { $0.toChartConfiguration() }
-    }
-    
-    /// Legacy compatibility
-    var selectedConfiguration: ChartConfiguration? {
-        get {
-            selectedChart?.toChartConfiguration()
-        }
-        set {
-            if let config = newValue {
-                selectedChart = charts.first { $0.id?.uuidString == config.id.uuidString }
-            } else {
-                selectedChart = nil
-            }
-        }
-    }
-    
-    /// Legacy compatibility
-    func updateChart(_ configuration: ChartConfiguration) {
-        if let chart = charts.first(where: { $0.id?.uuidString == configuration.id.uuidString }) {
-            chart.isExpanded = configuration.isExpanded
-            updateChart(chart)
-        }
-    }
-    
-    /// Legacy compatibility
-    func toggleExpanded(for configuration: ChartConfiguration) {
-        if let chart = charts.first(where: { $0.id?.uuidString == configuration.id.uuidString }) {
-            toggleExpanded(for: chart)
-        }
-    }
 }

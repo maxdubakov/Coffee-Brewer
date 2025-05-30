@@ -72,21 +72,6 @@ extension Chart {
         )
     }
     
-    var resolvedChartType: ChartType {
-        guard let chartTypeString = self.chartType,
-              let chartType = ChartType(rawValue: chartTypeString) else {
-            return .scatterPlot // Default fallback
-        }
-        return chartType
-    }
-    
-    var xAxis: (any ChartAxis)? {
-        return xAxisConfiguration?.createAxis()
-    }
-    
-    var yAxis: (any ChartAxis)? {
-        return yAxisConfiguration?.createAxis()
-    }
     
     // MARK: - Convenience Methods
     
@@ -124,10 +109,6 @@ extension Chart {
         updateTimestamp()
     }
     
-    func updateSortOrder(_ newOrder: Int32) {
-        self.sortOrder = newOrder
-        updateTimestamp()
-    }
     
     func updateConfiguration(xAxis: AxisConfiguration, yAxis: AxisConfiguration, title: String) {
         self.title = title

@@ -1,5 +1,4 @@
 import SwiftUI
-import CoreData
 
 struct FlexibleChartWidget: View {
     @Binding var configuration: ChartConfiguration
