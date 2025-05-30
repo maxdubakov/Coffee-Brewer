@@ -7,6 +7,7 @@ struct ChartPreview: View {
     let yAxisConfiguration: AxisConfiguration?
     let chartType: ChartType
     let brews: [Brew]
+    let color: Color
     
     var body: some View {
         VStack(spacing: 0) {
@@ -27,11 +28,11 @@ struct ChartPreview: View {
     private func actualChartView(xAxis: any ChartAxis, yAxis: any ChartAxis) -> some View {
         switch chartType {
         case .scatterPlot:
-            ScatterPlotChart(brews: brews, xAxis: xAxis, yAxis: yAxis)
+            ScatterPlotChart(brews: brews, xAxis: xAxis, yAxis: yAxis, color: color)
         case .barChart:
-            BarChartView(brews: brews, xAxis: xAxis, yAxis: yAxis)
+            BarChartView(brews: brews, xAxis: xAxis, yAxis: yAxis, color: color)
         case .timeSeries:
-            TimeSeriesChart(brews: brews, xAxis: xAxis, yAxis: yAxis)
+            TimeSeriesChart(brews: brews, xAxis: xAxis, yAxis: yAxis, color: color)
         }
     }
     
@@ -118,7 +119,8 @@ struct ChartPreview: View {
                         xAxisConfiguration: nil,
                         yAxisConfiguration: nil,
                         chartType: .scatterPlot,
-                        brews: brews
+                        brews: brews,
+                        color: BrewerColors.chartPrimary
                     )
                     .padding()
                     
@@ -126,7 +128,8 @@ struct ChartPreview: View {
                         xAxisConfiguration: AxisConfiguration(from: NumericAxis(type: .grindSize)),
                         yAxisConfiguration: AxisConfiguration(from: NumericAxis(type: .rating)),
                         chartType: .scatterPlot,
-                        brews: brews
+                        brews: brews,
+                        color: BrewerColors.chartPrimary
                     )
                     .padding()
                 }

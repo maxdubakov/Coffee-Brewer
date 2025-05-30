@@ -82,13 +82,15 @@ struct FlexibleChartWidget: View {
     private var chartView: some View {
         if let xAxis = configuration.xAxis.createAxis(),
            let yAxis = configuration.yAxis.createAxis() {
+            let chartColor = configuration.color?.toColor() ?? BrewerColors.chartPrimary
+            
             switch configuration.chartType {
             case .scatterPlot:
-                ScatterPlotChart(brews: brews, xAxis: xAxis, yAxis: yAxis)
+                ScatterPlotChart(brews: brews, xAxis: xAxis, yAxis: yAxis, color: chartColor)
             case .barChart:
-                BarChartView(brews: brews, xAxis: xAxis, yAxis: yAxis)
+                BarChartView(brews: brews, xAxis: xAxis, yAxis: yAxis, color: chartColor)
             case .timeSeries:
-                TimeSeriesChart(brews: brews, xAxis: xAxis, yAxis: yAxis)
+                TimeSeriesChart(brews: brews, xAxis: xAxis, yAxis: yAxis, color: chartColor)
             }
         } else {
             Text("Unable to load chart")

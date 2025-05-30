@@ -10,6 +10,7 @@ struct ChartSelectorView: View {
     @State private var selectedXAxis: AxisConfiguration?
     @State private var selectedYAxis: AxisConfiguration?
     @State private var chartTitle: String = ""
+    @State private var selectedColor: String? = nil
     @State private var focusedField: FocusedField?
     
     init(viewModel: HistoryViewModel, editingChart: Chart? = nil) {
@@ -107,7 +108,8 @@ struct ChartSelectorView: View {
                                         xAxisConfiguration: selectedXAxis,
                                         yAxisConfiguration: selectedYAxis,
                                         chartType: currentChartType,
-                                        brews: Array(brews)
+                                        brews: Array(brews),
+                                        color: selectedColor?.toColor() ?? BrewerColors.chartPrimary
                                     )
                                 }
                                 .background(BrewerColors.cardBackground)
@@ -145,6 +147,12 @@ struct ChartSelectorView: View {
                                         updateChartTitle()
                                     }
                                     
+                                    Divider()
+                                    
+                                    FormColorPickerField(
+                                        title: "Chart Color",
+                                        selectedColor: $selectedColor
+                                    )
                                 }
                             }
                         }
@@ -172,6 +180,7 @@ struct ChartSelectorView: View {
         selectedXAxis = configuration.xAxis
         selectedYAxis = configuration.yAxis
         chartTitle = configuration.title
+        selectedColor = configuration.color
     }
     
     private func updateChartTitle() {
@@ -185,11 +194,14 @@ struct ChartSelectorView: View {
         
         let title = chartTitle.isEmpty ? suggestedTitle : chartTitle
         
-        viewModel.addChart(
+        var configuration = ChartConfiguration(
             xAxis: xAxis,
             yAxis: yAxis,
             title: title
         )
+        configuration.color = selectedColor
+        
+        viewModel.addChart(configuration: configuration)
         
         dismiss()
     }
@@ -202,6 +214,7 @@ struct ChartSelectorView: View {
         let title = chartTitle.isEmpty ? suggestedTitle : chartTitle
         
         viewModel.updateChart(chart, xAxis: xAxis, yAxis: yAxis, title: title)
+        viewModel.updateChartColor(chart, color: selectedColor)
         viewModel.selectedChart = nil // Clear selection
         
         dismiss()

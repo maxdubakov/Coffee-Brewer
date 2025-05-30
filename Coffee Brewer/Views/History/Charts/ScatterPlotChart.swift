@@ -6,6 +6,7 @@ struct ScatterPlotChart: View {
     let brews: [Brew]
     let xAxis: any ChartAxis
     let yAxis: any ChartAxis
+    let color: Color
     
     var body: some View {
         Charts.Chart {
@@ -16,15 +17,15 @@ struct ScatterPlotChart: View {
                         x: .value(xAxis.displayName, xValue.numericValue),
                         y: .value(yAxis.displayName, yValue.numericValue)
                     )
-                    .foregroundStyle(BrewerColors.chartPrimary)
+                    .foregroundStyle(color)
                     .symbolSize(120)
                     .symbol {
                         Circle()
-                            .fill(BrewerColors.chartPrimary)
+                            .fill(color)
                             .frame(width: 10, height: 10)
                             .background(
                                 Circle()
-                                    .fill(BrewerColors.chartPrimary.opacity(0.2))
+                                    .fill(color.opacity(0.2))
                                     .frame(width: 18, height: 18)
                             )
                     }
@@ -94,7 +95,8 @@ struct ScatterPlotChart: View {
                 ScatterPlotChart(
                     brews: brews,
                     xAxis: NumericAxis(type: .grindSize),
-                    yAxis: NumericAxis(type: .rating)
+                    yAxis: NumericAxis(type: .rating),
+                    color: BrewerColors.chartPrimary
                 )
                 .onAppear {
                     // Create mock data

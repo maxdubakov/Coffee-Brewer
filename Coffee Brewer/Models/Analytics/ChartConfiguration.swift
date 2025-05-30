@@ -8,6 +8,7 @@ struct ChartConfiguration: Identifiable, Codable {
     let chartType: ChartType
     var title: String
     var isExpanded: Bool = true
+    var color: String? = nil
     
     init(xAxis: AxisConfiguration, yAxis: AxisConfiguration, title: String? = nil) {
         self.id = UUID()

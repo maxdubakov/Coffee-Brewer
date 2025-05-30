@@ -149,6 +149,7 @@ extension Chart {
         )
         
         config.isExpanded = self.isExpanded
+        config.color = self.color
         
         return config
     }

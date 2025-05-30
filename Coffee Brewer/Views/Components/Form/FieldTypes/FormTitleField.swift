@@ -7,7 +7,7 @@ struct FormTitleField: View {
     
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
-            TextField(placeholder, text: $text)
+            TextField("", text: $text)
                 .textFieldStyle(.plain)
                 .font(.system(size: 18, weight: .medium))
                 .foregroundColor(BrewerColors.textPrimary)

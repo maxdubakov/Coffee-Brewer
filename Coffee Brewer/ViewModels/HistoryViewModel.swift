@@ -54,12 +54,13 @@ class HistoryViewModel: ObservableObject {
     }
     
     func addChart(configuration: ChartConfiguration) {
-        _ = Chart(
+        let chart = Chart(
             xAxis: configuration.xAxis,
             yAxis: configuration.yAxis,
             title: configuration.title,
             context: context
         )
+        chart.color = configuration.color
         
         saveContext()
         loadCharts()

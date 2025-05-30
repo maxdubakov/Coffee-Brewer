@@ -13,10 +13,15 @@ struct SearchBar: View {
                     .foregroundColor(BrewerColors.textSecondary)
                     .font(.system(size: 14))
                 
-                TextField(placeholder, text: $searchText)
+                TextField("", text: $searchText)
                     .font(.system(size: 15))
-                    .foregroundColor(BrewerColors.cream)
+                    .foregroundColor(BrewerColors.textPrimary)
                     .accentColor(BrewerColors.caramel)
+                    .placeholder(when: searchText.isEmpty) {
+                        Text(placeholder)
+                            .font(.system(size: 15, weight: .light))
+                            .foregroundColor(BrewerColors.placeholder)
+                    }
                     .onTapGesture {
                         withAnimation(.easeInOut(duration: 0.2)) {
                             isEditing = true
@@ -44,8 +49,8 @@ struct SearchBar: View {
                             .stroke(
                                 LinearGradient(
                                     colors: [
-                                        BrewerColors.caramel.opacity(isEditing ? 0.4 : 0.2),
-                                        BrewerColors.caramel.opacity(isEditing ? 0.2 : 0.1)
+                                        BrewerColors.caramel.opacity(isEditing ? 0.4 : 0.1),
+                                        BrewerColors.caramel.opacity(isEditing ? 0.2 : 0.05)
                                     ],
                                     startPoint: .topLeading,
                                     endPoint: .bottomTrailing

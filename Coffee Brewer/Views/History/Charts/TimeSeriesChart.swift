@@ -6,6 +6,7 @@ struct TimeSeriesChart: View {
     let brews: [Brew]
     let xAxis: any ChartAxis
     let yAxis: any ChartAxis
+    let color: Color
     
     private var timeSeriesData: [(date: Date, value: Double, label: String)] {
         let (temporalAxis, numericAxis) = if xAxis.axisType == .temporal {
@@ -53,7 +54,6 @@ struct TimeSeriesChart: View {
     var body: some View {
         Charts.Chart(timeSeriesData, id: \.date) { item in
             if xAxis.axisType == .temporal {
-                // Area under the line for subtle depth
                 AreaMark(
                     x: .value(xAxis.displayName, item.date),
                     y: .value(yAxis.displayName, item.value)
@@ -61,8 +61,8 @@ struct TimeSeriesChart: View {
                 .foregroundStyle(
                     LinearGradient(
                         colors: [
-                            BrewerColors.chartPrimary.opacity(0.3),
-                            BrewerColors.chartPrimary.opacity(0.05)
+                            color.opacity(0.5),
+                            color.opacity(0.0)
                         ],
                         startPoint: .top,
                         endPoint: .bottom
@@ -74,7 +74,7 @@ struct TimeSeriesChart: View {
                     x: .value(xAxis.displayName, item.date),
                     y: .value(yAxis.displayName, item.value)
                 )
-                .foregroundStyle(BrewerColors.chartPrimary)
+                .foregroundStyle(color)
                 .lineStyle(StrokeStyle(lineWidth: 3, lineCap: .round, lineJoin: .round))
                 .interpolationMethod(.catmullRom)
                 
@@ -83,15 +83,15 @@ struct TimeSeriesChart: View {
                     x: .value(xAxis.displayName, item.date),
                     y: .value(yAxis.displayName, item.value)
                 )
-                .foregroundStyle(BrewerColors.chartPrimary)
+                .foregroundStyle(color)
                 .symbolSize(80)
                 .symbol {
                     Circle()
-                        .fill(BrewerColors.chartPrimary)
+                        .fill(color)
                         .frame(width: 8, height: 8)
                         .background(
                             Circle()
-                                .fill(BrewerColors.chartPrimary.opacity(0.3))
+                                .fill(color.opacity(0.1))
                                 .frame(width: 16, height: 16)
                         )
                 }
@@ -104,8 +104,8 @@ struct TimeSeriesChart: View {
                 .foregroundStyle(
                     LinearGradient(
                         colors: [
-                            BrewerColors.chartPrimary.opacity(0.3),
-                            BrewerColors.chartPrimary.opacity(0.05)
+                            color.opacity(0.1),
+                            color.opacity(0.02)
                         ],
                         startPoint: .leading,
                         endPoint: .trailing
@@ -116,7 +116,7 @@ struct TimeSeriesChart: View {
                     x: .value(xAxis.displayName, item.value),
                     y: .value(yAxis.displayName, item.date)
                 )
-                .foregroundStyle(BrewerColors.chartPrimary)
+                .foregroundStyle(color)
                 .lineStyle(StrokeStyle(lineWidth: 3, lineCap: .round, lineJoin: .round))
                 .interpolationMethod(.catmullRom)
                 
@@ -124,15 +124,15 @@ struct TimeSeriesChart: View {
                     x: .value(xAxis.displayName, item.value),
                     y: .value(yAxis.displayName, item.date)
                 )
-                .foregroundStyle(BrewerColors.chartPrimary)
+                .foregroundStyle(color)
                 .symbolSize(80)
                 .symbol {
                     Circle()
-                        .fill(BrewerColors.chartPrimary)
+                        .fill(color)
                         .frame(width: 8, height: 8)
                         .background(
                             Circle()
-                                .fill(BrewerColors.chartPrimary.opacity(0.3))
+                                .fill(color.opacity(0.1))
                                 .frame(width: 16, height: 16)
                         )
                 }
@@ -229,7 +229,8 @@ struct TimeSeriesChart: View {
                 TimeSeriesChart(
                     brews: brews,
                     xAxis: TemporalAxis(type: .brewDate),
-                    yAxis: NumericAxis(type: .rating)
+                    yAxis: NumericAxis(type: .rating),
+                    color: BrewerColors.chartPrimary
                 )
                 .onAppear {
                     let context = PersistenceController.preview.container.viewContext

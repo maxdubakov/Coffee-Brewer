@@ -6,6 +6,7 @@ struct BarChartView: View {
     let brews: [Brew]
     let xAxis: any ChartAxis
     let yAxis: any ChartAxis
+    let color: Color
     
     private var aggregatedData: [(category: String, average: Double, count: Int)] {
         // Determine which axis is categorical and which is numeric
@@ -60,7 +61,7 @@ struct BarChartView: View {
                     )
                     .foregroundStyle(
                         LinearGradient(
-                            colors: [BrewerColors.chartPrimary, BrewerColors.chartSecondary],
+                            colors: [color, color.opacity(0.7)],
                             startPoint: .top,
                             endPoint: .bottom
                         )
@@ -79,7 +80,7 @@ struct BarChartView: View {
                     )
                     .foregroundStyle(
                         LinearGradient(
-                            colors: [BrewerColors.chartPrimary, BrewerColors.chartSecondary],
+                            colors: [color, color.opacity(0.7)],
                             startPoint: .leading,
                             endPoint: .trailing
                         )
@@ -170,7 +171,8 @@ struct BarChartView: View {
                     BarChartView(
                         brews: brews,
                         xAxis: CategoricalAxis(type: .roasterName),
-                        yAxis: NumericAxis(type: .rating)
+                        yAxis: NumericAxis(type: .rating),
+                        color: BrewerColors.espresso
                     )
                     .onAppear {
                         let context = PersistenceController.preview.container.viewContext
@@ -191,6 +193,7 @@ struct BarChartView: View {
                         brews: brews,
                         xAxis: NumericAxis(type: .rating),
                         yAxis: CategoricalAxis(type: .roasterName),
+                        color: BrewerColors.espresso
                     )
                     .onAppear {
                         let context = PersistenceController.preview.container.viewContext
