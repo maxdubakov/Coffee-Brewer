@@ -54,8 +54,10 @@ struct RecordStages: View {
                     .padding(.horizontal, 15)
                 
                 RecordedStageScroll(
-                    recordedTimestamps: showingDemo && demoStep == 2 ? demoRecordedStages : recordViewModel.recordedTimestamps,
-                    currentIndex: showingDemo && demoStep == 2 ? demoRecordedStages.count - 1 : recordViewModel.recordedTimestamps.count - 1,
+                    displayTimestamps: showingDemo && demoStep == 2 ? 
+                        demoRecordedStages.map { (time: $0.time, id: $0.id, type: $0.type, isActive: false) } : 
+                        recordViewModel.displayTimestamps,
+                    currentElapsedTime: recordViewModel.elapsedTime,
                     onRemove: { index in
                         if !showingDemo {
                             recordViewModel.removeTimestamp(at: index)

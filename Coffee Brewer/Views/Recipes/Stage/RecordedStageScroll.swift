@@ -1,14 +1,14 @@
 import SwiftUI
 
 struct RecordedStageScroll: View {
-    let recordedTimestamps: [(time: Double, id: UUID, type: StageType)]
-    let currentIndex: Int
+    let displayTimestamps: [(time: Double, id: UUID, type: StageType, isActive: Bool)]
+    let currentElapsedTime: Double
     let onRemove: (Int) -> Void
     
     @State private var scrollPosition: UUID?
     
     var body: some View {
-        if recordedTimestamps.isEmpty {
+        if displayTimestamps.isEmpty {
             // Empty state
             VStack(spacing: 16) {
                 Text("No stages recorded yet")
@@ -26,13 +26,15 @@ struct RecordedStageScroll: View {
             ScrollViewReader { proxy in
                 ScrollView(.vertical, showsIndicators: false) {
                     VStack(spacing: 12) {
-                        ForEach(Array(recordedTimestamps.enumerated()), id: \.1.id) { index, timestamp in
+                        ForEach(Array(displayTimestamps.enumerated()), id: \.1.id) { index, timestamp in
                             RecordedStageCard(
                                 stageNumber: index + 1,
                                 timestamp: timestamp.time,
                                 stageType: timestamp.type,
-                                previousTimestamp: index > 0 ? recordedTimestamps[index - 1].time : 0,
-                                onRemove: {
+                                previousTimestamp: index > 0 ? displayTimestamps[index - 1].time : 0,
+                                isActive: timestamp.isActive,
+                                currentElapsedTime: currentElapsedTime,
+                                onRemove: timestamp.isActive ? nil : {
                                     onRemove(index)
                                 }
                             )
@@ -59,15 +61,15 @@ struct RecordedStageScroll: View {
                         endPoint: .bottom
                     )
                 )
-                .onChange(of: recordedTimestamps.count) { oldCount, newCount in
-                    if newCount > oldCount, let lastTimestamp = recordedTimestamps.last {
+                .onChange(of: displayTimestamps.count) { oldCount, newCount in
+                    if newCount > oldCount, let lastTimestamp = displayTimestamps.last {
                         withAnimation(.spring(response: 0.5, dampingFraction: 0.8)) {
                             proxy.scrollTo(lastTimestamp.id, anchor: .bottom)
                         }
                     }
                 }
                 .onAppear {
-                    if let lastTimestamp = recordedTimestamps.last {
+                    if let lastTimestamp = displayTimestamps.last {
                         proxy.scrollTo(lastTimestamp.id, anchor: .bottom)
                     }
                 }
@@ -81,10 +83,16 @@ struct RecordedStageCard: View {
     let timestamp: Double
     let stageType: StageType
     let previousTimestamp: Double
-    let onRemove: () -> Void
+    let isActive: Bool
+    let currentElapsedTime: Double
+    let onRemove: (() -> Void)?
     
     private var stageDuration: Int16 {
-        Int16(timestamp - previousTimestamp)
+        if isActive {
+            return Int16(currentElapsedTime - previousTimestamp)
+        } else {
+            return Int16(timestamp - previousTimestamp)
+        }
     }
     
     
@@ -99,42 +107,80 @@ struct RecordedStageCard: View {
             content: {
                 // Stage details
                 VStack(alignment: .leading, spacing: 4) {
-                    StageInfo(
-                        icon: stageType.icon,
-                        title: stageType.displayName,
-                        color: stageType.color
-                    )
+                    HStack(spacing: 8) {
+                        StageInfo(
+                            icon: stageType.icon,
+                            title: stageType.displayName,
+                            color: stageType.color
+                        )
+                        
+                        if isActive {
+                            // Active indicator
+                            HStack(spacing: 4) {
+                                Circle()
+                                    .fill(stageType.color)
+                                    .frame(width: 6, height: 6)
+                                    .scaleAnimation()
+                                
+                                Text("Recording...")
+                                    .font(.system(size: 12, weight: .medium))
+                                    .foregroundColor(stageType.color)
+                            }
+                            .padding(.horizontal, 8)
+                            .padding(.vertical, 2)
+                            .background(
+                                Capsule()
+                                    .fill(stageType.color.opacity(0.1))
+                            )
+                        }
+                    }
                     
                     HStack(spacing: 6) {
-                        // Recording time
-                        Text("Recorded at \(formattedTime)")
-                            .font(.system(size: 14))
-                            .foregroundColor(BrewerColors.textSecondary)
-                        
-                        // Duration
-                        if stageNumber > 1 {
+                        // Recording time or duration
+                        if isActive {
                             HStack(spacing: 4) {
-                                Image(systemName: "clock")
+                                Image(systemName: "clock.fill")
                                     .font(.system(size: 10))
-                                    .foregroundColor(BrewerColors.textSecondary)
+                                    .foregroundColor(stageType.color)
                                 
                                 Text("\(stageDuration)s")
-                                    .font(.system(size: 14))
-                                    .foregroundColor(BrewerColors.textSecondary)
+                                    .font(.system(size: 14, weight: .medium))
+                                    .foregroundColor(stageType.color)
+                                    .monospacedDigit()
+                            }
+                        } else {
+                            Text("Recorded at \(formattedTime)")
+                                .font(.system(size: 14))
+                                .foregroundColor(BrewerColors.textSecondary)
+                            
+                            // Duration for completed stages
+                            if stageNumber > 1 {
+                                HStack(spacing: 4) {
+                                    Image(systemName: "clock")
+                                        .font(.system(size: 10))
+                                        .foregroundColor(BrewerColors.textSecondary)
+                                    
+                                    Text("\(stageDuration)s")
+                                        .font(.system(size: 14))
+                                        .foregroundColor(BrewerColors.textSecondary)
+                                }
                             }
                         }
                     }
                 }
             },
             trailing: {
-                // Remove button
-                Button(action: onRemove) {
-                    Image(systemName: "xmark.circle.fill")
-                        .font(.system(size: 20))
-                        .foregroundColor(BrewerColors.textSecondary.opacity(0.6))
+                // Remove button (only for completed stages)
+                if let onRemove = onRemove {
+                    Button(action: onRemove) {
+                        Image(systemName: "xmark.circle.fill")
+                            .font(.system(size: 20))
+                            .foregroundColor(BrewerColors.textSecondary.opacity(0.6))
+                    }
                 }
             }
         )
+        .opacity(isActive ? 0.9 : 1.0)
     }
 }
 
@@ -142,13 +188,13 @@ struct RecordedStageCard: View {
 #Preview {
     GlobalBackground {
         RecordedStageScroll(
-            recordedTimestamps: [
-                (time: 0, id: UUID(), type: .fast),
-                (time: 15, id: UUID(), type: .slow),
-                (time: 45, id: UUID(), type: .wait),
-                (time: 75, id: UUID(), type: .slow)
+            displayTimestamps: [
+                (time: 0, id: UUID(), type: .fast, isActive: false),
+                (time: 15, id: UUID(), type: .slow, isActive: false),
+                (time: 45, id: UUID(), type: .wait, isActive: false),
+                (time: 75, id: UUID(), type: .slow, isActive: true)
             ],
-            currentIndex: 2,
+            currentElapsedTime: 82,
             onRemove: { _ in }
         )
         .padding()

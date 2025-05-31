@@ -21,6 +21,35 @@ class RecordStagesViewModel: ObservableObject {
         self.brewMath = brewMath
     }
     
+    // MARK: - Computed Properties
+    var willAddFinalWaitStage: Bool {
+        guard !recordedTimestamps.isEmpty else { return false }
+        let lastRecordedTime = recordedTimestamps.last?.time ?? 0
+        return elapsedTime - lastRecordedTime > 1.0
+    }
+    
+    var finalWaitDuration: Double {
+        guard willAddFinalWaitStage else { return 0 }
+        let lastRecordedTime = recordedTimestamps.last?.time ?? 0
+        return elapsedTime - lastRecordedTime
+    }
+    
+    // Combined timestamps including active recording and final wait
+    var displayTimestamps: [(time: Double, id: UUID, type: StageType, isActive: Bool)] {
+        var timestamps = recordedTimestamps.map { (time: $0.time, id: $0.id, type: $0.type, isActive: false) }
+        
+        if let active = activeRecording {
+            let activeTimestamp = (time: elapsedTime, id: UUID(), type: active.type, isActive: true)
+            timestamps.append(activeTimestamp)
+        } else if !recordedTimestamps.isEmpty && isRunning && elapsedTime > lastRecordedTime {
+            // Show final wait stage when timer is running but no active recording
+            let finalWaitTimestamp = (time: elapsedTime, id: UUID(), type: StageType.wait, isActive: true)
+            timestamps.append(finalWaitTimestamp)
+        }
+        
+        return timestamps
+    }
+    
     // MARK: - Public Methods
     func toggleTimer() {
         if isRunning {
@@ -36,8 +65,8 @@ class RecordStagesViewModel: ObservableObject {
             startTimer()
         }
         
-        // Check if we need to add a wait stage
-        if !recordedTimestamps.isEmpty && (elapsedTime - lastRecordedTime) > 5.0 {
+        // Add a wait stage if there's a gap since last recording
+        if !recordedTimestamps.isEmpty && elapsedTime > lastRecordedTime {
             let waitTimestamp = (time: elapsedTime, id: UUID(), type: StageType.wait)
             recordedTimestamps.append(waitTimestamp)
         }
@@ -91,6 +120,19 @@ class RecordStagesViewModel: ObservableObject {
             
             stages.append(stage)
             previousTime = timestamp.time
+        }
+        
+        // Add a final wait stage if there's time remaining after the last recorded timestamp
+        if !recordedTimestamps.isEmpty && elapsedTime > previousTime {
+            let finalWaitTime = elapsedTime - previousTime
+            if finalWaitTime > 1.0 { // Only add if wait is more than 1 second
+                var finalWaitStage = StageFormData()
+                finalWaitStage.orderIndex = Int16(stages.count)
+                finalWaitStage.seconds = Int16(finalWaitTime)
+                finalWaitStage.type = .wait
+                finalWaitStage.waterAmount = 0
+                stages.append(finalWaitStage)
+            }
         }
         
         // Adjust water amounts to match total
