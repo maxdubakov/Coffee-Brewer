@@ -157,8 +157,7 @@ struct Main: View {
 
         var body: some View {
             VStack(spacing: 4) {
-                Image(imageName)
-                    .renderingMode(.template)
+                SVGIcon(imageName)
                 Text(label)
                     .font(.caption)
             }
