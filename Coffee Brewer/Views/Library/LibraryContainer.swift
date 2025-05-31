@@ -47,6 +47,7 @@ struct LibraryContainer: View {
                     .environment(\.managedObjectContext, navigationCoordinator.editingRecipe?.managedObjectContext ?? PersistenceController.shared.container.viewContext)
             }
             .tint(BrewerColors.cream)
+            .interactiveDismissDisabled()
         }
         .sheet(item: $navigationCoordinator.editingRoaster) { roaster in
             NavigationStack {

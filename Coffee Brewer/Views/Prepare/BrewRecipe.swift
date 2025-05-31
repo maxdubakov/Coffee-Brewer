@@ -91,10 +91,11 @@ struct BrewRecipe: View {
                 skipToStage(newValue)
             }
         }
-        .fullScreenCover(isPresented: $showCompletionView) {
+        .sheet(isPresented: $showCompletionView) {
             GlobalBackground {
                 BrewCompletion(recipe: recipe, actualElapsedTime: timerViewModel.elapsedTime)
             }
+            .interactiveDismissDisabled()
         }
         .onReceive(NotificationCenter.default.publisher(for: .brewingCompleted)) { _ in
             showCompletionView = true
@@ -182,10 +183,10 @@ struct BrewRecipePreview: PreviewProvider {
             stage.recipe = testRecipe
         }
         
-        createStage("fast", 50, 15, 0)
-        createStage("wait", 0, 30, 1)
-        createStage("slow", 138, 15, 2)
-        createStage("fast", 100, 40, 3)
+        createStage("fast", 50, 2, 0)
+//        createStage("wait", 0, 30, 1)
+//        createStage("slow", 138, 15, 2)
+//        createStage("fast", 100, 40, 3)
         
         return GlobalBackground {
             BrewRecipe(recipe: testRecipe)

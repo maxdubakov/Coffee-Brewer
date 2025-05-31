@@ -11,6 +11,7 @@ struct BrewCompletion: View {
     
     // MARK: - State
     @State private var focusedField: FocusedField? = nil
+    @State private var showCancelAlert = false
     
     // MARK: - Focus State
     @FocusState private var focusState: FocusedField?
@@ -65,8 +66,9 @@ struct BrewCompletion: View {
     }
     
     var body: some View {
-        ScrollView {
-            VStack(alignment: .leading, spacing: 30) {
+        NavigationView {
+            ScrollView {
+                VStack(alignment: .leading, spacing: 30) {
                 // MARK: - Header Section
                 VStack(alignment: .center, spacing: 12) {
                     Text("Brew Complete!")
@@ -199,13 +201,31 @@ struct BrewCompletion: View {
                 )
                 .padding(.horizontal, 18)
                 .padding(.vertical, 20)
+                }
+                .padding(.horizontal, 2)
+                .padding(.bottom, 40)
             }
-            .padding(.horizontal, 2)
-            .padding(.bottom, 40)
+            .background(BrewerColors.background)
+            .scrollDismissesKeyboard(.immediately)
+            .scrollIndicators(.hidden)
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .navigationBarLeading) {
+                    Button("Cancel") {
+                        showCancelAlert = true
+                    }
+                    .foregroundColor(BrewerColors.caramel)
+                }
+            }
+            .alert("Discard Brew?", isPresented: $showCancelAlert) {
+                Button("Cancel", role: .cancel) {}
+                Button("Discard", role: .destructive) {
+                    dismiss()
+                }
+            } message: {
+                Text("Your brew data will not be saved. Are you sure you want to discard it?")
+            }
         }
-        .background(BrewerColors.background)
-        .scrollDismissesKeyboard(.immediately)
-        .scrollIndicators(.hidden)
     }
     
     // MARK: - Methods

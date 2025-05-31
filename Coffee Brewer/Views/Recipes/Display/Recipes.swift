@@ -29,22 +29,18 @@ struct Recipes: View {
             .filter { $0.lastBrewedAt != nil }
             .prefix(4)
         
-        return Array(recentRecipes.dropFirst())
+        return Array(recentRecipes)
     }
     
     var body: some View {
         ScrollView {
             VStack(spacing: 24) {
-                // Hero Section
-                if let featured = featuredRecipe {
-                    heroSection(featured: featured)
-                }
+                quickBrewSection
                 
-                // Grouping Filter
                 RecipeGroupFilter(selectedGrouping: $selectedGrouping)
                     .padding(.top, 8)
                 
-                // Filtered Content
+
                 filteredContent
                 
                 Spacer().frame(height: 100)
@@ -57,6 +53,7 @@ struct Recipes: View {
                     .environment(\.managedObjectContext, viewContext)
             }
             .tint(BrewerColors.cream)
+            .interactiveDismissDisabled()
         }
         .alert("Delete Recipe", isPresented: $navigationCoordinator.showingDeleteAlert) {
             Button("Cancel", role: .cancel) {
@@ -68,34 +65,6 @@ struct Recipes: View {
             }
         } message: {
             Text("Are you sure you want to delete \(navigationCoordinator.recipeToDelete?.name ?? "this recipe")?")
-        }
-    }
-    
-    // MARK: - View Components
-    
-    private func heroSection(featured: Recipe) -> some View {
-        VStack(alignment: .leading, spacing: 16) {
-            FeaturedRecipeCard(
-                recipe: featured,
-                onBrewTapped: {
-                    navigationCoordinator.navigateToBrewRecipe(recipe: featured)
-                },
-                onEditTapped: {
-                    navigationCoordinator.presentEditRecipe(featured)
-                },
-                onDuplicateTapped: {
-                    navigationCoordinator.duplicateRecipe(featured, in: viewContext)
-                },
-                onDeleteTapped: {
-                    navigationCoordinator.confirmDeleteRecipe(featured)
-                }
-            )
-            .padding(.horizontal, 20)
-            
-            // Quick Brew Section
-            if !quickBrewRecipes.isEmpty {
-                quickBrewSection
-            }
         }
     }
     
@@ -135,10 +104,6 @@ struct Recipes: View {
     private var filteredContent: some View {
         Group {
             switch selectedGrouping {
-            case .favorites:
-                Text("Favorites coming soon")
-                    .foregroundColor(BrewerColors.textSecondary)
-                    .padding(.top, 40)
             case .byRoaster:
                 RoasterGroupedView(navigationCoordinator: navigationCoordinator)
             case .byGrinder:

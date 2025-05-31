@@ -1,7 +1,6 @@
 import SwiftUI
 
 enum RecipeGrouping: String, CaseIterable {
-    case favorites = "Favorites"
     case byRoaster = "By Roaster"
     case byGrinder = "By Grinder"
 }
