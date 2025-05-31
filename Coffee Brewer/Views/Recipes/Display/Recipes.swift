@@ -195,6 +195,9 @@ struct LibraryOverlay: View {
                 .ignoresSafeArea()
                 .animation(.easeInOut(duration: 0.25), value: isPresented)
                 .onTapGesture {
+                    // Dismiss keyboard immediately
+                    UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
+                    
                     withAnimation(.spring(response: 0.35, dampingFraction: 0.85)) {
                         isPresented = false
                     }
@@ -208,6 +211,9 @@ struct LibraryOverlay: View {
                             .focused($isSearchFocused)
                         
                         Button("Cancel") {
+                            // Dismiss keyboard immediately
+                            UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
+                            
                             withAnimation(.spring(response: 0.3, dampingFraction: 0.85)) {
                                 isPresented = false
                             }
