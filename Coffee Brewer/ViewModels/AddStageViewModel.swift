@@ -12,6 +12,9 @@ class AddStageViewModel: ObservableObject {
     @Published var errorMessage = ""
     @Published var focusedField: FocusedField?
     
+    // Store the last water amount to restore when switching back from wait
+    private var lastWaterAmount: Int16 = 0
+    
     // MARK: - Private Properties
     private let stagesViewModel: StagesManagementViewModel
     private let existingStage: StageFormData?
@@ -166,11 +169,22 @@ class AddStageViewModel: ObservableObject {
     
     // MARK: - Private Methods
     private func setupBindings() {
-        // Reset water amount when switching to wait type
+        // Handle water amount when switching between stage types
         $selectedType
             .sink { [weak self] type in
+                guard let self = self else { return }
+                
                 if type == .wait {
-                    self?.waterAmount = 0
+                    // Store current water amount before switching to wait
+                    if self.waterAmount > 0 {
+                        self.lastWaterAmount = self.waterAmount
+                    }
+                    self.waterAmount = 0
+                } else {
+                    // Restore water amount when switching back from wait
+                    if self.waterAmount == 0 && self.lastWaterAmount > 0 {
+                        self.waterAmount = self.lastWaterAmount
+                    }
                 }
             }
             .store(in: &cancellables)

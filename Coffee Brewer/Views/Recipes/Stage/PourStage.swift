@@ -22,7 +22,9 @@ struct PourStage: View {
     }
     
     private var relativeProgressValue: CGFloat {
-        return CGFloat(progressValue) / CGFloat(total)
+        guard total > 0 else { return 0 }
+        let ratio = CGFloat(progressValue) / CGFloat(total)
+        return min(max(ratio, 0), 1) // Clamp between 0 and 1
     }
     
     var body: some View {
@@ -81,7 +83,10 @@ struct PourStage: View {
                                 
                                 Capsule()
                                     .fill(LinearGradient(
-                                        gradient: Gradient(colors: [pourType.stageColor.opacity(0.7), pourType.stageColor]),
+                                        gradient: Gradient(colors: [
+                                            progressValue > total ? BrewerColors.amber.opacity(0.7) : pourType.stageColor.opacity(0.7),
+                                            progressValue > total ? BrewerColors.amber : pourType.stageColor
+                                        ]),
                                         startPoint: .leading,
                                         endPoint: .trailing
                                     ))

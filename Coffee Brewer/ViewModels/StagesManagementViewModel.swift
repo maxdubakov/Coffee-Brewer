@@ -118,7 +118,7 @@ class StagesManagementViewModel: ObservableObject {
         }
         
         if !formData.isStageWaterBalanced {
-            alertMessage = "Stage water total (\(formData.totalStageWater)ml) doesn't match recipe water amount (\(brewMath.water)ml). Would you like to adjust the recipe water amount?"
+            alertMessage = "Sum of the water in stages does not match total water"
             showingSaveAlert = true
             completion(false)
             return
