@@ -137,14 +137,9 @@ struct StageInfo: View {
     var titleSize: CGFloat = 17
     
     var body: some View {
-        HStack(spacing: 4) {
-            Image(systemName: icon)
-                .foregroundColor(color)
-                .font(.system(size: iconSize, weight: .medium))
-            Text(title)
-                .font(.system(size: titleSize, weight: .semibold))
-                .foregroundColor(BrewerColors.textPrimary)
-        }
+        Text(title)
+            .font(.system(size: titleSize, weight: .semibold))
+            .foregroundColor(BrewerColors.textPrimary)
     }
 }
 

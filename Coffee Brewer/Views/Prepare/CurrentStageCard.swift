@@ -12,11 +12,11 @@ struct CurrentStageCard: View {
     }
     
     
-    private var stageInstruction: String {
+    private var stageTextInstruction: String {
         if stageType == "wait" {
-            return "Wait for \(stage.seconds)s"
+            return "\(stage.seconds)s"
         } else {
-            return "Pour \(stage.waterAmount)ml"
+            return "\(stage.waterAmount)ml"
         }
     }
 
@@ -36,9 +36,7 @@ struct CurrentStageCard: View {
                 )
                 
                 
-                Text(stageInstruction)
-                    .font(.system(size: 17))
-                    .foregroundColor(BrewerColors.textSecondary)
+                stageInstruction
                 
                 ProgressView(value: stageProgress)
                     .progressViewStyle(
@@ -53,6 +51,24 @@ struct CurrentStageCard: View {
             }
         )
         .shadow(color: Color.black.opacity(0.2), radius: 4, x: 0, y: 2)
+    }
+    
+    var stageInstruction: some View {
+        HStack(spacing: 4) {
+            switch stageType {
+            case "wait":
+                Image(systemName: "clock")
+                    .font(.system(size: 10))
+                    .foregroundColor(BrewerColors.textSecondary)
+            case "fast":
+                SVGIcon("drop.fast", size: 10, color: BrewerColors.textSecondary)
+            default:
+                SVGIcon("drop.slow", size: 10, color: BrewerColors.textSecondary)
+            }
+            Text(stageTextInstruction)
+                .font(.system(size: 17))
+                .foregroundColor(BrewerColors.textSecondary)
+        }
     }
 }
 

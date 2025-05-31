@@ -45,14 +45,15 @@ struct PourStage: View {
                     HStack(spacing: 6) {
                         // Detail text (water amount or duration)
                         HStack(spacing: 4) {
-                            if pourType != "wait" {
-                                Image(systemName: "drop")
-                                    .font(.system(size: 10))
-                                    .foregroundColor(BrewerColors.textSecondary)
-                            } else {
+                            switch pourType {
+                            case "wait":
                                 Image(systemName: "clock")
                                     .font(.system(size: 10))
                                     .foregroundColor(BrewerColors.textSecondary)
+                            case "fast":
+                                SVGIcon("drop.fast", size: 10, color: BrewerColors.textSecondary)
+                            default:
+                                SVGIcon("drop.slow", size: 10, color: BrewerColors.textSecondary)
                             }
                             
                             Text(detailText)
@@ -66,7 +67,7 @@ struct PourStage: View {
                                 Image(systemName: "clock")
                                     .font(.system(size: 10))
                                     .foregroundColor(BrewerColors.textSecondary)
-
+                                
                                 Text("\(stage.seconds)s")
                                     .font(.system(size: 14))
                                     .foregroundColor(BrewerColors.textSecondary)
@@ -116,13 +117,13 @@ struct PourStage: View {
             progressValue: 36,
             total: 288
         )
-
+        
         PourStage(
             stage: StageFormData(from: previewStage(type: "wait", water: 0, seconds: 30)),
             progressValue: 36,
             total: 288
         )
-
+        
         PourStage(
             stage: StageFormData(from: previewStage(type: "slow", water: 100, seconds: 45)),
             progressValue: 136,

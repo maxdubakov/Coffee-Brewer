@@ -31,9 +31,7 @@ struct GrinderForm: View {
     private var basicInfoSection: some View {
         VStack(alignment: .leading, spacing: 18) {
             HStack(spacing: 8) {
-                Image(systemName: "info.circle.fill")
-                    .foregroundColor(BrewerColors.caramel)
-                    .font(.system(size: 16))
+                SVGIcon("basics", size: 20, color: BrewerColors.caramel)
                 
                 SecondaryHeader(title: "Basics")
             }
@@ -79,9 +77,7 @@ struct GrinderForm: View {
     private var burrSection: some View {
         VStack(alignment: .leading, spacing: 18) {
             HStack(spacing: 8) {
-                Image(systemName: "gearshape.2.fill")
-                    .foregroundColor(BrewerColors.caramel)
-                    .font(.system(size: 16))
+                SVGIcon("burrs", size: 20, color: BrewerColors.caramel)
                 
                 SecondaryHeader(title: "Burr")
             }

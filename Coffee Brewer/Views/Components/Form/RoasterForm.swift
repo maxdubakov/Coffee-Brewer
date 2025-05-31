@@ -29,10 +29,7 @@ struct RoasterForm: View {
     private var basicInfoSection: some View {
         VStack(alignment: .leading, spacing: 18) {
             HStack(spacing: 8) {
-                Image(systemName: "info.circle.fill")
-                    .foregroundColor(BrewerColors.caramel)
-                    .font(.system(size: 16))
-                
+                SVGIcon("basics", size: 20, color: BrewerColors.caramel)
                 SecondaryHeader(title: "Basics")
             }
             .padding(.horizontal, 20)
@@ -62,10 +59,7 @@ struct RoasterForm: View {
     private var detailsSection: some View {
         VStack(alignment: .leading, spacing: 18) {
             HStack(spacing: 8) {
-                Image(systemName: "doc.text.fill")
-                    .foregroundColor(BrewerColors.caramel)
-                    .font(.system(size: 16))
-                
+                SVGIcon("www", size: 20, color: BrewerColors.caramel)
                 SecondaryHeader(title: "Details")
             }
             .padding(.horizontal, 20)
@@ -100,9 +94,7 @@ struct RoasterForm: View {
     private var notesSection: some View {
         VStack(alignment: .leading, spacing: 18) {
             HStack(spacing: 8) {
-                Image(systemName: "note.text")
-                    .foregroundColor(BrewerColors.caramel)
-                    .font(.system(size: 16))
+                SVGIcon("notes", size: 20, color: BrewerColors.caramel)
                 
                 SecondaryHeader(title: "Notes")
             }

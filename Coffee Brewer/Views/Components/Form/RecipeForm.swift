@@ -24,10 +24,7 @@ struct RecipeForm: View {
     private var basicInfoSection: some View {
         VStack(alignment: .leading, spacing: 18) {
             HStack(spacing: 8) {
-                Image(systemName: "info.circle.fill")
-                    .foregroundColor(BrewerColors.caramel)
-                    .font(.system(size: 16))
-                
+                SVGIcon("basics", size: 20, color: BrewerColors.caramel)
                 SecondaryHeader(title: "Basics")
             }
             .padding(.horizontal, 20)
@@ -57,9 +54,7 @@ struct RecipeForm: View {
     private var brewingParametersSection: some View {
         VStack(alignment: .leading, spacing: 18) {
             HStack(spacing: 8) {
-                Image(systemName: "slider.horizontal.3")
-                    .foregroundColor(BrewerColors.caramel)
-                    .font(.system(size: 16))
+                SVGIcon("parameters", size: 20, color: BrewerColors.caramel)
                 
                 SecondaryHeader(title: "Brewing Parameters")
             }
@@ -116,9 +111,7 @@ struct RecipeForm: View {
     private var grindSection: some View {
         VStack(alignment: .leading, spacing: 18) {
             HStack(spacing: 8) {
-                Image(systemName: "circle.grid.3x3")
-                    .foregroundColor(BrewerColors.caramel)
-                    .font(.system(size: 16))
+                SVGIcon("coffee.grind", size: 20, color: BrewerColors.caramel)
                 
                 SecondaryHeader(title: "Grind")
             }

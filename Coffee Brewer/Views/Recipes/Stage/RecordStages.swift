@@ -166,7 +166,7 @@ struct RecordStages: View {
                     // Fast Pour
                     StageTypeButton(
                         type: .fast,
-                        icon: "drop.fill",
+                        imageName: "drop.fast",
                         color: BrewerColors.amber,
                         isRunning: true,
                         isFirstButton: true,
@@ -184,8 +184,8 @@ struct RecordStages: View {
                     // Slow Pour
                     StageTypeButton(
                         type: .slow,
-                        icon: "drop",
-                        color: BrewerColors.caramel,
+                        imageName: "drop.slow",
+                        color: BrewerColors.amber,
                         isRunning: true,
                         isFirstButton: false,
                         action: {
@@ -201,7 +201,7 @@ struct RecordStages: View {
     
     struct StageTypeButton: View {
         let type: StageType
-        let icon: String
+        let imageName: String
         let color: Color
         let isRunning: Bool
         let isFirstButton: Bool
@@ -215,10 +215,7 @@ struct RecordStages: View {
                         .foregroundColor(isRunning ? color.opacity(0.8) : BrewerColors.textSecondary.opacity(0.5))
                     
                     HStack(spacing: 6) {
-                        Image(systemName: icon)
-                            .font(.system(size: 20))
-                            .foregroundColor(isRunning ? color : BrewerColors.textSecondary)
-                        
+                        SVGIcon(imageName, size: 20, color: isRunning ? color : BrewerColors.textSecondary)
                         Text(type.name)
                             .font(.system(size: 16, weight: .medium))
                             .foregroundColor(isRunning ? BrewerColors.textPrimary : BrewerColors.textSecondary)

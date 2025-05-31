@@ -19,7 +19,7 @@ struct AddChoice: View {
                     ChoiceCardContent(
                         title: "Recipe",
                         description: "Create a new coffee brewing recipe",
-                        iconName: "plus.circle.fill"
+                        imageName: "v60.icon"
                     )
                 }
                 .buttonStyle(PlainButtonStyle())
@@ -30,7 +30,7 @@ struct AddChoice: View {
                     ChoiceCardContent(
                         title: "Roaster",
                         description: "Add a new coffee roaster",
-                        iconName: "building.2.fill"
+                        imageName: "roaster"
                     )
                 }
                 .buttonStyle(PlainButtonStyle())
@@ -41,7 +41,7 @@ struct AddChoice: View {
                     ChoiceCardContent(
                         title: "Grinder",
                         description: "Add a new coffee grinder",
-                        iconName: "gearshape.2.fill"
+                        imageName: "grinder"
                     )
                 }
                 .buttonStyle(PlainButtonStyle())
@@ -57,14 +57,11 @@ struct AddChoice: View {
 struct ChoiceCardContent: View {
     let title: String
     let description: String
-    let iconName: String
+    let imageName: String
     
     var body: some View {
         HStack(spacing: 16) {
-            Image(systemName: iconName)
-                .font(.title2)
-                .foregroundColor(BrewerColors.caramel)
-                .frame(width: 40)
+            SVGIcon(imageName, size: 40, color: BrewerColors.caramel)
             
             VStack(alignment: .leading, spacing: 4) {
                 Text(title)
