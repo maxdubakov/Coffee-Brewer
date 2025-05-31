@@ -183,6 +183,14 @@ struct RecipeCard: View {
                 Label("Brew", systemImage: "mug")
             }
             
+            Button(action: onEditTapped) {
+                Label("Edit", systemImage: "pencil")
+            }
+            
+            Button(action: onDuplicateTapped) {
+                Label("Duplicate", systemImage: "doc.on.doc")
+            }
+            
             Divider()
             
             if recipe.roaster != nil {
@@ -198,14 +206,6 @@ struct RecipeCard: View {
             }
             
             Divider()
-            
-            Button(action: onEditTapped) {
-                Label("Edit", systemImage: "pencil")
-            }
-            
-            Button(action: onDuplicateTapped) {
-                Label("Duplicate", systemImage: "doc.on.doc")
-            }
             
             Button(action: onDeleteTapped) {
                 Label("Delete", systemImage: "trash")

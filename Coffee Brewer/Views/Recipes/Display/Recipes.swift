@@ -6,7 +6,6 @@ struct Recipes: View {
     @Environment(\.managedObjectContext) private var viewContext
     
     @ObservedObject var navigationCoordinator: NavigationCoordinator
-    @State private var selectedGrouping: RecipeGrouping = .byRoaster
     
     init(navigationCoordinator: NavigationCoordinator) {
         self.navigationCoordinator = navigationCoordinator
@@ -27,7 +26,7 @@ struct Recipes: View {
     private var quickBrewRecipes: [Recipe] {
         let recentRecipes = allRecipes
             .filter { $0.lastBrewedAt != nil }
-            .prefix(4)
+            .prefix(10)
         
         return Array(recentRecipes)
     }
@@ -36,15 +35,12 @@ struct Recipes: View {
         ScrollView {
             VStack(spacing: 24) {
                 quickBrewSection
-                
-                RecipeGroupFilter(selectedGrouping: $selectedGrouping)
-                    .padding(.top, 8)
-                
 
-                filteredContent
+                RoasterGroupedView(navigationCoordinator: navigationCoordinator)
                 
                 Spacer().frame(height: 100)
             }
+            .padding(.horizontal, 20)
         }
         .scrollIndicators(.hidden)
         .sheet(item: $navigationCoordinator.editingRecipe) { recipe in
@@ -73,7 +69,6 @@ struct Recipes: View {
             Text("Quick Brew")
                 .font(.headline)
                 .foregroundColor(BrewerColors.textPrimary)
-                .padding(.horizontal, 20)
             
             ScrollView(.horizontal, showsIndicators: false) {
                 HStack(spacing: 12) {
@@ -96,21 +91,8 @@ struct Recipes: View {
                         .frame(width: 180)
                     }
                 }
-                .padding(.horizontal, 20)
             }
         }
-    }
-    
-    private var filteredContent: some View {
-        Group {
-            switch selectedGrouping {
-            case .byRoaster:
-                RoasterGroupedView(navigationCoordinator: navigationCoordinator)
-            case .byGrinder:
-                GrinderGroupedView(navigationCoordinator: navigationCoordinator)
-            }
-        }
-        .padding(.horizontal, 20)
     }
     
 }
