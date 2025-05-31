@@ -19,10 +19,8 @@ struct RecipeLibraryRow: View {
                         .animation(.easeInOut(duration: 0.2), value: isSelected)
                 }
                 
-                // Country flag (at the beginning)
-                Text(recipe.roaster?.country?.flag ?? "🏳️")
-                    .font(.system(size: 16))
-                    .frame(width: 20, height: 20)
+                // Recipe icon
+                SVGIcon("v60.icon", size: 24, color: BrewerColors.caramel)
                 
                 // Recipe Info
                 VStack(alignment: .leading, spacing: 3) {
@@ -32,6 +30,12 @@ struct RecipeLibraryRow: View {
                         .lineLimit(1)
                     
                     HStack(spacing: 6) {
+                        // Country flag
+                        if let flag = recipe.roaster?.country?.flag {
+                            Text(flag)
+                                .font(.system(size: 12))
+                        }
+                        
                         if let roaster = recipe.roaster {
                             Text(roaster.name ?? "")
                                 .font(.system(size: 12))
@@ -58,7 +62,7 @@ struct RecipeLibraryRow: View {
                         .foregroundColor(BrewerColors.textSecondary.opacity(0.3))
                 }
             }
-            .padding(.vertical, 10)
+            .padding(.vertical, 14)
             .contentShape(Rectangle())
         }
         .buttonStyle(PlainButtonStyle())

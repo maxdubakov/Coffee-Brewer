@@ -18,11 +18,8 @@ struct BrewLibraryRow: View {
                         .animation(.easeInOut(duration: 0.2), value: isSelected)
                 }
                 
-                // Coffee cup icon
-                Image(systemName: "cup.and.saucer.fill")
-                    .font(.system(size: 16, weight: .medium))
-                    .foregroundColor(BrewerColors.caramel)
-                    .frame(width: 20, height: 20)
+                // Brew icon
+                SVGIcon("coffee.beans", size: 24, color: BrewerColors.caramel)
                 
                 // Brew Info
                 VStack(alignment: .leading, spacing: 3) {
@@ -74,7 +71,7 @@ struct BrewLibraryRow: View {
                         .foregroundColor(BrewerColors.textSecondary.opacity(0.3))
                 }
             }
-            .padding(.vertical, 10)
+            .padding(.vertical, 14)
             .contentShape(Rectangle())
         }
         .buttonStyle(PlainButtonStyle())

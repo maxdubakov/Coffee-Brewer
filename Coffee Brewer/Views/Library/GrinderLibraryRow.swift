@@ -18,11 +18,8 @@ struct GrinderLibraryRow: View {
                         .animation(.easeInOut(duration: 0.2), value: isSelected)
                 }
                 
-                // Grinder type icon
-                Image(systemName: grinder.typeIcon)
-                    .font(.system(size: 16, weight: .medium))
-                    .foregroundColor(BrewerColors.caramel)
-                    .frame(width: 20, height: 20)
+                // Grinder icon
+                SVGIcon("grinder", size: 24, color: BrewerColors.caramel)
                 
                 // Grinder Info
                 VStack(alignment: .leading, spacing: 3) {
@@ -32,6 +29,14 @@ struct GrinderLibraryRow: View {
                         .lineLimit(1)
                     
                     HStack(spacing: 6) {
+                        // Grinder type icon
+                        if !grinder.typeIcon.isEmpty {
+                            Image(systemName: grinder.typeIcon)
+                                .font(.system(size: 14, weight: .medium))
+                                .foregroundColor(BrewerColors.textSecondary)
+                                .frame(width: 16, height: 16)
+                        }
+
                         if let type = grinder.type, !type.isEmpty {
                             Text(type)
                                 .font(.system(size: 12))
@@ -84,7 +89,7 @@ struct GrinderLibraryRow: View {
                         .foregroundColor(BrewerColors.textSecondary.opacity(0.3))
                 }
             }
-            .padding(.vertical, 10)
+            .padding(.vertical, 14)
             .contentShape(Rectangle())
         }
         .buttonStyle(PlainButtonStyle())

@@ -18,10 +18,8 @@ struct RoasterLibraryRow: View {
                         .animation(.easeInOut(duration: 0.2), value: isSelected)
                 }
                 
-                // Country flag (at the beginning)
-                Text(roaster.country?.flag ?? "🏳️")
-                    .font(.system(size: 16))
-                    .frame(width: 20, height: 20)
+                // Roaster icon
+                SVGIcon("roaster", size: 24, color: BrewerColors.caramel)
                 
                 // Roaster Info
                 VStack(alignment: .leading, spacing: 3) {
@@ -31,6 +29,12 @@ struct RoasterLibraryRow: View {
                         .lineLimit(1)
                     
                     HStack(spacing: 6) {
+                        // Country flag
+                        if let flag = roaster.country?.flag {
+                            Text(flag)
+                                .font(.system(size: 12))
+                        }
+                        
                         if let country = roaster.country {
                             Text(country.name ?? "")
                                 .font(.system(size: 12))
@@ -62,7 +66,7 @@ struct RoasterLibraryRow: View {
                         .foregroundColor(BrewerColors.textSecondary.opacity(0.3))
                 }
             }
-            .padding(.vertical, 10)
+            .padding(.vertical, 14)
             .contentShape(Rectangle())
         }
         .buttonStyle(PlainButtonStyle())
