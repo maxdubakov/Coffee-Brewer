@@ -93,7 +93,6 @@ struct Main: View {
                 Welcome(
                     onComplete: {
                         onboardingState.dismissOnboarding()
-                        navigationCoordinator.navigateToAddRecipe()
                     },
                     onSkip: {
                         onboardingState.dismissOnboarding()
