@@ -89,7 +89,7 @@ struct BrewsLibraryView: View {
                     .listRowBackground(Color.clear)
                     .listRowSeparator(.hidden)
                     .listRowInsets(EdgeInsets(top: 4, leading: 0, bottom: 4, trailing: 0))
-                    .swipeActions(edge: .trailing, allowsFullSwipe: true) {
+                    .contextMenu {
                         Button(role: .destructive) {
                             brewToDelete = brew
                             showingDeleteAlert = true

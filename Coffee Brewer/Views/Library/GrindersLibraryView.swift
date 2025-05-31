@@ -89,20 +89,19 @@ struct GrindersLibraryView: View {
                     .listRowBackground(Color.clear)
                     .listRowSeparator(.hidden)
                     .listRowInsets(EdgeInsets(top: 4, leading: 0, bottom: 4, trailing: 0))
-                    .swipeActions(edge: .trailing, allowsFullSwipe: true) {
+                    .contextMenu {
+                        Button {
+                            navigationCoordinator.presentEditGrinder(grinder)
+                        } label: {
+                            Label("Edit", systemImage: "pencil")
+                        }
+                        
                         Button(role: .destructive) {
                             grinderToDelete = grinder
                             showingDeleteAlert = true
                         } label: {
                             Label("Delete", systemImage: "trash")
                         }
-                        
-                        Button {
-                            navigationCoordinator.presentEditGrinder(grinder)
-                        } label: {
-                            Label("Edit", systemImage: "pencil")
-                        }
-                        .tint(BrewerColors.caramel)
                     }
                 }
                 .listStyle(PlainListStyle())

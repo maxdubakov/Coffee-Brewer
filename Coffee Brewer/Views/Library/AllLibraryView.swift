@@ -169,19 +169,18 @@ struct AllLibraryView: View {
                                 .listRowBackground(Color.clear)
                                 .listRowSeparator(.hidden)
                                 .listRowInsets(EdgeInsets(top: 4, leading: 0, bottom: 4, trailing: 0))
-                                .swipeActions(edge: .trailing, allowsFullSwipe: true) {
-                                    Button(role: .destructive) {
-                                        navigationCoordinator.confirmDeleteRecipe(recipe)
-                                    } label: {
-                                        Label("Delete", systemImage: "trash")
-                                    }
-                                    
+                                .contextMenu {
                                     Button {
                                         navigationCoordinator.presentEditRecipe(recipe)
                                     } label: {
                                         Label("Edit", systemImage: "pencil")
                                     }
-                                    .tint(BrewerColors.caramel)
+                                    
+                                    Button(role: .destructive) {
+                                        navigationCoordinator.confirmDeleteRecipe(recipe)
+                                    } label: {
+                                        Label("Delete", systemImage: "trash")
+                                    }
                                 }
                             }
                         } header: {
@@ -215,19 +214,18 @@ struct AllLibraryView: View {
                                 .listRowBackground(Color.clear)
                                 .listRowSeparator(.hidden)
                                 .listRowInsets(EdgeInsets(top: 4, leading: 0, bottom: 4, trailing: 0))
-                                .swipeActions(edge: .trailing, allowsFullSwipe: true) {
-                                    Button(role: .destructive) {
-                                        navigationCoordinator.confirmDeleteRoaster(roaster)
-                                    } label: {
-                                        Label("Delete", systemImage: "trash")
-                                    }
-                                    
+                                .contextMenu {
                                     Button {
                                         navigationCoordinator.presentEditRoaster(roaster)
                                     } label: {
                                         Label("Edit", systemImage: "pencil")
                                     }
-                                    .tint(BrewerColors.caramel)
+                                    
+                                    Button(role: .destructive) {
+                                        navigationCoordinator.confirmDeleteRoaster(roaster)
+                                    } label: {
+                                        Label("Delete", systemImage: "trash")
+                                    }
                                 }
                             }
                         } header: {
@@ -261,19 +259,18 @@ struct AllLibraryView: View {
                                 .listRowBackground(Color.clear)
                                 .listRowSeparator(.hidden)
                                 .listRowInsets(EdgeInsets(top: 4, leading: 0, bottom: 4, trailing: 0))
-                                .swipeActions(edge: .trailing, allowsFullSwipe: true) {
-                                    Button(role: .destructive) {
-                                        navigationCoordinator.confirmDeleteGrinder(grinder)
-                                    } label: {
-                                        Label("Delete", systemImage: "trash")
-                                    }
-                                    
+                                .contextMenu {
                                     Button {
                                         navigationCoordinator.presentEditGrinder(grinder)
                                     } label: {
                                         Label("Edit", systemImage: "pencil")
                                     }
-                                    .tint(BrewerColors.caramel)
+                                    
+                                    Button(role: .destructive) {
+                                        navigationCoordinator.confirmDeleteGrinder(grinder)
+                                    } label: {
+                                        Label("Delete", systemImage: "trash")
+                                    }
                                 }
                             }
                         } header: {
@@ -307,7 +304,7 @@ struct AllLibraryView: View {
                                 .listRowBackground(Color.clear)
                                 .listRowSeparator(.hidden)
                                 .listRowInsets(EdgeInsets(top: 4, leading: 0, bottom: 4, trailing: 0))
-                                .swipeActions(edge: .trailing, allowsFullSwipe: true) {
+                                .contextMenu {
                                     Button(role: .destructive) {
                                         navigationCoordinator.confirmDeleteBrew(brew)
                                     } label: {

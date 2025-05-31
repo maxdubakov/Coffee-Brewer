@@ -88,20 +88,19 @@ struct RoastersLibraryView: View {
                     .listRowBackground(Color.clear)
                     .listRowSeparator(.hidden)
                     .listRowInsets(EdgeInsets(top: 4, leading: 0, bottom: 4, trailing: 0))
-                    .swipeActions(edge: .trailing, allowsFullSwipe: true) {
+                    .contextMenu {
+                        Button {
+                            navigationCoordinator.presentEditRoaster(roaster)
+                        } label: {
+                            Label("Edit", systemImage: "pencil")
+                        }
+                        
                         Button(role: .destructive) {
                             roasterToDelete = roaster
                             showingDeleteAlert = true
                         } label: {
                             Label("Delete", systemImage: "trash")
                         }
-                        
-                        Button {
-                            navigationCoordinator.presentEditRoaster(roaster)
-                        } label: {
-                            Label("Edit", systemImage: "pencil")
-                        }
-                        .tint(BrewerColors.caramel)
                     }
                 }
                 .listStyle(PlainListStyle())

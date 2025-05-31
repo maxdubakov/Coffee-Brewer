@@ -23,31 +23,28 @@ struct History: View {
     
     var body: some View {
         GlobalBackground {
-            ZStack {
-                VStack(alignment: .leading, spacing: 20) {
-                    // Header
-                    HStack {
-                        PageTitleH1("Analytics")
-                            .padding(.leading, 8)
-                        
-                        Spacer()
-                        
-                        Button(action: {
-                            showChartSelector = true
-                        }) {
-                            Image(systemName: "plus.circle.fill")
-                                .font(.title2)
-                                .foregroundColor(BrewerColors.chartPrimary)
-                        }
-                        .padding(.trailing, 16)
-                    }
-                    .padding(.top, 8)
+            VStack(alignment: .leading, spacing: 20) {
+                // Header
+                HStack(alignment: .top) {
+                    PageTitleH1("Analytics", subtitle: "Discover patters in your brews")
                     
-                    if brews.isEmpty {
-                        emptyStateView
-                    } else {
-                        analyticsView
+                    Spacer()
+                    
+                    Button(action: {
+                        showChartSelector = true
+                    }) {
+                        Image(systemName: "plus.circle.fill")
+                            .font(.title2)
+                            .foregroundColor(BrewerColors.chartPrimary)
                     }
+                }
+                .padding(.horizontal, 16)
+                .padding(.top, 24)
+                
+                if brews.isEmpty {
+                    emptyStateView
+                } else {
+                    analyticsView
                 }
             }
             .sheet(isPresented: $showChartSelector) {
@@ -711,13 +708,10 @@ struct RecentBrewRow: View {
                         }
                     }
                 }
-                
-                // Secondary info - simplified
-                
-                    
-                    Text(timeAgo)
-                        .font(.system(size: 13))
-                        .foregroundColor(BrewerColors.textSecondary.opacity(0.8))
+
+                Text(timeAgo)
+                    .font(.system(size: 13))
+                    .foregroundColor(BrewerColors.textSecondary.opacity(0.8))
                 
             }
             

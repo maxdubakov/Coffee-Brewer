@@ -96,27 +96,25 @@ struct RecipesLibraryView: View {
                     .listRowBackground(Color.clear)
                     .listRowSeparator(.hidden)
                     .listRowInsets(EdgeInsets(top: 4, leading: 0, bottom: 4, trailing: 0))
-                    .swipeActions(edge: .trailing, allowsFullSwipe: true) {
-                        Button(role: .destructive) {
-                            recipeToDelete = recipe
-                            showingDeleteAlert = true
-                        } label: {
-                            Label("Delete", systemImage: "trash")
-                        }
-                        
+                    .contextMenu {
                         Button {
                             navigationCoordinator.presentEditRecipe(recipe)
                         } label: {
                             Label("Edit", systemImage: "pencil")
                         }
-                        .tint(BrewerColors.caramel)
                         
                         Button {
                             navigationCoordinator.duplicateRecipe(recipe, in: viewContext)
                         } label: {
                             Label("Duplicate", systemImage: "doc.on.doc")
                         }
-                        .tint(BrewerColors.mocha)
+                        
+                        Button(role: .destructive) {
+                            recipeToDelete = recipe
+                            showingDeleteAlert = true
+                        } label: {
+                            Label("Delete", systemImage: "trash")
+                        }
                     }
                 }
                 .listStyle(PlainListStyle())

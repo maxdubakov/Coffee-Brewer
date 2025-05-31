@@ -62,14 +62,8 @@ struct LibraryHeader: View {
     @State private var isPressed = false
     
     var body: some View {
-        HStack(alignment: .center) {
-            // Title with icon
-            HStack(spacing: 8) {
-                Text(showLibraryMode ? "Library" : "Recipes")
-                    .font(.system(size: 32, weight: .bold))
-                    .foregroundColor(BrewerColors.cream)
-                    .fixedSize()
-            }
+        HStack(alignment: .top) {
+            PageTitleH1(showLibraryMode ? "Library" : "Recipes", subtitle: showLibraryMode ? "Manage all your data here" : "Select a recipe to brew")
             
             Spacer()
             
