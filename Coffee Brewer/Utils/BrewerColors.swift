@@ -3,6 +3,7 @@ import SwiftUI
 struct BrewerColors {
     // Main app colors
     static let background = Color(red: 0.05, green: 0.03, blue: 0.01)
+    static let darkBackground = Color(red: 0.02, green: 0.01, blue: 0.01)
     static let cardBackground = Color(red: 0.07, green: 0.06, blue: 0.05)
     static let surface = Color(red: 0.12, green: 0.10, blue: 0.08)
     

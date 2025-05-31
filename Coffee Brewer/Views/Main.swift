@@ -11,6 +11,8 @@ struct Main: View {
 
     // MARK: - Navigation
     @StateObject private var navigationCoordinator = NavigationCoordinator()
+    @StateObject private var onboardingState = OnboardingStateManager.shared
+    
     
     init() {
         let appearance = UITabBarAppearance()
@@ -86,6 +88,35 @@ struct Main: View {
             Text("You have unsaved changes. Are you sure you want to leave?")
         }
         .environmentObject(navigationCoordinator)
+        .overlay {
+            if !onboardingState.hasCompletedWelcome {
+                Welcome(
+                    onComplete: {
+                        onboardingState.dismissOnboarding()
+                        navigationCoordinator.navigateToAddRecipe()
+                    },
+                    onSkip: {
+                        onboardingState.dismissOnboarding()
+                    }
+                )
+                .environment(\.managedObjectContext, viewContext)
+            }
+        }
+        .overlay(alignment: .topTrailing) {
+            // Debug reset button - always visible in DEBUG builds
+            #if DEBUG
+            Button(action: {
+                onboardingState.resetOnboarding()
+            }) {
+                Image(systemName: "arrow.clockwise")
+                    .padding(8)
+                    .background(Color.red.opacity(0.8))
+                    .foregroundColor(.white)
+                    .clipShape(Circle())
+            }
+            .padding()
+            #endif
+        }
     }
     
     // MARK: - Navigation Destination Handler
