@@ -14,9 +14,11 @@ struct LibraryTabButton: View {
     @Namespace private var animation
     
     var body: some View {
-        HStack(spacing: 0) {
-            ForEach(LibraryTab.allCases, id: \.self) { tab in
-                tabButton(for: tab)
+        ScrollView(.horizontal) {
+            HStack(spacing: 24) {
+                ForEach(LibraryTab.allCases, id: \.self) { tab in
+                    tabButton(for: tab)
+                }
             }
         }
         .padding(.horizontal, 20)
@@ -34,8 +36,7 @@ struct LibraryTabButton: View {
         }) {
             VStack(spacing: 8) {
                 Text(tab.rawValue)
-                    .font(.subheadline)
-                    .fontWeight(isSelected ? .semibold : .regular)
+                    .font(.system(size: 16, weight: isSelected ? .semibold : .regular))
                     .foregroundColor(isSelected ? BrewerColors.cream : BrewerColors.textSecondary)
                 
                 if isSelected {
