@@ -8,6 +8,7 @@ struct BrewCompletion: View {
     // MARK: - Environment
     @Environment(\.managedObjectContext) private var viewContext
     @Environment(\.dismiss) private var dismiss
+    @EnvironmentObject private var navigationCoordinator: NavigationCoordinator
     
     // MARK: - State
     @State private var focusedField: FocusedField? = nil
@@ -221,6 +222,8 @@ struct BrewCompletion: View {
                 Button("Cancel", role: .cancel) {}
                 Button("Discard", role: .destructive) {
                     dismiss()
+                    // Navigate back to recipes main screen
+                    navigationCoordinator.popToRoot(for: .home)
                 }
             } message: {
                 Text("Your brew data will not be saved. Are you sure you want to discard it?")
@@ -234,6 +237,8 @@ struct BrewCompletion: View {
         do {
             try viewContext.save()
             dismiss()
+            // Navigate back to recipes main screen
+            navigationCoordinator.popToRoot(for: .home)
         } catch {
             print("Failed to save brew experience: \(error)")
         }

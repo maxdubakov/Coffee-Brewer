@@ -5,6 +5,7 @@ struct BrewRecipe: View {
     // MARK: - Environment
     @Environment(\.managedObjectContext) private var viewContext
     @Environment(\.dismiss) private var dismiss
+    @EnvironmentObject private var navigationCoordinator: NavigationCoordinator
     
     // MARK: - Properties
     let recipe: Recipe
@@ -94,6 +95,7 @@ struct BrewRecipe: View {
         .sheet(isPresented: $showCompletionView) {
             GlobalBackground {
                 BrewCompletion(recipe: recipe, actualElapsedTime: timerViewModel.elapsedTime)
+                    .environmentObject(navigationCoordinator)
             }
             .interactiveDismissDisabled()
         }
