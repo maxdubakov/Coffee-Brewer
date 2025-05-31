@@ -63,46 +63,55 @@ struct WelcomeStep: View {
     @State private var iconRotation = 0.0
     
     var body: some View {
-        VStack(spacing: 32) {
-            // Premium icon with subtle glow
-            ZStack {
-                // Subtle glow effect
-                Circle()
-                    .fill(BrewerColors.caramel.opacity(0.15))
-                    .frame(width: 120, height: 120)
-                    .blur(radius: 30)
+        VStack {
+            // Top section with icon
+            VStack(spacing: 24) {
+                ZStack {
+                    // Subtle glow effect
+                    Circle()
+                        .fill(BrewerColors.caramel.opacity(0.15))
+                        .frame(width: 120, height: 120)
+                        .blur(radius: 30)
+                    
+                    // Main icon
+                    SVGIcon("coffee.beans", size: 80, color: BrewerColors.caramel)
+                        .rotationEffect(.degrees(iconRotation))
+                }
+                .frame(height: 120)
+                .onAppear {
+                    withAnimation(
+                        Animation.easeInOut(duration: 5.0)
+                            .repeatForever(autoreverses: true)
+                    ) {
+                        iconRotation = 8
+                    }
+                }
                 
-                // Main icon
-                SVGIcon("coffee.beans", size: 80, color: BrewerColors.caramel)
-                    .rotationEffect(.degrees(iconRotation))
-            }
-            .onAppear {
-                withAnimation(
-                    Animation.easeInOut(duration: 5.0)
-                        .repeatForever(autoreverses: true)
-                ) {
-                    iconRotation = 8
+                VStack(spacing: 12) {
+                    Text("Welcome to\nCoffee Brewer")
+                        .font(.system(size: 28, weight: .bold))
+                        .foregroundStyle(
+                            LinearGradient(
+                                colors: [BrewerColors.cream, BrewerColors.cream.opacity(0.8)],
+                                startPoint: .leading,
+                                endPoint: .trailing
+                            )
+                        )
+                        .multilineTextAlignment(.center)
+                        .lineLimit(2)
+                        .minimumScaleFactor(0.8)
+                    
+                    Text("Your personal brewing companion")
+                        .font(.system(size: 16))
+                        .foregroundColor(BrewerColors.textSecondary)
+                        .multilineTextAlignment(.center)
                 }
             }
+            .frame(height: 240) // Fixed height for top section
             
-            VStack(spacing: 12) {
-                Text("Welcome to Coffee Brewer")
-                    .font(.system(size: 28, weight: .bold))
-                    .foregroundStyle(
-                        LinearGradient(
-                            colors: [BrewerColors.cream, BrewerColors.cream.opacity(0.8)],
-                            startPoint: .leading,
-                            endPoint: .trailing
-                        )
-                    )
-                    .multilineTextAlignment(.center)
-                
-                Text("Your personal brewing companion")
-                    .font(.system(size: 16))
-                    .foregroundColor(BrewerColors.textSecondary)
-                    .multilineTextAlignment(.center)
-            }
+            Spacer(minLength: 20)
             
+            // Bottom section with buttons
             VStack(spacing: 12) {
                 StandardButton(
                     title: "Get Started",
@@ -121,6 +130,7 @@ struct WelcomeStep: View {
                 )
             }
         }
+        .frame(height: 400) // Fixed total height
     }
 }
 
@@ -133,11 +143,18 @@ struct QuickRoasterStep: View {
     let onBack: () -> Void
     
     var body: some View {
-        VStack(spacing: 24) {
-            VStack(spacing: 8) {
+        VStack {
+            // Top section with title
+            VStack(spacing: 12) {
                 Text("Add Your First Roaster")
-                    .font(.system(size: 24, weight: .bold))
-                    .foregroundColor(BrewerColors.textPrimary)
+                    .font(.system(size: 26, weight: .bold))
+                    .foregroundStyle(
+                        LinearGradient(
+                            colors: [BrewerColors.cream, BrewerColors.cream.opacity(0.8)],
+                            startPoint: .leading,
+                            endPoint: .trailing
+                        )
+                    )
                     .multilineTextAlignment(.center)
                 
                 Text("You can add more details later")
@@ -145,7 +162,9 @@ struct QuickRoasterStep: View {
                     .foregroundColor(BrewerColors.textSecondary)
                     .multilineTextAlignment(.center)
             }
+            .frame(height: 100) // Fixed height for title section
             
+            // Middle section with form fields
             VStack(spacing: 16) {
                 FormKeyboardInputField(
                     title: "Roaster Name",
@@ -162,7 +181,11 @@ struct QuickRoasterStep: View {
                     focusedField: $focusedField
                 )
             }
+            .frame(height: 140) // Fixed height for form section
             
+            Spacer(minLength: 20)
+            
+            // Bottom section with buttons
             VStack(spacing: 12) {
                 StandardButton(
                     title: "Continue",
@@ -182,6 +205,7 @@ struct QuickRoasterStep: View {
                 )
             }
         }
+        .frame(height: 400) // Fixed total height
     }
 }
 
@@ -194,8 +218,9 @@ struct ReadyToBrew: View {
     @State private var glowOpacity = 0.0
     
     var body: some View {
-        VStack(spacing: 32) {
-            VStack(spacing: 20) {
+        VStack {
+            // Top section with icon and title
+            VStack(spacing: 24) {
                 ZStack {
                     // Glow effect
                     Circle()
@@ -220,6 +245,7 @@ struct ReadyToBrew: View {
                         .scaleEffect(checkmarkScale)
                         .opacity(checkmarkOpacity)
                 }
+                .frame(height: 120)
                 
                 VStack(spacing: 12) {
                     Text("You're All Set!")
@@ -234,11 +260,12 @@ struct ReadyToBrew: View {
                         .multilineTextAlignment(.center)
                     
                     Text("Create your first recipe to start brewing")
-                        .font(.system(size: 17))
+                        .font(.system(size: 16))
                         .foregroundColor(BrewerColors.textSecondary)
                         .multilineTextAlignment(.center)
                 }
             }
+            .frame(height: 220) // Fixed height for top section
             .onAppear {
                 withAnimation(.spring(response: 0.8, dampingFraction: 0.6)) {
                     checkmarkScale = 1.0
@@ -249,6 +276,9 @@ struct ReadyToBrew: View {
                 }
             }
             
+            Spacer(minLength: 20)
+            
+            // Bottom section with buttons
             VStack(spacing: 12) {
                 StandardButton(
                     title: "Create First Recipe",
@@ -263,6 +293,7 @@ struct ReadyToBrew: View {
                 )
             }
         }
+        .frame(height: 400) // Fixed total height
     }
 }
 
