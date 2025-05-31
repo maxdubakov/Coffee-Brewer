@@ -46,7 +46,7 @@ class AddStageViewModel: ObservableObject {
         if selectedType == .wait {
             return seconds > 0
         } else {
-            return waterAmount > 0 && waterAmount <= availableWater
+            return waterAmount > 0
         }
     }
     
@@ -90,7 +90,7 @@ class AddStageViewModel: ObservableObject {
     
     var availableWaterColor: Color {
         if waterAmount > availableWater {
-            return .red
+            return BrewerColors.amber // Warning color instead of error
         } else {
             return BrewerColors.textSecondary
         }
@@ -125,8 +125,6 @@ class AddStageViewModel: ObservableObject {
                 errorMessage = "Please set a wait duration"
             } else if waterAmount <= 0 {
                 errorMessage = "Please enter a water amount"
-            } else if waterAmount > availableWater {
-                errorMessage = "Water amount exceeds available water (\(availableWater)ml)"
             }
             showSaveError = true
             return

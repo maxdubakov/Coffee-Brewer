@@ -41,8 +41,8 @@ class RecordStagesViewModel: ObservableObject {
         if let active = activeRecording {
             let activeTimestamp = (time: elapsedTime, id: UUID(), type: active.type, isActive: true)
             timestamps.append(activeTimestamp)
-        } else if !recordedTimestamps.isEmpty && isRunning && elapsedTime > lastRecordedTime {
-            // Show final wait stage when timer is running but no active recording
+        } else if !recordedTimestamps.isEmpty && elapsedTime > lastRecordedTime {
+            // Show final wait stage when no active recording
             let finalWaitTimestamp = (time: elapsedTime, id: UUID(), type: StageType.wait, isActive: true)
             timestamps.append(finalWaitTimestamp)
         }
