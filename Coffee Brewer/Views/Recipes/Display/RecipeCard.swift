@@ -61,8 +61,6 @@ struct RecipeCard: View {
                 VStack(spacing: 8) {
                     HStack(spacing: 12) {
                         HStack(spacing: 3) {
-                            Image(systemName: "scalemass")
-                                .font(.system(size: 10))
                             Text("\(recipe.grams)g")
                                 .font(.system(size: 11, weight: .semibold))
                         }
@@ -72,8 +70,6 @@ struct RecipeCard: View {
                             .opacity(0.6)
                         
                         HStack(spacing: 3) {
-                            Image(systemName: "drop.fill")
-                                .font(.system(size: 10))
                             Text("\(recipe.waterAmount)ml")
                                 .font(.system(size: 11, weight: .semibold))
                         }
@@ -82,7 +78,7 @@ struct RecipeCard: View {
                             .font(.system(size: 8))
                             .opacity(0.6)
                         
-                        Text("1:\(Int(recipe.ratio))")
+                        Text("1:\(Int(recipe.grindSize))")
                             .font(.system(size: 12, weight: .medium, design: .rounded))
                     }
                     .foregroundColor(.white)

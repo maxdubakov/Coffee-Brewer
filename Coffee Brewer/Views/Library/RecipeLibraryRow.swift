@@ -19,8 +19,20 @@ struct RecipeLibraryRow: View {
                         .animation(.easeInOut(duration: 0.2), value: isSelected)
                 }
                 
-                // Recipe icon
-                SVGIcon("v60.icon", size: 24, color: BrewerColors.caramel)
+                // Recipe icon with circular background
+                ZStack {
+                    Circle()
+                        .fill(BrewerColors.caramel.opacity(0.12))
+                        .overlay(
+                            Circle()
+                                .strokeBorder(BrewerColors.caramel.opacity(0.2), lineWidth: 1)
+                        )
+                        .frame(width: 44, height: 44)
+                    
+                    SVGIcon("v60.icon", size: 30, color: BrewerColors.caramel)
+                        .padding(.leading, 3)
+                        .padding(.top, 2)
+                }
                 
                 // Recipe Info
                 VStack(alignment: .leading, spacing: 3) {
