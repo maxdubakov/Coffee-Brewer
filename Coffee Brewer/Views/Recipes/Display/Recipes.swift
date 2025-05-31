@@ -93,6 +93,7 @@ struct Recipes: View {
                 }
                 .padding(.horizontal, 20)
                 .padding(.bottom, 24)
+                .padding(.top, 24)
                 .background(BrewerColors.background)
                 
                 // Scrollable content
