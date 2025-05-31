@@ -4,6 +4,8 @@ struct FeaturedRecipeCard: View {
     let recipe: Recipe
     var onBrewTapped: () -> Void = {}
     var onEditTapped: () -> Void = {}
+    var onDuplicateTapped: () -> Void = {}
+    var onDeleteTapped: () -> Void = {}
     
     @State private var isPressed = false
     @State private var showQuickActions = false
@@ -251,6 +253,15 @@ struct FeaturedRecipeCard: View {
             
             Button(action: onEditTapped) {
                 Label("Edit", systemImage: "pencil")
+            }
+            
+            Button(action: onDuplicateTapped) {
+                Label("Duplicate", systemImage: "doc.on.doc")
+            }
+            
+            Button(action: onDeleteTapped) {
+                Label("Delete", systemImage: "trash")
+                    .foregroundColor(Color.red)
             }
         }
         .sheet(isPresented: $showRoasterDetail) {

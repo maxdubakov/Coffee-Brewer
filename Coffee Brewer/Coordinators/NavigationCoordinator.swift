@@ -163,6 +163,48 @@ class NavigationCoordinator: ObservableObject {
         showingDeleteAlert = false
     }
     
+    // MARK: - Recipe Duplication
+    func duplicateRecipe(_ recipe: Recipe, in context: NSManagedObjectContext) {
+        withAnimation {
+            do {
+                // Create new recipe with copied properties
+                let newRecipe = Recipe(context: context)
+                newRecipe.id = UUID()
+                newRecipe.name = (recipe.name ?? "Recipe") + " (Copy)"
+                newRecipe.roaster = recipe.roaster
+                newRecipe.grinder = recipe.grinder
+                newRecipe.temperature = recipe.temperature
+                newRecipe.grindSize = recipe.grindSize
+                newRecipe.grams = recipe.grams
+                newRecipe.ratio = recipe.ratio
+                newRecipe.waterAmount = recipe.waterAmount
+                newRecipe.lastBrewedAt = Date()
+                
+                // Duplicate stages
+                for stage in recipe.stagesArray {
+                    let newStage = Stage(context: context)
+                    newStage.id = UUID()
+                    newStage.type = stage.type
+                    newStage.seconds = stage.seconds
+                    newStage.waterAmount = stage.waterAmount
+                    newStage.orderIndex = stage.orderIndex
+                    newStage.recipe = newRecipe
+                }
+                
+                try context.save()
+                
+                // Send notification for any views that need to update
+                NotificationCenter.default.post(name: .recipeDuplicated, object: nil, userInfo: ["recipe": newRecipe])
+                
+                // Provide haptic feedback
+                let impactFeedback = UIImpactFeedbackGenerator(style: .medium)
+                impactFeedback.impactOccurred()
+            } catch {
+                print("Error duplicating recipe: \(error)")
+            }
+        }
+    }
+    
     // MARK: - Roaster Deletion
     func confirmDeleteRoaster(_ roaster: Roaster) {
         roasterToDelete = roaster
@@ -365,5 +407,6 @@ class NavigationCoordinator: ObservableObject {
 
 extension Notification.Name {
     static let recipeDeleted = Notification.Name("recipeDeleted")
+    static let recipeDuplicated = Notification.Name("recipeDuplicated")
     static let navigateToLibraryBrews = Notification.Name("navigateToLibraryBrews")
 }

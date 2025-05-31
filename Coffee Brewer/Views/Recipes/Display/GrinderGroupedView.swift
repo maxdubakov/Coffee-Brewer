@@ -45,6 +45,9 @@ struct GrinderGroupedView: View {
                                         },
                                         onDeleteTapped: {
                                             navigationCoordinator.confirmDeleteRecipe(recipe)
+                                        },
+                                        onDuplicateTapped: {
+                                            navigationCoordinator.duplicateRecipe(recipe, in: viewContext)
                                         }
                                     )
                                     .frame(width: 180)

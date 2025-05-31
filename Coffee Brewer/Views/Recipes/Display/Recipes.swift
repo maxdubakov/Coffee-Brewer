@@ -82,6 +82,12 @@ struct Recipes: View {
                 },
                 onEditTapped: {
                     navigationCoordinator.presentEditRecipe(featured)
+                },
+                onDuplicateTapped: {
+                    navigationCoordinator.duplicateRecipe(featured, in: viewContext)
+                },
+                onDeleteTapped: {
+                    navigationCoordinator.confirmDeleteRecipe(featured)
                 }
             )
             .padding(.horizontal, 20)
@@ -113,6 +119,9 @@ struct Recipes: View {
                             },
                             onDeleteTapped: {
                                 navigationCoordinator.confirmDeleteRecipe(recipe)
+                            },
+                            onDuplicateTapped: {
+                                navigationCoordinator.duplicateRecipe(recipe, in: viewContext)
                             }
                         )
                         .frame(width: 180)
@@ -138,6 +147,7 @@ struct Recipes: View {
         }
         .padding(.horizontal, 20)
     }
+    
 }
 
 #Preview {

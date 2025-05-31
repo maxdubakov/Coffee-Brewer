@@ -6,6 +6,7 @@ struct RecipeCard: View {
     var onBrewTapped: () -> Void = {}
     var onEditTapped: () -> Void = {}
     var onDeleteTapped: () -> Void = {}
+    var onDuplicateTapped: () -> Void = {}
     
     @State private var isPressed = false
     @State private var showQuickActions = false
@@ -200,6 +201,10 @@ struct RecipeCard: View {
             
             Button(action: onEditTapped) {
                 Label("Edit", systemImage: "pencil")
+            }
+            
+            Button(action: onDuplicateTapped) {
+                Label("Duplicate", systemImage: "doc.on.doc")
             }
             
             Button(action: onDeleteTapped) {

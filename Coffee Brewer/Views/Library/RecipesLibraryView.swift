@@ -110,6 +110,13 @@ struct RecipesLibraryView: View {
                             Label("Edit", systemImage: "pencil")
                         }
                         .tint(BrewerColors.caramel)
+                        
+                        Button {
+                            navigationCoordinator.duplicateRecipe(recipe, in: viewContext)
+                        } label: {
+                            Label("Duplicate", systemImage: "doc.on.doc")
+                        }
+                        .tint(BrewerColors.mocha)
                     }
                 }
                 .listStyle(PlainListStyle())

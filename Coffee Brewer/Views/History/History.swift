@@ -117,13 +117,6 @@ struct History: View {
     // MARK: - Minimalistic Stats Overview Section
     private var statsOverviewSection: some View {
         VStack(alignment: .leading, spacing: 20) {
-            // Simple section title
-            Text("Overview")
-                .font(.title2)
-                .fontWeight(.semibold)
-                .foregroundColor(BrewerColors.textPrimary)
-                .padding(.horizontal)
-            
             // Clean 2x2 stats table
             VStack(spacing: 0) {
                 HStack(spacing: 0) {
