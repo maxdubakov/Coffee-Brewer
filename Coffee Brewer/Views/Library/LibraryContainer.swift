@@ -4,43 +4,11 @@ import CoreData
 struct LibraryContainer: View {
     @ObservedObject var navigationCoordinator: NavigationCoordinator
     
-    @State private var showLibraryMode = false
-    @State private var selectedLibraryTab: LibraryTab = .all
-    @State private var searchText = ""
-    
     var body: some View {
-        VStack(spacing: 20) {
-            // Unified Navigation Header
-            VStack(spacing: 20) {
-                LibraryHeader(
-                    selectedTab: $selectedLibraryTab,
-                    showLibraryMode: $showLibraryMode
-                )
-                // Search Bar (only visible in library mode)
-                if showLibraryMode {
-                    VStack(spacing: 10) {
-                        SearchBar(searchText: $searchText, placeholder: searchPlaceholder)
-                            .padding(.horizontal, 20)
-                        LibraryTabButton(selectedTab: $selectedLibraryTab)
-                    }
-                }
-            }
-            
-            // Main Content
-            Group {
-                if showLibraryMode {
-                    LibraryContent(
-                        selectedTab: selectedLibraryTab,
-                        navigationCoordinator: navigationCoordinator,
-                        searchText: searchText
-                    )
-                } else {
-                    Recipes(navigationCoordinator: navigationCoordinator)
-                }
-            }
+        VStack(spacing: 0) {
+            // Just show Recipes view directly
+            Recipes(navigationCoordinator: navigationCoordinator)
         }
-        .padding(.top, 24)
-        .animation(.easeInOut(duration: 0.3), value: showLibraryMode)
         .sheet(item: $navigationCoordinator.editingRecipe) { recipe in
             NavigationStack {
                 EditRecipe(recipe: recipe, isPresented: $navigationCoordinator.editingRecipe)
@@ -62,25 +30,6 @@ struct LibraryContainer: View {
                     .environment(\.managedObjectContext, navigationCoordinator.editingGrinder?.managedObjectContext ?? PersistenceController.shared.container.viewContext)
             }
             .tint(BrewerColors.cream)
-        }
-        .onReceive(NotificationCenter.default.publisher(for: .navigateToLibraryBrews)) { _ in
-            showLibraryMode = true
-            selectedLibraryTab = .brews
-        }
-    }
-    
-    private var searchPlaceholder: String {
-        switch selectedLibraryTab {
-        case .all:
-            return "Search everything..."
-        case .recipes:
-            return "Search recipes..."
-        case .roasters:
-            return "Search roasters..."
-        case .grinders:
-            return "Search grinders..."
-        case .brews:
-            return "Search brews..."
         }
     }
 }
