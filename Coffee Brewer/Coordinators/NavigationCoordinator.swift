@@ -79,9 +79,7 @@ class NavigationCoordinator: ObservableObject {
     func navigateToAddRecipe(roaster: Roaster? = nil) {
         selectedRoaster = roaster
         _selectedTab = .add
-        if roaster != nil {
-            addPath.append(AppDestination.addRecipe(roaster: roaster))
-        }
+        addPath.append(AppDestination.addRecipe(roaster: roaster))
     }
     
     func navigateToAddRoaster() {

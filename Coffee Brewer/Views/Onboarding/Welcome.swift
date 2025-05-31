@@ -6,6 +6,8 @@ struct Welcome: View {
     @State private var currentStep = 1
     @State private var roasterName = ""
     @State private var selectedCountry: Country?
+    @State private var grinderName = ""
+    @State private var grinderType = "Manual"
     @State private var showSuccess = false
     
     let onComplete: () -> Void
@@ -27,6 +29,13 @@ struct Welcome: View {
                     onBack: { currentStep = 1 }
                 )
             case 3:
+                QuickGrinderStep(
+                    grinderName: $grinderName,
+                    grinderType: $grinderType,
+                    onContinue: createGrinderAndProceed,
+                    onBack: { currentStep = 2 }
+                )
+            case 4:
                 ReadyToBrew(
                     onCreateRecipe: onComplete,
                     onExplore: onComplete
@@ -52,6 +61,24 @@ struct Welcome: View {
             }
         } catch {
             print("Failed to save roaster: \(error)")
+        }
+    }
+    
+    private func createGrinderAndProceed() {
+        guard !grinderName.isEmpty else { return }
+        
+        let newGrinder = Grinder(context: viewContext)
+        newGrinder.id = UUID()
+        newGrinder.name = grinderName
+        newGrinder.type = grinderType
+        
+        do {
+            try viewContext.save()
+            withAnimation(.spring(response: 0.3, dampingFraction: 0.8)) {
+                currentStep = 4
+            }
+        } catch {
+            print("Failed to save grinder: \(error)")
         }
     }
 }
@@ -193,6 +220,84 @@ struct QuickRoasterStep: View {
                     style: .primary
                 )
                 .disabled(roasterName.isEmpty || selectedCountry == nil)
+                
+                StandardButton(
+                    title: "Back",
+                    action: {
+                        withAnimation(.spring(response: 0.3, dampingFraction: 0.8)) {
+                            onBack()
+                        }
+                    },
+                    style: .secondary
+                )
+            }
+        }
+        .frame(height: 400) // Fixed total height
+    }
+}
+
+struct QuickGrinderStep: View {
+    @Binding var grinderName: String
+    @Binding var grinderType: String
+    @State private var focusedField: FocusedField?
+    
+    let onContinue: () -> Void
+    let onBack: () -> Void
+    
+    let grinderTypes = ["Manual", "Electric"]
+    
+    var body: some View {
+        VStack {
+            // Top section with title
+            VStack(spacing: 12) {
+                Text("Add Your Grinder")
+                    .font(.system(size: 26, weight: .bold))
+                    .foregroundStyle(
+                        LinearGradient(
+                            colors: [BrewerColors.cream, BrewerColors.cream.opacity(0.8)],
+                            startPoint: .leading,
+                            endPoint: .trailing
+                        )
+                    )
+                    .multilineTextAlignment(.center)
+                
+                Text("Tell us about your coffee grinder")
+                    .font(.system(size: 16))
+                    .foregroundColor(BrewerColors.textSecondary)
+                    .multilineTextAlignment(.center)
+            }
+            .frame(height: 100) // Fixed height for title section
+            
+            // Middle section with form fields
+            VStack(spacing: 16) {
+                FormKeyboardInputField(
+                    title: "Grinder Name",
+                    field: .name,
+                    keyboardType: .default,
+                    valueToString: { $0 },
+                    stringToValue: { $0 },
+                    value: $grinderName,
+                    focusedField: $focusedField
+                )
+                
+                FormToggleField(
+                    title: "Type",
+                    options: grinderTypes,
+                    selectedOption: $grinderType
+                )
+            }
+            .frame(height: 140) // Fixed height for form section
+            
+            Spacer(minLength: 20)
+            
+            // Bottom section with buttons
+            VStack(spacing: 12) {
+                StandardButton(
+                    title: "Continue",
+                    action: onContinue,
+                    style: .primary
+                )
+                .disabled(grinderName.isEmpty)
                 
                 StandardButton(
                     title: "Back",

@@ -50,13 +50,10 @@ struct GrinderForm: View {
                 
                 Divider()
                 
-                FormExpandableStringField(
+                FormToggleField(
                     title: "Type",
-                    items: grinderTypes,
-                    field: .grinderType,
-                    allowEmpty: false,
-                    selectedItem: $formData.type,
-                    focusedField: $focusedField
+                    options: grinderTypes,
+                    selectedOption: $formData.type
                 )
                 
                 Divider()
@@ -84,13 +81,10 @@ struct GrinderForm: View {
             .padding(.horizontal, 20)
 
             FormGroup {
-                FormExpandableStringField(
+                FormToggleField(
                     title: "Burr Type",
-                    items: burrTypes,
-                    field: .burrType,
-                    allowEmpty: false,
-                    selectedItem: $formData.burrType,
-                    focusedField: $focusedField
+                    options: burrTypes,
+                    selectedOption: $formData.burrType
                 )
                 
                 Divider()
