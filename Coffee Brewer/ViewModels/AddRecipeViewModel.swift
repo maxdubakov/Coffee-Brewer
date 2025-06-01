@@ -35,9 +35,9 @@ class AddRecipeViewModel: ObservableObject {
     }
     
     // MARK: - Initialization
-    init(selectedRoaster: Roaster?, context: NSManagedObjectContext) {
+    init(selectedRoaster: Roaster?, selectedGrinder: Grinder? = nil, context: NSManagedObjectContext) {
         self.viewContext = context
-        self.formData = RecipeFormData(selectedRoaster: selectedRoaster)
+        self.formData = RecipeFormData(selectedRoaster: selectedRoaster, selectedGrinder: selectedGrinder)
         self.brewMath = BrewMathViewModel(
             grams: 18,
             ratio: 16.0,

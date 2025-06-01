@@ -4,7 +4,7 @@ import CoreData
 // MARK: - Navigation Destinations
 enum AppDestination: Hashable {
     // Add flow
-    case addRecipe(roaster: Roaster?)
+    case addRecipe(roaster: Roaster?, grinder: Grinder?)
     case addRoaster
     case addGrinder
     case stageChoice(formData: RecipeFormData, existingRecipeID: NSManagedObjectID?)
@@ -67,6 +67,7 @@ class NavigationCoordinator: ObservableObject {
     
     // MARK: - Shared State
     @Published var selectedRoaster: Roaster?
+    @Published var selectedGrinder: Grinder?
     
     // MARK: - Existing Coordinators
     let addRecipeCoordinator = AddRecipeCoordinator()
@@ -76,10 +77,11 @@ class NavigationCoordinator: ObservableObject {
     }
     
     // MARK: - Navigation Methods
-    func navigateToAddRecipe(roaster: Roaster? = nil) {
+    func navigateToAddRecipe(roaster: Roaster? = nil, grinder: Grinder? = nil) {
         selectedRoaster = roaster
+        selectedGrinder = grinder
         _selectedTab = .add
-        addPath.append(AppDestination.addRecipe(roaster: roaster))
+        addPath.append(AppDestination.addRecipe(roaster: roaster, grinder: grinder))
     }
     
     func navigateToAddRoaster() {
@@ -344,6 +346,7 @@ class NavigationCoordinator: ObservableObject {
     
     private func performTabChangeCleanup() {
         selectedRoaster = nil
+        selectedGrinder = nil
         popToRoot(for: .add)
         addRecipeCoordinator.resetIfNeeded()
     }

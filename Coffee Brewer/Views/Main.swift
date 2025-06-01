@@ -100,6 +100,7 @@ struct Main: View {
                     }
                 )
                 .environment(\.managedObjectContext, viewContext)
+                .environmentObject(navigationCoordinator)
             }
         }
         .overlay(alignment: .topTrailing) {
@@ -123,9 +124,10 @@ struct Main: View {
     @ViewBuilder
     private func destinationView(for destination: AppDestination) -> some View {
         switch destination {
-        case .addRecipe(_):
+        case .addRecipe(_, _):
             AddRecipe(
                 selectedRoaster: $navigationCoordinator.selectedRoaster,
+                selectedGrinder: $navigationCoordinator.selectedGrinder,
                 context: viewContext
             )
             .environmentObject(navigationCoordinator.addRecipeCoordinator)

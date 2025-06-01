@@ -2,6 +2,7 @@ import SwiftUI
 
 struct Welcome: View {
     @Environment(\.managedObjectContext) private var viewContext
+    @EnvironmentObject var navigationCoordinator: NavigationCoordinator
     @StateObject private var onboardingState = OnboardingStateManager.shared
     @State private var currentStep = 1
     @State private var roasterName = ""
@@ -9,6 +10,8 @@ struct Welcome: View {
     @State private var grinderName = ""
     @State private var grinderType = "Manual"
     @State private var showSuccess = false
+    @State private var createdRoaster: Roaster?
+    @State private var createdGrinder: Grinder?
     
     let onComplete: () -> Void
     let onSkip: () -> Void
@@ -37,7 +40,7 @@ struct Welcome: View {
                 )
             case 4:
                 ReadyToBrew(
-                    onCreateRecipe: onComplete,
+                    onCreateRecipe: navigateToRecipeWithData,
                     onExplore: onComplete
                 )
             default:
@@ -56,6 +59,7 @@ struct Welcome: View {
         
         do {
             try viewContext.save()
+            createdRoaster = newRoaster
             withAnimation(.spring(response: 0.3, dampingFraction: 0.8)) {
                 currentStep = 3
             }
@@ -74,12 +78,18 @@ struct Welcome: View {
         
         do {
             try viewContext.save()
+            createdGrinder = newGrinder
             withAnimation(.spring(response: 0.3, dampingFraction: 0.8)) {
                 currentStep = 4
             }
         } catch {
             print("Failed to save grinder: \(error)")
         }
+    }
+    
+    private func navigateToRecipeWithData() {
+        onboardingState.dismissOnboarding()
+        navigationCoordinator.navigateToAddRecipe(roaster: createdRoaster, grinder: createdGrinder)
     }
 }
 
@@ -408,4 +418,5 @@ struct ReadyToBrew: View {
         onSkip: {}
     )
     .environment(\.managedObjectContext, PersistenceController.preview.container.viewContext)
+    .environmentObject(NavigationCoordinator())
 }

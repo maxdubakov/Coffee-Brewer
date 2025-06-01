@@ -26,8 +26,9 @@ struct RecipeFormData: Equatable, Hashable {
         self.stages = recipe.stagesArray.map { StageFormData(from: $0) }
     }
     
-    init(selectedRoaster: Roaster?) {
+    init(selectedRoaster: Roaster?, selectedGrinder: Grinder?) {
         self.roaster = selectedRoaster
+        self.grinder = selectedGrinder
     }
     
     // MARK: - Computed Properties

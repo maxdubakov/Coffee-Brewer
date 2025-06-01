@@ -7,14 +7,17 @@ struct AddRecipe: View {
     @EnvironmentObject private var navigationCoordinator: NavigationCoordinator
     
     @Binding var selectedRoaster: Roaster?
+    @Binding var selectedGrinder: Grinder?
     
     @StateObject private var viewModel: AddRecipeViewModel
     
-    init(selectedRoaster: Binding<Roaster?>, context: NSManagedObjectContext) {
+    init(selectedRoaster: Binding<Roaster?>, selectedGrinder: Binding<Grinder?>, context: NSManagedObjectContext) {
         self._selectedRoaster = selectedRoaster
+        self._selectedGrinder = selectedGrinder
         
         let vm = AddRecipeViewModel(
             selectedRoaster: selectedRoaster.wrappedValue,
+            selectedGrinder: selectedGrinder.wrappedValue,
             context: context
         )
         self._viewModel = StateObject(wrappedValue: vm)
@@ -83,10 +86,12 @@ struct AddRecipe: View {
 
 #Preview {
     @Previewable @State var selectedRoaster: Roaster? = nil
+    @Previewable @State var selectedGrinder: Grinder? = nil
     let preview = PersistenceController.preview
     
     return AddRecipe(
         selectedRoaster: $selectedRoaster,
+        selectedGrinder: $selectedGrinder,
         context: preview.container.viewContext
     )
     .environmentObject(AddRecipeCoordinator())

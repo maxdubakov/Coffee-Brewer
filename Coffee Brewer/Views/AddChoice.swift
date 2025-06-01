@@ -14,7 +14,7 @@ struct AddChoice: View {
             
             VStack(spacing: 16) {
                 Button(action: {
-                    navigationCoordinator.addPath.append(AppDestination.addRecipe(roaster: navigationCoordinator.selectedRoaster))
+                    navigationCoordinator.addPath.append(AppDestination.addRecipe(roaster: navigationCoordinator.selectedRoaster, grinder: navigationCoordinator.selectedGrinder))
                 }) {
                     ChoiceCardContent(
                         title: "Recipe",
