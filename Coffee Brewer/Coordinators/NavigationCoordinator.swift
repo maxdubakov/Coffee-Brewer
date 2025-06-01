@@ -109,6 +109,10 @@ class NavigationCoordinator: ObservableObject {
         NotificationCenter.default.post(name: .navigateToLibraryBrews, object: nil)
     }
     
+    func navigateToHome() {
+        _selectedTab = .home
+    }
+    
     func presentEditRecipe(_ recipe: Recipe) {
         editingRecipe = recipe
     }

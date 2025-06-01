@@ -96,6 +96,7 @@ struct Main: View {
                 },
                 onSkip: {
                     onboardingState.dismissOnboarding()
+                    navigationCoordinator.navigateToHome()
                 }
             )
             .environment(\.managedObjectContext, viewContext)

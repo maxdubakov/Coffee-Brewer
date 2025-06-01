@@ -1,4 +1,5 @@
 import SwiftUI
+import UIKit
 
 struct OnboardingOverlay<Content: View>: View {
     let content: Content
@@ -13,14 +14,16 @@ struct OnboardingOverlay<Content: View>: View {
         ZStack {
             Color.black.opacity(0.85)
                 .ignoresSafeArea()
-                .onTapGesture {
-                    onDismiss()
-                }
             
             VStack(spacing: 24) {
                 content
             }
             .padding(28)
+            .contentShape(Rectangle())
+            .onTapGesture {
+                // Dismiss keyboard when tapping on content area
+                UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
+            }
             .background(
                 ZStack {
                     // Base dark background
@@ -77,6 +80,7 @@ struct OnboardingOverlay<Content: View>: View {
         ))
     }
 }
+
 
 #Preview {
     OnboardingOverlay(onDismiss: {}) {

@@ -41,7 +41,7 @@ struct Welcome: View {
             case 4:
                 ReadyToBrew(
                     onCreateRecipe: navigateToRecipeWithData,
-                    onExplore: onComplete
+                    onExplore: onSkip
                 )
             default:
                 EmptyView()
