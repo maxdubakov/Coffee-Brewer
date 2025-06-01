@@ -70,11 +70,11 @@ struct OnboardingOverlay<Content: View>: View {
             )
             .padding(.horizontal, 32)
         }
+        .ignoresSafeArea(.keyboard)
         .transition(.asymmetric(
             insertion: .scale(scale: 0.9).combined(with: .opacity),
             removal: .opacity
         ))
-        .animation(.spring(response: 0.6, dampingFraction: 0.7), value: true)
     }
 }
 

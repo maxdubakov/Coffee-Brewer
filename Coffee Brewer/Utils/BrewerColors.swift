@@ -37,3 +37,6 @@ struct BrewerColors {
     static let chartGrid = Color(red: 0.93, green: 0.91, blue: 0.90).opacity(0.1)
     static let chartLabel = Color(red: 0.93, green: 0.91, blue: 0.90).opacity(0.6)
 }
+
+// static let background = Color(red: 0.02, green: 0.01, blue: 0.01)
+// static let surface = Color(red: 0.05, green: 0.03, blue: 0.01)
