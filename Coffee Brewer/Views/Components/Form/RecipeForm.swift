@@ -11,6 +11,7 @@ struct RecipeForm: View {
             brewingParametersSection
             grindSection
         }
+        .padding(.bottom, 20)
         .contentShape(Rectangle())
         .onTapGesture {
             // Dismiss any active field when tapping outside
@@ -111,7 +112,7 @@ struct RecipeForm: View {
     private var grindSection: some View {
         VStack(alignment: .leading, spacing: 18) {
             HStack(spacing: 8) {
-                SVGIcon("coffee.grind", size: 20, color: BrewerColors.caramel)
+                SVGIcon("coffee.grind", size: 25, color: BrewerColors.caramel)
                 
                 SecondaryHeader(title: "Grind")
             }

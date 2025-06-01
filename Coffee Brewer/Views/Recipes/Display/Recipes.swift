@@ -122,7 +122,6 @@ struct Recipes: View {
                     selectedTab: $selectedLibraryTab,
                     navigationCoordinator: navigationCoordinator
                 )
-                .zIndex(1)
             }
         }
         .sheet(item: $navigationCoordinator.editingRecipe) { recipe in

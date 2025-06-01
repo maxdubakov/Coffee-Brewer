@@ -78,7 +78,8 @@ struct RecipeCard: View {
                             .font(.system(size: 8))
                             .opacity(0.6)
                         
-                        Text("1:\(Int(recipe.grindSize))")
+                        
+                        Text("\(Int(recipe.grindSize))")
                             .font(.system(size: 12, weight: .medium, design: .rounded))
                     }
                     .foregroundColor(.white)
