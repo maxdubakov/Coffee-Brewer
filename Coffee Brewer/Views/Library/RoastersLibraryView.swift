@@ -138,23 +138,21 @@ struct RoastersLibraryView: View {
     }
     
     private var emptyStateView: some View {
-        VStack(spacing: 16) {
-            Image(systemName: searchText.isEmpty ? "building.2" : "magnifyingglass")
-                .font(.system(size: 48))
-                .foregroundColor(BrewerColors.textSecondary.opacity(0.5))
-            
-            Text(searchText.isEmpty ? "No roasters yet" : "No roasters found")
-                .font(.system(size: 18, weight: .medium))
-                .foregroundColor(BrewerColors.textSecondary)
-            
-            if searchText.isEmpty {
-                Text("Create your first roaster to get started")
-                    .font(.system(size: 14))
-                    .foregroundColor(BrewerColors.textSecondary.opacity(0.8))
+        CenteredContent(verticalOffset: -70) {
+            VStack(spacing: 16) {
+                SVGIcon("roaster", size: 70, color: BrewerColors.caramel)
+                
+                Text(searchText.isEmpty ? "No roasters yet" : "No roasters found")
+                    .font(.system(size: 18, weight: .medium))
+                    .foregroundColor(BrewerColors.textPrimary)
+                
+                if searchText.isEmpty {
+                    Text("Create your first roaster to get started")
+                        .font(.system(size: 14))
+                        .foregroundColor(BrewerColors.textSecondary)
+                }
             }
         }
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .padding(.top, 60)
     }
     
     private func toggleSelection(for roaster: Roaster) {

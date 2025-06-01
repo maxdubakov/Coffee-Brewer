@@ -36,16 +36,21 @@ struct SearchGrinderPickerField: View {
             
         }
         .sheet(isPresented: $isPresentingSheet) {
-            SearchablePickerSheet(
+            SearchablePickerSheetWithIcon(
                 label: "Grinder",
                 items: Array(grinders),
-                displayName: { $0.name ?? "" },
+                searchKeyPath: { $0.name ?? "" },
                 onSelect: { selectedGrinder = $0 },
-                createNewItem: { name in
-                    let grinder = Grinder(context: viewContext)
-                    grinder.id = UUID()
-                    grinder.name = name
-                    return grinder
+                rowContent: { grinder in
+                    HStack(spacing: 12) {
+                        SVGIcon(grinder.typeIcon, size: 20, color: BrewerColors.caramel)
+                        
+                        Text(grinder.name ?? "")
+                            .font(.body)
+                            .foregroundColor(BrewerColors.textPrimary)
+                        
+                        Spacer()
+                    }
                 }
             )
             .environment(\.managedObjectContext, viewContext)

@@ -26,7 +26,6 @@ extension Recipe {
     }
     
     func totalStageWaterToStep(stepIndex: Int) -> Int16 {
-        print("claculating value for step \(stepIndex): \(stagesArray.prefix(stepIndex + 1).reduce(0) { $0 + $1.waterAmount })")
         return stagesArray.prefix(stepIndex + 1).reduce(0) { $0 + $1.waterAmount }
     }
     

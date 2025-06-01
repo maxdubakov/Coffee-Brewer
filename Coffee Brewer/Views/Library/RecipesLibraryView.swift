@@ -19,8 +19,6 @@ struct RecipesLibraryView: View {
     
     private var filteredRecipes: [Recipe] {
         let allRecipes = Array(recipes)
-        print("Total recipes: \(allRecipes.count)")
-        print("Search text: '\(searchText)'")
         
         if searchText.isEmpty {
             return allRecipes
@@ -30,12 +28,8 @@ struct RecipesLibraryView: View {
                 let roasterMatch = recipe.roaster?.name?.localizedCaseInsensitiveContains(searchText) ?? false
                 let grinderMatch = recipe.grinder?.name?.localizedCaseInsensitiveContains(searchText) ?? false
                 let matches = nameMatch || roasterMatch || grinderMatch
-                if matches {
-                    print("Match found: \(recipe.name ?? "Unknown")")
-                }
                 return matches
             }
-            print("Filtered recipes: \(filtered.count)")
             return filtered
         }
     }
@@ -147,23 +141,21 @@ struct RecipesLibraryView: View {
     }
     
     private var emptyStateView: some View {
-        VStack(spacing: 16) {
-            Image(systemName: searchText.isEmpty ? "mug" : "magnifyingglass")
-                .font(.system(size: 48))
-                .foregroundColor(BrewerColors.textSecondary.opacity(0.5))
-            
-            Text(searchText.isEmpty ? "No recipes yet" : "No recipes found")
-                .font(.system(size: 18, weight: .medium))
-                .foregroundColor(BrewerColors.textSecondary)
-            
-            if searchText.isEmpty {
-                Text("Create your first recipe to get started")
-                    .font(.system(size: 14))
-                    .foregroundColor(BrewerColors.textSecondary.opacity(0.8))
+        CenteredContent(verticalOffset: -70) {
+            VStack(spacing: 16) {
+                SVGIcon("coffee.beans", size: 70, color: BrewerColors.caramel)
+                
+                Text(searchText.isEmpty ? "No recipes yet" : "No recipes found")
+                    .font(.system(size: 18, weight: .medium))
+                    .foregroundColor(BrewerColors.textPrimary)
+                
+                if searchText.isEmpty {
+                    Text("Create your first recipe to get started")
+                        .font(.system(size: 14))
+                        .foregroundColor(BrewerColors.textSecondary)
+                }
             }
         }
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .padding(.top, 60)
     }
     
     private func toggleSelection(for recipe: Recipe) {

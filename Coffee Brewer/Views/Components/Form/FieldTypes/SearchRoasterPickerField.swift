@@ -51,12 +51,6 @@ struct SearchRoasterPickerField: View {
                     return name
                 },
                 onSelect: { selectedRoaster = $0 },
-                createNewItem: { name in
-                    let roaster = Roaster(context: viewContext)
-                    roaster.id = UUID()
-                    roaster.name = name
-                    return roaster
-                }
             )
             .environment(\.managedObjectContext, viewContext)
         }

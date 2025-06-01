@@ -1,18 +1,19 @@
 import SwiftUI
 import CoreData
 
-struct SearchablePickerSheet<T: NSManagedObject>: View {
+struct SearchablePickerSheetWithIcon<T: NSManagedObject, RowContent: View>: View {
     let label: String
     let items: [T]
-    let displayName: (T) -> String
+    let searchKeyPath: (T) -> String
     let onSelect: (T) -> Void
+    @ViewBuilder let rowContent: (T) -> RowContent
 
     @Environment(\.dismiss) private var dismiss
     @State private var searchText: String = ""
 
     private var filtered: [T] {
         items.filter {
-            searchText.isEmpty || displayName($0).localizedCaseInsensitiveContains(searchText)
+            searchText.isEmpty || searchKeyPath($0).localizedCaseInsensitiveContains(searchText)
         }
     }
 
@@ -25,7 +26,7 @@ struct SearchablePickerSheet<T: NSManagedObject>: View {
                             onSelect(item)
                             dismiss()
                         } label: {
-                            Text(displayName(item))
+                            rowContent(item)
                                 .foregroundColor(BrewerColors.textPrimary)
                         }
                         .listRowBackground(BrewerColors.background)

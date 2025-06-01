@@ -48,7 +48,6 @@ struct SearchCountryPickerField: View {
                     return "\(flag) \(name)".trimmingCharacters(in: .whitespaces)
                 },
                 onSelect: { selectedCountry = $0 },
-                createNewItem: nil
             )
             .environment(\.managedObjectContext, viewContext)
         }

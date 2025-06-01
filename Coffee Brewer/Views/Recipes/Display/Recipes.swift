@@ -97,18 +97,22 @@ struct Recipes: View {
                 .background(BrewerColors.background)
                 
                 // Scrollable content
-                ScrollView {
-                    VStack(spacing: 24) {
-                        quickBrewSection
-
-                        RoasterGroupedView(navigationCoordinator: navigationCoordinator)
-                        
-                        Spacer().frame(height: 100)
+                if allRecipes.count == 0 {
+                    emptyStateView
+                } else {
+                    ScrollView {
+                        VStack(spacing: 24) {
+                            quickBrewSection
+                            
+                            RoasterGroupedView(navigationCoordinator: navigationCoordinator)
+                            
+                            Spacer().frame(height: 100)
+                        }
+                        .padding(.horizontal, 20)
                     }
-                    .padding(.horizontal, 20)
-                }
-                .scrollIndicators(.hidden)
-            }
+                    .scrollIndicators(.hidden)
+                    
+                }            }
             .scaleEffect(showLibraryOverlay ? 0.92 : 1)
             .opacity(showLibraryOverlay ? 0.4 : 1)
             .blur(radius: showLibraryOverlay ? 2 : 0)
@@ -142,6 +146,23 @@ struct Recipes: View {
             }
         } message: {
             Text("Are you sure you want to delete \(navigationCoordinator.recipeToDelete?.name ?? "this recipe")?")
+        }
+    }
+    
+    private var emptyStateView: some View {
+        CenteredContent(verticalOffset: -70) {
+            VStack(spacing: 16) {
+                SVGIcon("coffee.beans", size: 70, color: BrewerColors.caramel)
+                
+                Text("No recipes yet")
+                    .font(.system(size: 18, weight: .medium))
+                    .foregroundColor(BrewerColors.textPrimary)
+                
+                Text("Your recipes will appear here")
+                    .font(.system(size: 14))
+                    .foregroundColor(BrewerColors.textSecondary)
+                    .multilineTextAlignment(.center)
+            }
         }
     }
     
@@ -248,7 +269,7 @@ struct LibraryOverlay: View {
                 .background(BrewerColors.background)
                 .opacity(isPresented ? 1 : 0)
                 .animation(.easeInOut(duration: 0.3).delay(isPresented ? 0.25 : 0), value: isPresented)
-                .onChange(of: navigationCoordinator.homePath) { _ in
+                .onChange(of: navigationCoordinator.homePath) {
                     // Close overlay when navigation happens
                     withAnimation(.spring(response: 0.3, dampingFraction: 0.85)) {
                         isPresented = false

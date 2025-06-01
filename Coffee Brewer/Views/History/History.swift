@@ -66,13 +66,9 @@ struct History: View {
     
     // MARK: - Empty State View
     private var emptyStateView: some View {
-        VStack(spacing: 24) {
-            Spacer()
-            
+        CenteredContent(verticalOffset: -50) {
             VStack(spacing: 16) {
-                Image(systemName: "cup.and.saucer")
-                    .font(.system(size: 60))
-                    .foregroundColor(BrewerColors.caramel.opacity(0.6))
+                SVGIcon("empty.chart", size: 60, color: BrewerColors.caramel)
                 
                 Text("No brews yet")
                     .font(.title2)
@@ -83,10 +79,7 @@ struct History: View {
                     .font(.subheadline)
                     .foregroundColor(BrewerColors.textSecondary)
                     .multilineTextAlignment(.center)
-                    .padding(.horizontal, 40)
             }
-            
-            Spacer()
         }
     }
     

@@ -128,23 +128,21 @@ struct BrewsLibraryView: View {
     }
     
     private var emptyStateView: some View {
-        VStack(spacing: 16) {
-            Image(systemName: searchText.isEmpty ? "cup.and.saucer" : "magnifyingglass")
-                .font(.system(size: 48))
-                .foregroundColor(BrewerColors.textSecondary.opacity(0.5))
-            
-            Text(searchText.isEmpty ? "No brews yet" : "No brews found")
-                .font(.system(size: 18, weight: .medium))
-                .foregroundColor(BrewerColors.textSecondary)
-            
-            if searchText.isEmpty {
-                Text("Start brewing to track your coffee journey")
-                    .font(.system(size: 14))
-                    .foregroundColor(BrewerColors.textSecondary.opacity(0.8))
+        CenteredContent(verticalOffset: -70) {
+            VStack(spacing: 16) {
+                SVGIcon("coffee.beans", size: 70, color: BrewerColors.caramel)
+                
+                Text(searchText.isEmpty ? "No brews yet" : "No brews found")
+                    .font(.system(size: 18, weight: .medium))
+                    .foregroundColor(BrewerColors.textPrimary)
+                
+                if searchText.isEmpty {
+                    Text("Start brewing to track your coffee journey")
+                        .font(.system(size: 14))
+                        .foregroundColor(BrewerColors.textSecondary)
+                }
             }
         }
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .padding(.top, 60)
     }
     
     private func toggleSelection(for brew: Brew) {

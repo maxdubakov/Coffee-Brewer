@@ -63,7 +63,6 @@ struct CountryDataManager {
             let count = (try? context.count(for: fetchRequest)) ?? 0
             
             guard count == 0 else { 
-                print("Countries already populated: \(count) countries found")
                 return 
             }
             

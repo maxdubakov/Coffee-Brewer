@@ -377,24 +377,22 @@ struct AllLibraryView: View {
     }
     
     private var emptyStateView: some View {
-        VStack(spacing: 16) {
-            Image(systemName: searchText.isEmpty ? "square.stack.3d.up" : "magnifyingglass")
-                .font(.system(size: 48))
-                .foregroundColor(BrewerColors.textSecondary.opacity(0.5))
-            
-            Text(searchText.isEmpty ? "No items yet" : "No items found")
-                .font(.system(size: 18, weight: .medium))
-                .foregroundColor(BrewerColors.textSecondary)
-            
-            if searchText.isEmpty {
-                Text("Create recipes, roasters, grinders, and track your brews")
-                    .font(.system(size: 14))
-                    .foregroundColor(BrewerColors.textSecondary.opacity(0.8))
-                    .multilineTextAlignment(.center)
+        CenteredContent(verticalOffset: -70) {
+            VStack(spacing: 16) {
+                SVGIcon("stacked.items", size: 70, color: BrewerColors.caramel)
+                
+                Text(searchText.isEmpty ? "No items yet" : "No items found")
+                    .font(.system(size: 18, weight: .medium))
+                    .foregroundColor(BrewerColors.textPrimary)
+                
+                if searchText.isEmpty {
+                    Text("Create recipes, roasters, grinders, and track your brews")
+                        .font(.system(size: 14))
+                        .foregroundColor(BrewerColors.textSecondary)
+                        .multilineTextAlignment(.center)
+                }
             }
         }
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .padding(.top, 60)
     }
     
     // MARK: - Selection Methods
