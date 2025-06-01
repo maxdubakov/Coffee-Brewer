@@ -141,13 +141,6 @@ struct BrewRecipe: View {
     
     private func completeBrew() {
         timerViewModel.stopTimer()
-        recipe.lastBrewedAt = Date()
-        do {
-            try viewContext.save()
-        } catch {
-            print("Error saving brew date: \(error)")
-        }
-        
         showCompletionView = true
     }
 }

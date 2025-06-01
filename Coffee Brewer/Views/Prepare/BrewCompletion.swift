@@ -2,68 +2,25 @@ import SwiftUI
 import CoreData
 
 struct BrewCompletion: View {
-    // MARK: - Properties
-    var recipe: Recipe
-    
     // MARK: - Environment
-    @Environment(\.managedObjectContext) private var viewContext
     @Environment(\.dismiss) private var dismiss
     @EnvironmentObject private var navigationCoordinator: NavigationCoordinator
     
     // MARK: - State
-    @State private var focusedField: FocusedField? = nil
+    @StateObject private var viewModel: BrewCompletionViewModel
     @State private var showCancelAlert = false
     
     // MARK: - Focus State
     @FocusState private var focusState: FocusedField?
     
-    // MARK: - Private Properties
-    @ObservedObject private var brew: Brew
-    
-    // MARK: - Computed Properties
-    private var roasterName: String {
-        recipe.roaster?.name ?? "Unknown Roaster"
-    }
-    
-    private var recipeName: String {
-        recipe.name ?? "Untitled Recipe"
-    }
-    
-    private var defaultBrewName: String {
-        let dateFormatter = DateFormatter()
-        dateFormatter.dateFormat = "MMM d, yyyy"
-        return "\(recipeName) - \(dateFormatter.string(from: Date()))"
-    }
     
     init(recipe: Recipe, actualElapsedTime: Double) {
-        self.recipe = recipe
         let context = recipe.managedObjectContext ?? PersistenceController.shared.container.viewContext
-        
-        brew = Brew(context: context)
-        brew.id = UUID()
-        brew.date = Date()
-        
-        let dateFormatter = DateFormatter()
-        dateFormatter.dateFormat = "MMM d, yyyy"
-        brew.name = "\(recipe.name ?? "Untitled Recipe") - \(dateFormatter.string(from: Date()))"
-        brew.rating = 0
-        brew.acidity = 0
-        brew.bitterness = 0
-        brew.body = 0
-        brew.sweetness = 0
-        brew.tds = 0.0
-        brew.recipe = recipe
-        brew.actualDurationSeconds = Int16(actualElapsedTime)
-        
-        // Copy recipe data for historical preservation
-        brew.recipeName = recipe.name
-        brew.recipeGrams = recipe.grams
-        brew.recipeWaterAmount = recipe.waterAmount
-        brew.recipeRatio = recipe.ratio
-        brew.recipeTemperature = recipe.temperature
-        brew.recipeGrindSize = recipe.grindSize
-        brew.roasterName = recipe.roaster?.name
-        brew.grinderName = recipe.grinder?.name
+        self._viewModel = StateObject(wrappedValue: BrewCompletionViewModel(
+            recipe: recipe,
+            actualElapsedTime: actualElapsedTime,
+            context: context
+        ))
     }
     
     var body: some View {
@@ -76,7 +33,7 @@ struct BrewCompletion: View {
                         .font(.system(size: 28, weight: .bold))
                         .foregroundColor(BrewerColors.textPrimary)
                     
-                    Text("\(roasterName) - \(recipeName)")
+                    Text("\(viewModel.roasterName) - \(viewModel.recipeName)")
                         .font(.system(size: 16))
                         .foregroundColor(BrewerColors.textSecondary)
                         .multilineTextAlignment(.center)
@@ -99,10 +56,10 @@ struct BrewCompletion: View {
                     FormRatingField(
                         field: .brewRating,
                         value: Binding(
-                            get: {brew.rating},
-                            set: {brew.rating = $0}
+                            get: { viewModel.formData.rating },
+                            set: { viewModel.updateRating($0) }
                         ),
-                        focusedField: $focusedField
+                        focusedField: $viewModel.focusedField
                     )
                     .padding(.horizontal, 18)
                     
@@ -122,8 +79,8 @@ struct BrewCompletion: View {
                     FormGroup {
                         FormSliderField(
                             value: Binding(
-                                get: {Int(brew.bitterness)},
-                                set: {brew.bitterness = Int16($0)}
+                                get: { Int(viewModel.formData.bitterness) },
+                                set: { viewModel.updateBitterness(Int16($0)) }
                             ),
                             from: 0,
                             to: 10,
@@ -135,8 +92,8 @@ struct BrewCompletion: View {
                         
                         FormSliderField(
                             value: Binding(
-                                get: {Int(brew.acidity)},
-                                set: {brew.acidity = Int16($0)}
+                                get: { Int(viewModel.formData.acidity) },
+                                set: { viewModel.updateAcidity(Int16($0)) }
                             ),
                             from: 0,
                             to: 10,
@@ -148,8 +105,8 @@ struct BrewCompletion: View {
                         
                         FormSliderField(
                             value: Binding(
-                                get: {Int(brew.sweetness)},
-                                set: {brew.sweetness = Int16($0)}
+                                get: { Int(viewModel.formData.sweetness) },
+                                set: { viewModel.updateSweetness(Int16($0)) }
                             ),
                             from: 0,
                             to: 10,
@@ -161,8 +118,8 @@ struct BrewCompletion: View {
                         
                         FormSliderField(
                             value: Binding(
-                                get: {Int(brew.body)},
-                                set: {brew.body = Int16($0)}
+                                get: { Int(viewModel.formData.body) },
+                                set: { viewModel.updateBody(Int16($0)) }
                             ),
                             from: 0,
                             to: 10,
@@ -185,8 +142,8 @@ struct BrewCompletion: View {
                     
                     FormRichTextField(
                         notes: Binding(
-                            get: {brew.notes ?? ""},
-                            set: {brew.notes = $0}
+                            get: { viewModel.formData.notes },
+                            set: { viewModel.updateNotes($0) }
                         ),
                         placeholder: "How did it taste? (Aroma, acidity, body, etc.)"
                     )
@@ -197,9 +154,16 @@ struct BrewCompletion: View {
                 StandardButton(
                     title: "Save Brew Experience",
                     iconName: "checkmark.circle.fill",
-                    action: saveBrewExperience,
+                    action: {
+                        Task {
+                            await viewModel.saveBrewExperience()
+                            dismiss()
+                            navigationCoordinator.popToRoot(for: .home)
+                        }
+                    },
                     style: .primary
                 )
+                .disabled(viewModel.isSaving)
                 .padding(.horizontal, 18)
                 .padding(.vertical, 20)
                 }
@@ -228,21 +192,14 @@ struct BrewCompletion: View {
             } message: {
                 Text("Your brew data will not be saved. Are you sure you want to discard it?")
             }
+            .alert("Error", isPresented: $viewModel.showError) {
+                Button("OK") {}
+            } message: {
+                Text(viewModel.errorMessage)
+            }
         }
     }
     
-    // MARK: - Methods
-    private func saveBrewExperience() {
-        recipe.lastBrewedAt = Date()
-        do {
-            try viewContext.save()
-            dismiss()
-            // Navigate back to recipes main screen
-            navigationCoordinator.popToRoot(for: .home)
-        } catch {
-            print("Failed to save brew experience: \(error)")
-        }
-    }
 }
 
 // MARK: - Preview
