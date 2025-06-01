@@ -8,7 +8,7 @@ struct Main: View {
     
     // MARK: - Environment
     @Environment(\.managedObjectContext) private var viewContext
-
+    
     // MARK: - Navigation
     @StateObject private var navigationCoordinator = NavigationCoordinator()
     @StateObject private var onboardingState = OnboardingStateManager.shared
@@ -27,7 +27,7 @@ struct Main: View {
             UITabBar.appearance().scrollEdgeAppearance = appearance
         }
     }
-
+    
     var body: some View {
         TabView(selection: navigationCoordinator.selectedTab) {
             NavigationStack(path: $navigationCoordinator.homePath) {
@@ -41,7 +41,7 @@ struct Main: View {
                 TabIcon(imageName: "home", label: "Home")
             }
             .tag(Tab.home)
-
+            
             NavigationStack(path: $navigationCoordinator.addPath) {
                 AddChoice(navigationCoordinator: navigationCoordinator)
                     .background(BrewerColors.background)
@@ -53,7 +53,7 @@ struct Main: View {
                 TabIcon(imageName: "add.recipe", label: "Add")
             }
             .tag(Tab.add)
-
+            
             NavigationStack(path: $navigationCoordinator.historyPath) {
                 History()
                     .background(BrewerColors.background)
@@ -88,24 +88,23 @@ struct Main: View {
             Text("You have unsaved changes. Are you sure you want to leave?")
         }
         .environmentObject(navigationCoordinator)
-        .overlay {
-            if !onboardingState.hasCompletedWelcome {
-                Welcome(
-                    onComplete: {
-                        onboardingState.dismissOnboarding()
-                        navigationCoordinator.navigateToAddRecipe()
-                    },
-                    onSkip: {
-                        onboardingState.dismissOnboarding()
-                    }
-                )
-                .environment(\.managedObjectContext, viewContext)
-                .environmentObject(navigationCoordinator)
-            }
+        .fullScreenCover(isPresented: .constant(!onboardingState.hasCompletedWelcome)) {
+            Welcome(
+                onComplete: {
+                    onboardingState.dismissOnboarding()
+                    navigationCoordinator.navigateToAddRecipe()
+                },
+                onSkip: {
+                    onboardingState.dismissOnboarding()
+                }
+            )
+            .environment(\.managedObjectContext, viewContext)
+            .environmentObject(navigationCoordinator)
+            .interactiveDismissDisabled()
         }
         .overlay(alignment: .topTrailing) {
             // Debug reset button - always visible in DEBUG builds
-            #if DEBUG
+#if DEBUG
             Button(action: {
                 onboardingState.resetOnboarding()
             }) {
@@ -116,7 +115,7 @@ struct Main: View {
                     .clipShape(Circle())
             }
             .padding()
-            #endif
+#endif
         }
     }
     
@@ -183,11 +182,11 @@ struct Main: View {
                 .environment(\.managedObjectContext, viewContext)
         }
     }
-
+    
     struct TabIcon: View {
         let imageName: String
         let label: String
-
+        
         var body: some View {
             VStack(spacing: 4) {
                 SVGIcon(imageName, size: 20)
