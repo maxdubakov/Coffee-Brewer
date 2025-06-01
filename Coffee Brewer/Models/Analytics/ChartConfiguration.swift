@@ -62,37 +62,6 @@ struct ChartResolver {
             return .timeSeries
         }
     }
-    
-    static func recommendedConfigurations() -> [ChartConfiguration] {
-        [
-            // Popular configurations
-            ChartConfiguration(
-                xAxis: AxisConfiguration(from: TemporalAxis(type: .brewDate)),
-                yAxis: AxisConfiguration(from: NumericAxis(type: .rating)),
-                title: "Rating Over Time"
-            ),
-            ChartConfiguration(
-                xAxis: AxisConfiguration(from: CategoricalAxis(type: .roasterName)),
-                yAxis: AxisConfiguration(from: NumericAxis(type: .rating)),
-                title: "Average Rating by Roaster"
-            ),
-            ChartConfiguration(
-                xAxis: AxisConfiguration(from: NumericAxis(type: .grindSize)),
-                yAxis: AxisConfiguration(from: NumericAxis(type: .rating)),
-                title: "Rating vs Grind Size"
-            ),
-            ChartConfiguration(
-                xAxis: AxisConfiguration(from: TemporalAxis(type: .dayOfWeek)),
-                yAxis: AxisConfiguration(from: NumericAxis(type: .rating)),
-                title: "Rating by Day of Week"
-            ),
-            ChartConfiguration(
-                xAxis: AxisConfiguration(from: CategoricalAxis(type: .brewMethod)),
-                yAxis: AxisConfiguration(from: NumericAxis(type: .coffeeAmount)),
-                title: "Coffee Usage by Method"
-            )
-        ]
-    }
 }
 
 // For persisting chart configurations

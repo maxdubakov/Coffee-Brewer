@@ -7,38 +7,16 @@ class HistoryViewModel: ObservableObject {
     
     private let context: NSManagedObjectContext
     private let userDefaults = UserDefaults.standard
-    private let hasLoadedDefaultChartsKey = "hasLoadedDefaultCharts"
     
     init(context: NSManagedObjectContext = PersistenceController.shared.container.viewContext) {
         self.context = context
         loadCharts()
-        loadDefaultChartsIfNeeded()
     }
     
     // MARK: - Chart Management
     
     private func loadCharts() {
         charts = Chart.fetchAllCharts(in: context)
-    }
-    
-    private func loadDefaultChartsIfNeeded() {
-        // Only load default charts once on first launch
-        guard !userDefaults.bool(forKey: hasLoadedDefaultChartsKey) else { return }
-        
-        let defaultConfigurations = ChartResolver.recommendedConfigurations()
-        
-        for config in defaultConfigurations {
-            _ = Chart(
-                xAxis: config.xAxis,
-                yAxis: config.yAxis,
-                title: config.title,
-                context: context
-            )
-        }
-        
-        saveContext()
-        userDefaults.set(true, forKey: hasLoadedDefaultChartsKey)
-        loadCharts()
     }
     
     func addChart(xAxis: AxisConfiguration, yAxis: AxisConfiguration, title: String) {
