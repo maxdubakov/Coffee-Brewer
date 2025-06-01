@@ -8,6 +8,7 @@ class RecordStagesViewModel: ObservableObject {
     @Published var isRunning: Bool = false
     @Published var recordedTimestamps: [(time: Double, id: UUID, type: StageType)] = []
     @Published var activeRecording: (type: StageType, startTime: Double)? = nil
+    @Published var hasStartedRecording: Bool = false
     
     // MARK: - Private Properties
     private var timer: AnyCancellable?
@@ -60,6 +61,9 @@ class RecordStagesViewModel: ObservableObject {
     }
     
     func startRecording(type: StageType) {
+        // Mark that recording has started
+        hasStartedRecording = true
+        
         // Start timer if not already running
         if !isRunning {
             startTimer()
@@ -98,6 +102,7 @@ class RecordStagesViewModel: ObservableObject {
         recordedTimestamps.removeAll()
         activeRecording = nil
         lastRecordedTime = 0
+        hasStartedRecording = false
     }
     
     func generateStagesFromTimestamps() -> [StageFormData] {

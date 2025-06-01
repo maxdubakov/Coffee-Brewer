@@ -11,6 +11,7 @@ struct BrewControlPanel: View {
     let onSkipForward: (() -> Void)?
     let onSkipBackward: (() -> Void)?
     let showSkipButtons: Bool
+    let isDisabled: Bool
     
     // MARK: - Initializers
     init(
@@ -21,7 +22,8 @@ struct BrewControlPanel: View {
         onRestart: @escaping () -> Void,
         onSkipForward: (() -> Void)? = nil,
         onSkipBackward: (() -> Void)? = nil,
-        showSkipButtons: Bool = true
+        showSkipButtons: Bool = true,
+        isDisabled: Bool = false
     ) {
         self._isRunning = isRunning
         self._currentStageIndex = currentStageIndex
@@ -31,13 +33,15 @@ struct BrewControlPanel: View {
         self.onSkipForward = onSkipForward
         self.onSkipBackward = onSkipBackward
         self.showSkipButtons = showSkipButtons
+        self.isDisabled = isDisabled
     }
     
     // Convenience initializer for when skip buttons aren't needed
     init(
         isRunning: Binding<Bool>,
         onTogglePlay: @escaping () -> Void,
-        onRestart: @escaping () -> Void
+        onRestart: @escaping () -> Void,
+        isDisabled: Bool = false
     ) {
         self._isRunning = isRunning
         self._currentStageIndex = .constant(0)
@@ -47,6 +51,7 @@ struct BrewControlPanel: View {
         self.onSkipForward = nil
         self.onSkipBackward = nil
         self.showSkipButtons = false
+        self.isDisabled = isDisabled
     }
     
     // MARK: - Body
@@ -70,16 +75,18 @@ struct BrewControlPanel: View {
                     Button(action: onRestart) {
                         Image(systemName: "arrow.counterclockwise")
                             .font(.system(size: 20, weight: .medium))
-                            .foregroundColor(BrewerColors.cream)
+                            .foregroundColor(isDisabled ? BrewerColors.cream.opacity(0.3) : BrewerColors.cream)
                             .frame(width: 60, height: 56)
                     }
+                    .disabled(isDisabled)
                     
                     Button(action: onTogglePlay) {
                         Image(systemName: isRunning ? "pause.fill" : "play.fill")
                             .font(.system(size: 20, weight: .medium))
-                            .foregroundColor(BrewerColors.caramel)
+                            .foregroundColor(isDisabled ? BrewerColors.caramel.opacity(0.3) : BrewerColors.caramel)
                             .frame(width: 60, height: 56)
                     }
+                    .disabled(isDisabled)
                 }
             }
             .frame(width: 120, height: 56)

@@ -7,10 +7,10 @@ class OnboardingStateManager: ObservableObject {
     
     private enum Keys {
         static let hasCompletedWelcome = "hasCompletedWelcome"
+        static let hasSeenRecordingDemo = "hasSeenRecordingDemo"
         static let hasCreatedFirstRecipe = "hasCreatedFirstRecipe"
         static let hasCompletedFirstBrew = "hasCompletedFirstBrew"
         static let hasSeenLibraryIntro = "hasSeenLibraryIntro"
-        static let hasSeenRecordingDemo = "hasSeenRecordingDemo"
         static let onboardingDismissedAt = "onboardingDismissedAt"
         static let onboardingVersion = "onboardingVersion"
     }

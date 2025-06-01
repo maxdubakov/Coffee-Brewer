@@ -12,9 +12,7 @@ struct RecordStages: View {
     
     // MARK: - State
     @State private var showingStagesManagement = false
-    @State private var showingDemo = false
-    @State private var demoStep = 0
-    @State private var demoRecordedStages: [(time: Double, id: UUID, type: StageType)] = []
+    @StateObject private var recordingDemo = RecordingDemoOverlay()
     
     // MARK: - Properties
     let formData: RecipeFormData
@@ -45,6 +43,7 @@ struct RecordStages: View {
             // Fixed header and timer section
             VStack(spacing: 12) {
                 timerSection
+                    .opacity(!onboardingState.hasSeenRecordingDemo && recordingDemo.demoStep == 0 ? 0.1 : 1.0)
                 tapArea
                     
             }
@@ -55,26 +54,26 @@ struct RecordStages: View {
                     .padding(.horizontal, 15)
                 
                 RecordedStageScroll(
-                    displayTimestamps: showingDemo && demoStep == 2 ? 
-                        demoRecordedStages.map { (time: $0.time, id: $0.id, type: $0.type, isActive: false) } : 
+                    displayTimestamps: !onboardingState.hasSeenRecordingDemo && recordingDemo.demoStep == 2 ? 
+                        recordingDemo.demoStages.map { (time: $0.time, id: $0.id, type: $0.type, isActive: false) } : 
                         recordViewModel.displayTimestamps,
                     currentElapsedTime: recordViewModel.elapsedTime,
                     onRemove: { index in
-                        if !showingDemo {
+                        if onboardingState.hasSeenRecordingDemo {
                             recordViewModel.removeTimestamp(at: index)
                         }
                     }
                 )
                 .frame(height: 250)
             }
-            .opacity(showingDemo && demoStep != 2 ? 0.1 : 1.0)
+            .opacity(!onboardingState.hasSeenRecordingDemo && recordingDemo.demoStep != 2 ? 0.1 : 1.0)
             
             Spacer()
             
             ZStack {
                 // Control panel truly centered
                 controlPanel
-                    .opacity(showingDemo && demoStep < 3 ? 0.1: 1.0)
+                    .opacity(!onboardingState.hasSeenRecordingDemo && recordingDemo.demoStep < 3 ? 0.1: 1.0)
                 
                 // Done button positioned to the right
                 HStack {
@@ -82,7 +81,7 @@ struct RecordStages: View {
                         .frame(width: 120 + 80) // Width of control panel + spacing
                     
                     doneButton
-                        .opacity(showingDemo && demoStep < 4 ? 0.1 : 1.0)
+                        .opacity(!onboardingState.hasSeenRecordingDemo && recordingDemo.demoStep < 4 ? 0.1 : 1.0)
                 }
             }
             .padding(.top, 20)
@@ -92,12 +91,12 @@ struct RecordStages: View {
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background(BrewerColors.background.ignoresSafeArea())
         .overlay(
-            showingDemo ? demoOverlay : nil
+            RecordingDemoOverlayView(demo: recordingDemo)
         )
         .onAppear {
-            // Show demo only if user hasn't seen it yet
-            if !onboardingState.hasSeenRecordingDemo {
-                showingDemo = true
+            // Set up demo dismiss handler
+            recordingDemo.onDismiss = {
+                // Demo dismissed
             }
         }
         .navigationDestination(isPresented: $showingStagesManagement) {
@@ -134,7 +133,7 @@ struct RecordStages: View {
                         )
                 )
             
-            if showingDemo && demoStep >= 1 {
+            if !onboardingState.hasSeenRecordingDemo && recordingDemo.demoStep >= 1 {
                 // Demo recording state
                 VStack(spacing: 16) {
                     Image(systemName: "hand.tap.fill")
@@ -148,7 +147,7 @@ struct RecordStages: View {
                 }
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
                 .contentShape(Rectangle())
-            } else if let activeRecording = recordViewModel.activeRecording, !showingDemo {
+            } else if let activeRecording = recordViewModel.activeRecording, onboardingState.hasSeenRecordingDemo {
                 // Show recording state
                 Button(action: {
                     recordViewModel.confirmRecording()
@@ -240,7 +239,8 @@ struct RecordStages: View {
         BrewControlPanel(
             isRunning: $recordViewModel.isRunning,
             onTogglePlay: recordViewModel.toggleTimer,
-            onRestart: recordViewModel.resetRecording
+            onRestart: recordViewModel.resetRecording,
+            isDisabled: !recordViewModel.hasStartedRecording && onboardingState.hasSeenRecordingDemo
         )
     }
     
@@ -260,12 +260,12 @@ struct RecordStages: View {
         }) {
             Image(systemName: "checkmark")
                 .font(.system(size: 20, weight: .medium))
-                .foregroundColor(recordViewModel.recordedTimestamps.isEmpty && !showingDemo ? BrewerColors.cream.opacity(0.4) : BrewerColors.cream)
+                .foregroundColor(recordViewModel.recordedTimestamps.isEmpty && onboardingState.hasSeenRecordingDemo ? BrewerColors.cream.opacity(0.4) : BrewerColors.cream)
                 .frame(width: 60, height: 56)
         }
         .background(
             RoundedRectangle(cornerRadius: 28)
-                .fill(recordViewModel.recordedTimestamps.isEmpty && !showingDemo ? BrewerColors.surface.opacity(0.5) : BrewerColors.surface.opacity(0.8))
+                .fill(recordViewModel.recordedTimestamps.isEmpty && onboardingState.hasSeenRecordingDemo ? BrewerColors.surface.opacity(0.5) : BrewerColors.surface.opacity(0.8))
                 .overlay(
                     RoundedRectangle(cornerRadius: 28)
                         .strokeBorder(
@@ -276,232 +276,6 @@ struct RecordStages: View {
                 .shadow(color: Color.black.opacity(0.2), radius: 3, x: 0, y: 1)
         )
         .disabled(recordViewModel.recordedTimestamps.isEmpty)
-    }
-    
-    
-    // MARK: - Demo Overlay
-    private var demoOverlay: some View {
-        ZStack {
-            // Dark background
-            Color.black.opacity(0.1)
-                .ignoresSafeArea()
-            
-            VStack(spacing: 40) {
-                // Skip button
-                HStack {
-                    Spacer()
-                    Button("Skip") {
-                        onboardingState.hasSeenRecordingDemo = true
-                        withAnimation(.easeOut(duration: 0.3)) {
-                            showingDemo = false
-                        }
-                    }
-                    .font(.system(size: 16, weight: .medium))
-                    .foregroundColor(BrewerColors.cream)
-                    .padding(.horizontal, 20)
-                    .padding(.vertical, 10)
-                    .background(
-                        Capsule()
-                            .fill(BrewerColors.surface.opacity(0.3))
-                            .overlay(
-                                Capsule()
-                                    .strokeBorder(BrewerColors.cream.opacity(0.3), lineWidth: 1)
-                            )
-                    )
-                }
-                .padding(.horizontal, 20)
-                
-                Spacer()
-                
-                // Demo content based on step
-                Group {
-                    switch demoStep {
-                    case 0:
-                        demoStep1
-                    case 1:
-                        demoStep2
-                    case 2:
-                        demoStep3
-                    case 3:
-                        demoStep4
-                    case 4:
-                        demoStep5
-                    default:
-                        EmptyView()
-                    }
-                }
-                
-                // Progress dots
-                HStack(spacing: 8) {
-                    ForEach(0..<5) { index in
-                        Circle()
-                            .fill(index == demoStep ? BrewerColors.amber : BrewerColors.cream.opacity(0.3))
-                            .frame(width: 8, height: 8)
-                            .scaleEffect(index == demoStep ? 1.2 : 1.0)
-                            .animation(.easeInOut(duration: 0.3), value: demoStep)
-                    }
-                }
-                .padding(.bottom, 70)
-            }
-            .contentShape(Rectangle()) // Make entire area tappable
-            .onTapGesture {
-                advanceDemo()
-            }
-        }
-        .transition(.opacity)
-    }
-    
-    private var demoStep1: some View {
-        GeometryReader { geometry in
-            VStack {
-                VStack(spacing: 10) {
-                    Image(systemName: "arrow.up")
-                        .font(.system(size: 30, weight: .medium))
-                        .foregroundColor(BrewerColors.amber)
-                        .bounceAnimation()
-
-                    Text("Start recording")
-                        .font(.system(size: 24, weight: .semibold))
-                        .foregroundColor(BrewerColors.cream)
-                    
-                    Text("Tap to start the timer and begin recording your pour")
-                        .font(.system(size: 16))
-                        .foregroundColor(BrewerColors.cream.opacity(0.8))
-                        .multilineTextAlignment(.center)
-                        .padding(.horizontal, 40)
-                }
-                .frame(maxWidth: .infinity)
-                .padding(.top, geometry.size.height * 0.39)
-                
-                Spacer()
-            }
-        }
-    }
-    
-    private var demoStep2: some View {
-        GeometryReader { geometry in
-            VStack {
-                VStack(spacing: 10) {
-                    Image(systemName: "arrow.up")
-                        .font(.system(size: 30, weight: .medium))
-                        .foregroundColor(BrewerColors.amber)
-                        .bounceAnimation()
-
-                    Text("Save the pour")
-                        .font(.system(size: 24, weight: .semibold))
-                        .foregroundColor(BrewerColors.cream)
-
-                    Text("This will add an 8-second Fast pour to Recorded Stages")
-                        .font(.system(size: 16))
-                        .foregroundColor(BrewerColors.cream.opacity(0.8))
-                        .multilineTextAlignment(.center)
-                        .padding(.horizontal, 40)
-                }
-                .frame(maxWidth: .infinity)
-                .padding(.top, geometry.size.height * 0.39)
-                
-                Spacer()
-            }
-        }
-    }
-    
-    private var demoStep3: some View {
-        GeometryReader { geometry in
-            VStack {
-                Spacer()
-                VStack(spacing: 10) {
-                    Image(systemName: "arrow.up")
-                        .font(.system(size: 30, weight: .medium))
-                        .foregroundColor(BrewerColors.amber)
-                        .bounceAnimation()
-
-                    Text("Recorded Stages")
-                        .font(.system(size: 24, weight: .semibold))
-                        .foregroundColor(BrewerColors.cream)
-                    
-                    Text("Time between your pours is tracked automatically and added as a Wait stage")
-                        .font(.system(size: 16))
-                        .foregroundColor(BrewerColors.cream.opacity(0.8))
-                        .multilineTextAlignment(.center)
-                        .padding(.horizontal, 40)
-                }
-                .frame(maxWidth: .infinity)
-            }
-        }
-        .onAppear {
-            // Set up demo recorded stages
-            demoRecordedStages = [
-                (time: 8.0, id: UUID(), type: .fast),
-                (time: 15.0, id: UUID(), type: .wait),
-            ]
-        }
-    }
-    
-    private var demoStep4: some View {
-        GeometryReader { geometry in
-            VStack {
-                Spacer()
-                VStack(spacing: 10) {
-                    Text("Control your brew")
-                        .font(.system(size: 24, weight: .semibold))
-                        .foregroundColor(BrewerColors.cream)
-                    
-                    Text("Use pause/play to control timing, or restart to begin fresh")
-                        .font(.system(size: 16))
-                        .foregroundColor(BrewerColors.cream.opacity(0.6))
-                        .multilineTextAlignment(.center)
-                        .padding(.horizontal, 40)
-                        .padding(.bottom, 10)
-                    
-                    Image(systemName: "arrow.down")
-                        .font(.system(size: 30, weight: .medium))
-                        .foregroundColor(BrewerColors.amber)
-                        .bounceAnimation()
-                }
-                .frame(maxWidth: .infinity)
-                .padding(.bottom, 40)
-            }
-        }
-    }
-    
-    private var demoStep5: some View {
-        GeometryReader { geometry in
-            VStack {
-                Spacer()
-                
-                VStack(spacing: 10) {
-                    Image(systemName: "checkmark.circle.fill")
-                        .font(.system(size: 60))
-                        .foregroundColor(BrewerColors.amber)
-                        .scaleAnimation()
-                    
-                    Text("Complete your recipe")
-                        .font(.system(size: 24, weight: .semibold))
-                        .foregroundColor(BrewerColors.cream)
-                    
-                    Text("You can then adjust water amounts and timing for each stage")
-                        .font(.system(size: 16))
-                        .foregroundColor(BrewerColors.cream.opacity(0.8))
-                        .multilineTextAlignment(.center)
-                        .padding(.horizontal, 40)
-                }
-                .frame(maxWidth: .infinity)
-                .padding(.top, geometry.size.height * 0.35)
-                
-                Spacer()
-            }
-        }
-    }
-    
-    private func advanceDemo() {
-        withAnimation(.easeInOut(duration: 0.3)) {
-            if demoStep < 4 {
-                demoStep += 1
-            } else {
-                onboardingState.hasSeenRecordingDemo = true
-                showingDemo = false
-            }
-        }
     }
 }
 
