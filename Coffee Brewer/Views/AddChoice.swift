@@ -51,6 +51,13 @@ struct AddChoice: View {
         .padding(.horizontal, 16)
         .padding(.top, 24)
         .background(BrewerColors.background)
+        .onAppear {
+            // Clear selectedGrinder when showing AddChoice normally
+            // It should only be set when coming from Welcome flow
+            if navigationCoordinator.addPath.isEmpty {
+                navigationCoordinator.selectedGrinder = nil
+            }
+        }
     }
 }
 

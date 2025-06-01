@@ -388,6 +388,7 @@ class NavigationCoordinator: ObservableObject {
         addRecipeCoordinator.markRecipeAsSaved()
         popToRoot(for: .add)
         selectedRoaster = nil
+        selectedGrinder = nil
         _selectedTab = .home
     }
     

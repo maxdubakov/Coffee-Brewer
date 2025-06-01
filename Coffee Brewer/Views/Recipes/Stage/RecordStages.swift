@@ -4,6 +4,7 @@ import CoreData
 struct RecordStages: View {
     // MARK: - Environment & Bindings
     @Environment(\.managedObjectContext) private var viewContext
+    @StateObject private var onboardingState = OnboardingStateManager.shared
     
     // MARK: - View Model
     @StateObject private var recordViewModel: RecordStagesViewModel
@@ -11,7 +12,7 @@ struct RecordStages: View {
     
     // MARK: - State
     @State private var showingStagesManagement = false
-    @State private var showingDemo = true
+    @State private var showingDemo = false
     @State private var demoStep = 0
     @State private var demoRecordedStages: [(time: Double, id: UUID, type: StageType)] = []
     
@@ -93,6 +94,12 @@ struct RecordStages: View {
         .overlay(
             showingDemo ? demoOverlay : nil
         )
+        .onAppear {
+            // Show demo only if user hasn't seen it yet
+            if !onboardingState.hasSeenRecordingDemo {
+                showingDemo = true
+            }
+        }
         .navigationDestination(isPresented: $showingStagesManagement) {
             StagesManagement(
                 formData: stagesViewModel.formData,
@@ -284,6 +291,7 @@ struct RecordStages: View {
                 HStack {
                     Spacer()
                     Button("Skip") {
+                        onboardingState.hasSeenRecordingDemo = true
                         withAnimation(.easeOut(duration: 0.3)) {
                             showingDemo = false
                         }
@@ -490,6 +498,7 @@ struct RecordStages: View {
             if demoStep < 4 {
                 demoStep += 1
             } else {
+                onboardingState.hasSeenRecordingDemo = true
                 showingDemo = false
             }
         }

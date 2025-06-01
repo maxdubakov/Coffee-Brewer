@@ -10,6 +10,7 @@ class OnboardingStateManager: ObservableObject {
         static let hasCreatedFirstRecipe = "hasCreatedFirstRecipe"
         static let hasCompletedFirstBrew = "hasCompletedFirstBrew"
         static let hasSeenLibraryIntro = "hasSeenLibraryIntro"
+        static let hasSeenRecordingDemo = "hasSeenRecordingDemo"
         static let onboardingDismissedAt = "onboardingDismissedAt"
         static let onboardingVersion = "onboardingVersion"
     }
@@ -38,6 +39,12 @@ class OnboardingStateManager: ObservableObject {
         }
     }
     
+    @Published var hasSeenRecordingDemo: Bool {
+        didSet {
+            userDefaults.set(hasSeenRecordingDemo, forKey: Keys.hasSeenRecordingDemo)
+        }
+    }
+    
     var onboardingDismissedAt: Date? {
         get { userDefaults.object(forKey: Keys.onboardingDismissedAt) as? Date }
         set { userDefaults.set(newValue, forKey: Keys.onboardingDismissedAt) }
@@ -53,6 +60,7 @@ class OnboardingStateManager: ObservableObject {
         hasCreatedFirstRecipe = userDefaults.bool(forKey: Keys.hasCreatedFirstRecipe)
         hasCompletedFirstBrew = userDefaults.bool(forKey: Keys.hasCompletedFirstBrew)
         hasSeenLibraryIntro = userDefaults.bool(forKey: Keys.hasSeenLibraryIntro)
+        hasSeenRecordingDemo = userDefaults.bool(forKey: Keys.hasSeenRecordingDemo)
     }
     
     func dismissOnboarding() {
@@ -65,6 +73,7 @@ class OnboardingStateManager: ObservableObject {
         hasCreatedFirstRecipe = false
         hasCompletedFirstBrew = false
         hasSeenLibraryIntro = false
+        hasSeenRecordingDemo = false
         onboardingDismissedAt = nil
         onboardingVersion = "1.0"
     }
