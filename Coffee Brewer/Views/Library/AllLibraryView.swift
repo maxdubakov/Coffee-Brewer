@@ -33,6 +33,7 @@ struct AllLibraryView: View {
     
     @State private var selectedRoasterForDetail: Roaster?
     @State private var selectedGrinderForDetail: Grinder?
+    @State private var selectedBrewForDetail: Brew?
     
     // MARK: - Edit Mode State
     @State private var isEditMode = false
@@ -291,7 +292,7 @@ struct AllLibraryView: View {
                                             if isEditMode {
                                                 toggleBrewSelection(for: brew)
                                             } else {
-                                                // Navigation to brew detail can be added later
+                                                selectedBrewForDetail = brew
                                             }
                                         }
                                     )
@@ -332,6 +333,11 @@ struct AllLibraryView: View {
         .sheet(item: $selectedGrinderForDetail) { grinder in
             GrinderDetailSheet(grinder: grinder)
                 .presentationDetents([.medium, .large])
+                .presentationDragIndicator(.visible)
+        }
+        .sheet(item: $selectedBrewForDetail) { brew in
+            BrewDetailSheet(brew: brew)
+                .presentationDetents([.large])
                 .presentationDragIndicator(.visible)
         }
         .alert("Delete Items?", isPresented: $showingMultiDeleteAlert) {

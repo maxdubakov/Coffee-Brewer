@@ -157,11 +157,6 @@ class BrewTimerViewModel: ObservableObject {
         stageElapsedTimes[currentStageIndex] = stageDurations[currentStageIndex]
         stageProgress[currentStageIndex] = 1.0
         
-        let stage = recipe.stagesArray[currentStageIndex]
-        if stage.type != "wait" {
-            totalWaterPoured = totalWaterPoured + stage.waterAmount
-        }
-        
         if currentStageIndex + 1 < recipe.stagesArray.count {
             currentStageIndex += 1
         } else {
@@ -172,14 +167,9 @@ class BrewTimerViewModel: ObservableObject {
     private func updateWaterAmount() {
         guard let recipe = recipe, currentStageIndex < recipe.stagesArray.count else { return }
         
-        let stage = recipe.stagesArray[currentStageIndex]
-        if stage.type == "wait" { return }
-
-        let stageProgress = progressForStage(currentStageIndex)
-        let currentStageWater = Int16(Double(stage.waterAmount) * stageProgress)
-        
         var totalWater: Int16 = 0
         
+        // Calculate water from all completed stages
         for i in 0..<currentStageIndex {
             let completedStage = recipe.stagesArray[i]
             if completedStage.type != "wait" {
@@ -187,7 +177,14 @@ class BrewTimerViewModel: ObservableObject {
             }
         }
         
-        totalWater += currentStageWater
+        // Add water from current stage if it's not a wait stage
+        let stage = recipe.stagesArray[currentStageIndex]
+        if stage.type != "wait" {
+            let stageProgress = progressForStage(currentStageIndex)
+            let currentStageWater = Int16(Double(stage.waterAmount) * stageProgress)
+            totalWater += currentStageWater
+        }
+        
         totalWaterPoured = totalWater
     }
     

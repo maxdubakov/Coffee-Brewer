@@ -13,6 +13,7 @@ struct History: View {
     @State private var selectedCharts = Set<NSManagedObjectID>()
     @State private var showDeleteAlert = false
     @State private var chartRowHeight: CGFloat = 0
+    @State private var selectedBrew: Brew?
     
     // MARK: - Fetch Request
     @FetchRequest(
@@ -60,6 +61,11 @@ struct History: View {
                 }
             } message: {
                 Text("Are you sure you want to delete \(selectedCharts.count) chart\(selectedCharts.count == 1 ? "" : "s")? This action cannot be undone.")
+            }
+            .sheet(item: $selectedBrew) { brew in
+                BrewDetailSheet(brew: brew)
+                    .presentationDetents([.large])
+                    .presentationDragIndicator(.visible)
             }
         }
     }
@@ -296,7 +302,7 @@ struct History: View {
                             isEditMode: false,
                             isSelected: false,
                             onTap: {
-                                // Navigate to brew detail if needed
+                                selectedBrew = brew
                             }
                         )
                         .padding(.horizontal)

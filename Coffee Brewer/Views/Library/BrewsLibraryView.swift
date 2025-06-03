@@ -16,6 +16,7 @@ struct BrewsLibraryView: View {
     @State private var brewToDelete: Brew?
     @State private var isEditMode = false
     @State private var selectedBrews: Set<NSManagedObjectID> = []
+    @State private var selectedBrewForDetail: Brew?
     
     private var filteredBrews: [Brew] {
         let allBrews = Array(brews)
@@ -76,7 +77,7 @@ struct BrewsLibraryView: View {
                                 if isEditMode {
                                     toggleSelection(for: brew)
                                 } else {
-                                    // Navigation to brew detail can be added later
+                                    selectedBrewForDetail = brew
                                 }
                             }
                         )
@@ -124,6 +125,11 @@ struct BrewsLibraryView: View {
             } else {
                 Text("Are you sure you want to delete this brew?")
             }
+        }
+        .sheet(item: $selectedBrewForDetail) { brew in
+            BrewDetailSheet(brew: brew)
+                .presentationDetents([.large])
+                .presentationDragIndicator(.visible)
         }
     }
     
