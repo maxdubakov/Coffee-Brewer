@@ -3,7 +3,7 @@ import SwiftUI
 struct Main: View {
     // MARK: - Nested Types
     enum Tab {
-        case home, add, history
+        case home, add, history, settings
     }
     
     // MARK: - Environment
@@ -65,6 +65,18 @@ struct Main: View {
                 TabIcon(imageName: "history", label: "History")
             }
             .tag(Tab.history)
+            
+            NavigationStack(path: $navigationCoordinator.settingsPath) {
+                Settings()
+                    .background(BrewerColors.background)
+                    .navigationDestination(for: AppDestination.self) { destination in
+                        destinationView(for: destination)
+                    }
+            }
+            .tabItem {
+                TabIcon(imageName: "settings", label: "Settings")
+            }
+            .tag(Tab.settings)
         }
         .accentColor(BrewerColors.cream)
         .onAppear {
