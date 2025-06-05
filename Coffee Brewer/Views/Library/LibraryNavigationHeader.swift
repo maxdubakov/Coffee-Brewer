@@ -21,6 +21,7 @@ struct LibraryTabButton: View {
                 }
             }
         }
+        .scrollIndicators(.hidden)
         .padding(.horizontal, 20)
         .padding(.top, 12)
     }
