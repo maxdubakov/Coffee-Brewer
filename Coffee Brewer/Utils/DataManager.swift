@@ -7,8 +7,6 @@ class DataManager: ObservableObject {
     
     @Published var isExporting = false
     @Published var isImporting = false
-    @Published var exportError: Error?
-    @Published var importError: Error?
     
     init(viewContext: NSManagedObjectContext) {
         self.viewContext = viewContext
@@ -77,14 +75,42 @@ class DataManager: ObservableObject {
     }
     
     private func importDataFromDictionary(_ data: [String: Any]) async throws {
-        // TODO: Implement actual import logic
-        // This would involve:
-        // 1. Parsing the data
-        // 2. Creating Core Data objects
-        // 3. Handling duplicates
-        // 4. Saving the context
+        // Import roasters (no dependencies)
+        if let roasters = data["roasters"] as? [[String: Any]] {
+            for roasterData in roasters {
+                try Roaster.importFromData(roasterData, context: viewContext)
+            }
+        }
         
-        print("Import data: \(data)")
+        // Import grinders (no dependencies)
+        if let grinders = data["grinders"] as? [[String: Any]] {
+            for grinderData in grinders {
+                try Grinder.importFromData(grinderData, context: viewContext)
+            }
+        }
+        
+        // Import recipes (depends on roasters and grinders)
+        if let recipes = data["recipes"] as? [[String: Any]] {
+            for recipeData in recipes {
+                try Recipe.importFromData(recipeData, context: viewContext)
+            }
+        }
+        
+        // Import brews (depends on recipes)
+        if let brews = data["brews"] as? [[String: Any]] {
+            for brewData in brews {
+                try Brew.importFromData(brewData, context: viewContext)
+            }
+        }
+        
+        // Import charts (no dependencies)
+        if let charts = data["charts"] as? [[String: Any]] {
+            for chartData in charts {
+                try Chart.importFromData(chartData, context: viewContext)
+            }
+        }
+        
+        try viewContext.save()
     }
     
     // MARK: - Statistics

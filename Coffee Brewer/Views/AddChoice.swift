@@ -88,8 +88,36 @@ struct ChoiceCardContent: View {
         }
         .padding(.horizontal, 20)
         .padding(.vertical, 20)
-        .background(BrewerColors.surface)
-        .cornerRadius(12)
+        .background(
+            ZStack {
+                RoundedRectangle(cornerRadius: 12)
+                    .fill(
+                        LinearGradient(
+                            colors: [
+                                BrewerColors.cardBackground,
+                                BrewerColors.cardBackground.opacity(0.9),
+                                BrewerColors.caramel.opacity(0.12)
+                            ],
+                            startPoint: .topLeading,
+                            endPoint: .bottomTrailing
+                        )
+                    )
+                
+                RoundedRectangle(cornerRadius: 12)
+                    .stroke(
+                        LinearGradient(
+                            colors: [
+                                Color.white.opacity(0.1),
+                                Color.white.opacity(0.05)
+                            ],
+                            startPoint: .topLeading,
+                            endPoint: .bottomTrailing
+                        ),
+                        lineWidth: 1
+                    )
+            }
+            .shadow(color: Color.black.opacity(0.15), radius: 12, x: 0, y: 4)
+        )
     }
 }
 
