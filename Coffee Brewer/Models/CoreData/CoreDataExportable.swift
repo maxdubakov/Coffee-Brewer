@@ -213,9 +213,9 @@ extension Chart {
 // MARK: - Import Methods
 
 extension Recipe {
-    static func importFromData(_ data: [String: Any], context: NSManagedObjectContext) throws {
+    static func importFromData(_ data: [String: Any], context: NSManagedObjectContext) throws -> Bool {
         guard let idString = data["id"] as? String,
-              let id = UUID(uuidString: idString) else { return }
+              let id = UUID(uuidString: idString) else { return false }
         
         // Check if recipe already exists
         let request: NSFetchRequest<Recipe> = Recipe.fetchRequest()
@@ -254,17 +254,21 @@ extension Recipe {
             // Import stages for this recipe
             if let stages = data["stages"] as? [[String: Any]] {
                 for stageData in stages {
-                    try Stage.importFromData(stageData, for: recipe, context: context)
+                    _ = try Stage.importFromData(stageData, for: recipe, context: context)
                 }
             }
+            
+            return true
         }
+        
+        return false
     }
 }
 
 extension Brew {
-    static func importFromData(_ data: [String: Any], context: NSManagedObjectContext) throws {
+    static func importFromData(_ data: [String: Any], context: NSManagedObjectContext) throws -> Bool {
         guard let idString = data["id"] as? String,
-              let id = UUID(uuidString: idString) else { return }
+              let id = UUID(uuidString: idString) else { return false }
         
         // Check if brew already exists
         let request: NSFetchRequest<Brew> = Brew.fetchRequest()
@@ -302,14 +306,18 @@ extension Brew {
                 recipeRequest.predicate = NSPredicate(format: "id == %@", recipeId as CVarArg)
                 brew.recipe = try context.fetch(recipeRequest).first
             }
+            
+            return true
         }
+        
+        return false
     }
 }
 
 extension Roaster {
-    static func importFromData(_ data: [String: Any], context: NSManagedObjectContext) throws {
+    static func importFromData(_ data: [String: Any], context: NSManagedObjectContext) throws -> Bool {
         guard let idString = data["id"] as? String,
-              let id = UUID(uuidString: idString) else { return }
+              let id = UUID(uuidString: idString) else { return false }
         
         // Check if roaster already exists
         let request: NSFetchRequest<Roaster> = Roaster.fetchRequest()
@@ -330,14 +338,18 @@ extension Roaster {
                 countryRequest.predicate = NSPredicate(format: "name == %@", countryName)
                 roaster.country = try context.fetch(countryRequest).first
             }
+            
+            return true
         }
+        
+        return false
     }
 }
 
 extension Grinder {
-    static func importFromData(_ data: [String: Any], context: NSManagedObjectContext) throws {
+    static func importFromData(_ data: [String: Any], context: NSManagedObjectContext) throws -> Bool {
         guard let idString = data["id"] as? String,
-              let id = UUID(uuidString: idString) else { return }
+              let id = UUID(uuidString: idString) else { return false }
         
         // Check if grinder already exists
         let request: NSFetchRequest<Grinder> = Grinder.fetchRequest()
@@ -351,14 +363,18 @@ extension Grinder {
             grinder.type = data["type"] as? String
             grinder.burrType = data["burrType"] as? String
             grinder.dosingType = data["dosingType"] as? String
+            
+            return true
         }
+        
+        return false
     }
 }
 
 extension Stage {
-    static func importFromData(_ data: [String: Any], for recipe: Recipe, context: NSManagedObjectContext) throws {
+    static func importFromData(_ data: [String: Any], for recipe: Recipe, context: NSManagedObjectContext) throws -> Bool {
         guard let idString = data["id"] as? String,
-              let id = UUID(uuidString: idString) else { return }
+              let id = UUID(uuidString: idString) else { return false }
         
         // Check if stage already exists
         let request: NSFetchRequest<Stage> = Stage.fetchRequest()
@@ -372,14 +388,18 @@ extension Stage {
             stage.seconds = Int16(data["seconds"] as? Int ?? 0)
             stage.waterAmount = Int16(data["waterAmount"] as? Int ?? 0)
             stage.recipe = recipe
+            
+            return true
         }
+        
+        return false
     }
 }
 
 extension Chart {
-    static func importFromData(_ data: [String: Any], context: NSManagedObjectContext) throws {
+    static func importFromData(_ data: [String: Any], context: NSManagedObjectContext) throws -> Bool {
         guard let idString = data["id"] as? String,
-              let id = UUID(uuidString: idString) else { return }
+              let id = UUID(uuidString: idString) else { return false }
         
         // Check if chart already exists
         let request: NSFetchRequest<Chart> = Chart.fetchRequest()
@@ -409,6 +429,10 @@ extension Chart {
             if let updatedAtString = data["updatedAt"] as? String {
                 chart.updatedAt = ISO8601DateFormatter().date(from: updatedAtString)
             }
+            
+            return true
         }
+        
+        return false
     }
 }

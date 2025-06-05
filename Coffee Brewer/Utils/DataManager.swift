@@ -54,63 +54,102 @@ class DataManager: ObservableObject {
     
     // MARK: - Import
     
-    func importData(from url: URL) async throws {
+    func importData(from url: URL) async throws -> ImportResult {
         isImporting = true
         defer { isImporting = false }
 
-        let data = try Data(contentsOf: url)
-        let json = try JSONSerialization.jsonObject(with: data) as? [String: Any]
-        
-        guard let json = json,
-              let version = json["version"] as? String,
-              version == "1.0" else {
-            throw DataImportError.invalidFormat
+        do {
+            // Start accessing the security-scoped resource
+            guard url.startAccessingSecurityScopedResource() else {
+                throw DataImportError.accessDenied
+            }
+            
+            defer {
+                // Stop accessing the security-scoped resource when done
+                url.stopAccessingSecurityScopedResource()
+            }
+            
+            let data = try Data(contentsOf: url)
+            let json = try JSONSerialization.jsonObject(with: data) as? [String: Any]
+            
+            guard let json = json,
+                  let version = json["version"] as? String,
+                  version == "1.0" else {
+                throw DataImportError.invalidFormat
+            }
+            
+            guard let dataDict = json["data"] as? [String: Any] else {
+                throw DataImportError.missingData
+            }
+            
+            let (imported, ignored) = try await importDataFromDictionary(dataDict)
+            return ImportResult.success(imported: imported, ignored: ignored)
+        } catch {
+            return ImportResult.failure(error: error)
         }
-        
-        guard let dataDict = json["data"] as? [String: Any] else {
-            throw DataImportError.missingData
-        }
-        
-        try await importDataFromDictionary(dataDict)
     }
     
-    private func importDataFromDictionary(_ data: [String: Any]) async throws {
+    private func importDataFromDictionary(_ data: [String: Any]) async throws -> (imported: [String: Int], ignored: [String: Int]) {
+        var counter = ImportCounter()
+        
         // Import roasters (no dependencies)
         if let roasters = data["roasters"] as? [[String: Any]] {
             for roasterData in roasters {
-                try Roaster.importFromData(roasterData, context: viewContext)
+                if try Roaster.importFromData(roasterData, context: viewContext) {
+                    counter.incrementImported("Roasters")
+                } else {
+                    counter.incrementIgnored("Roasters")
+                }
             }
         }
         
         // Import grinders (no dependencies)
         if let grinders = data["grinders"] as? [[String: Any]] {
             for grinderData in grinders {
-                try Grinder.importFromData(grinderData, context: viewContext)
+                if try Grinder.importFromData(grinderData, context: viewContext) {
+                    counter.incrementImported("Grinders")
+                } else {
+                    counter.incrementIgnored("Grinders")
+                }
             }
         }
         
         // Import recipes (depends on roasters and grinders)
         if let recipes = data["recipes"] as? [[String: Any]] {
             for recipeData in recipes {
-                try Recipe.importFromData(recipeData, context: viewContext)
+                if try Recipe.importFromData(recipeData, context: viewContext) {
+                    counter.incrementImported("Recipes")
+                } else {
+                    counter.incrementIgnored("Recipes")
+                }
             }
         }
         
         // Import brews (depends on recipes)
         if let brews = data["brews"] as? [[String: Any]] {
             for brewData in brews {
-                try Brew.importFromData(brewData, context: viewContext)
+                if try Brew.importFromData(brewData, context: viewContext) {
+                    counter.incrementImported("Brews")
+                } else {
+                    counter.incrementIgnored("Brews")
+                }
             }
         }
         
         // Import charts (no dependencies)
         if let charts = data["charts"] as? [[String: Any]] {
             for chartData in charts {
-                try Chart.importFromData(chartData, context: viewContext)
+                if try Chart.importFromData(chartData, context: viewContext) {
+                    counter.incrementImported("Charts")
+                } else {
+                    counter.incrementIgnored("Charts")
+                }
             }
         }
         
         try viewContext.save()
+        
+        return counter.result()
     }
     
     // MARK: - Statistics
@@ -140,6 +179,7 @@ enum DataImportError: LocalizedError {
     case invalidFormat
     case missingData
     case incompatibleVersion
+    case accessDenied
     
     var errorDescription: String? {
         switch self {
@@ -149,6 +189,8 @@ enum DataImportError: LocalizedError {
             return "The backup file is missing required data"
         case .incompatibleVersion:
             return "This backup file version is not supported"
+        case .accessDenied:
+            return "Permission denied to access the selected file"
         }
     }
 }

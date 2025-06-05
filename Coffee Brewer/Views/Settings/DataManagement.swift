@@ -11,6 +11,8 @@ struct DataManagement: View {
     @State private var exportFileName = ""
     @State private var showingAlert = false
     @State private var alertMessage = ""
+    @State private var showingImportResult = false
+    @State private var importResult: ImportResult?
     
     init() {
         let context = PersistenceController.shared.container.viewContext
@@ -76,6 +78,11 @@ struct DataManagement: View {
         } message: {
             Text(alertMessage)
         }
+        .sheet(isPresented: $showingImportResult) {
+            if let importResult = importResult {
+                ImportResultView(result: importResult, isPresented: $showingImportResult)
+            }
+        }
     }
     
     private func handleExport() {
@@ -96,14 +103,14 @@ struct DataManagement: View {
         switch result {
         case .success(let urls):
             guard let url = urls.first else { return }
-            Task {
+            Task { @MainActor in
                 do {
-                    try await dataManager.importData(from: url)
+                    let result = try await dataManager.importData(from: url)
+                    importResult = result
+                    showingImportResult = true
                 } catch {
-                    await MainActor.run {
-                        alertMessage = error.localizedDescription
-                        showingAlert = true
-                    }
+                    alertMessage = error.localizedDescription
+                    showingAlert = true
                 }
             }
         case .failure(let error):
