@@ -18,6 +18,9 @@ enum AppDestination: Hashable {
     // History flow
     case brewDetail(brewID: NSManagedObjectID)
     case chartDetail(chart: Chart)
+    
+    // Settings flow
+    case settings
 }
 
 // MARK: - Navigation Coordinator
@@ -41,7 +44,6 @@ class NavigationCoordinator: ObservableObject {
     @Published var homePath = NavigationPath()
     @Published var addPath = NavigationPath()
     @Published var historyPath = NavigationPath()
-    @Published var settingsPath = NavigationPath()
     
     // MARK: - Modal States
     @Published var editingRecipe: Recipe?
@@ -112,6 +114,10 @@ class NavigationCoordinator: ObservableObject {
     
     func navigateToHome() {
         _selectedTab = .home
+    }
+    
+    func navigateToSettings() {
+        homePath.append(AppDestination.settings)
     }
     
     func presentEditRecipe(_ recipe: Recipe) {
@@ -303,8 +309,6 @@ class NavigationCoordinator: ObservableObject {
             addPath = NavigationPath()
         case .history:
             historyPath = NavigationPath()
-        case .settings:
-            settingsPath = NavigationPath()
         }
     }
     
@@ -312,7 +316,6 @@ class NavigationCoordinator: ObservableObject {
         homePath = NavigationPath()
         addPath = NavigationPath()
         historyPath = NavigationPath()
-        settingsPath = NavigationPath()
     }
     
     // MARK: - Tab Change Handling

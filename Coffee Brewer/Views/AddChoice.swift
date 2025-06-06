@@ -118,7 +118,7 @@ struct AddChoice: View {
                         title: "Create Recipe",
                         description: "Start brewing with a new recipe",
                         imageName: "v60.icon",
-                        badgeText: "Most Popular",
+                        badgeText: "",
                         action: {
                             navigationCoordinator.addPath.append(AppDestination.addRecipe(roaster: navigationCoordinator.selectedRoaster, grinder: navigationCoordinator.selectedGrinder))
                         }

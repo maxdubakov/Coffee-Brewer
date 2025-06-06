@@ -47,7 +47,26 @@ struct Recipes: View {
             VStack(spacing: 0) {
                 // Fixed header
                 VStack(spacing: 16) {
-                    PageTitleH1("Recipes", subtitle: "Discover your perfect brew")
+                    HStack {
+                        VStack(alignment: .leading, spacing: 4) {
+                            Text("Recipes")
+                                .font(.system(size: 32, weight: .bold))
+                                .foregroundColor(BrewerColors.textPrimary)
+                            
+                            Text("Discover your perfect brew")
+                                .font(.system(size: 16))
+                                .foregroundColor(BrewerColors.textSecondary)
+                        }
+                        
+                        Spacer()
+                        
+                        Button(action: {
+                            navigationCoordinator.navigateToSettings()
+                        }) {
+                            SVGIcon("settings", size: 24, color: BrewerColors.textSecondary)
+                        }
+                        .buttonStyle(PlainButtonStyle())
+                    }
                     
                     // Fake search bar that opens library overlay
                     Button(action: {
