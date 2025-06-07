@@ -29,10 +29,21 @@ struct FormRichTextField: View {
             }
         }
         .padding(12)
-        .background(
+        .background(BrewerColors.cardBackground.opacity(0.5))
+        .cornerRadius(16)
+        .overlay(
             RoundedRectangle(cornerRadius: 16)
-                .fill(BrewerColors.surface.opacity(0.6))
-                .shadow(color: Color.black.opacity(0.1), radius: 2, x: 0, y: 1)
+                .strokeBorder(
+                    LinearGradient(
+                        colors: [
+                            BrewerColors.divider.opacity(0.3),
+                            BrewerColors.divider.opacity(0.1)
+                        ],
+                        startPoint: .topLeading,
+                        endPoint: .bottomTrailing
+                    ),
+                    lineWidth: 0.5
+                )
         )
     }
 }
