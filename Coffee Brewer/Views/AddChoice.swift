@@ -118,7 +118,7 @@ struct AddChoice: View {
                         title: "Create Recipe",
                         description: "Start brewing with a new recipe",
                         imageName: "v60.icon",
-                        badgeText: "",
+                        badgeText: nil,
                         action: {
                             navigationCoordinator.addPath.append(AppDestination.addRecipe(roaster: navigationCoordinator.selectedRoaster, grinder: navigationCoordinator.selectedGrinder))
                         }
@@ -197,7 +197,7 @@ struct PrimaryChoiceCard: View {
     let title: String
     let description: String
     let imageName: String
-    let badgeText: String
+    let badgeText: String?
     let action: () -> Void
     
     var body: some View {
@@ -230,14 +230,16 @@ struct PrimaryChoiceCard: View {
                         .foregroundColor(BrewerColors.textSecondary)
                         .multilineTextAlignment(.center)
                     
-                    HStack(spacing: 4) {
-                        Image(systemName: "sparkles")
-                            .font(.system(size: 14))
-                        Text(badgeText)
-                            .font(.system(size: 14, weight: .medium))
+                    if (badgeText != nil) {
+                        HStack(spacing: 4) {
+                            Image(systemName: "sparkles")
+                                .font(.system(size: 14))
+                            Text(badgeText ?? "")
+                                .font(.system(size: 14, weight: .medium))
+                        }
+                        .foregroundColor(BrewerColors.caramel)
+                        .padding(.top, 4)
                     }
-                    .foregroundColor(BrewerColors.caramel)
-                    .padding(.top, 4)
                 }
             }
             .frame(maxWidth: .infinity)
