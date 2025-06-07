@@ -22,11 +22,44 @@ struct PersistenceController {
                 // Use a background context for population
                 let backgroundContext = container.newBackgroundContext()
                 CountryDataManager.shared.populateCountriesIfNeeded(in: backgroundContext)
+                
+                // Perform migration for existing brews
+                PersistenceController.migrateExistingBrews(in: backgroundContext)
             }
         }
         
         container.viewContext.automaticallyMergesChangesFromParent = true
         container.viewContext.mergePolicy = NSMergeByPropertyObjectTrumpMergePolicy
+    }
+    
+    // MARK: - Migration
+    private static func migrateExistingBrews(in context: NSManagedObjectContext) {
+        context.perform {
+            let fetchRequest: NSFetchRequest<Brew> = Brew.fetchRequest()
+            
+            do {
+                let brews = try context.fetch(fetchRequest)
+                var migrationNeeded = false
+                
+                for brew in brews {
+                    // Check if this brew needs migration
+                    // If it has a rating or any taste profile data, mark it as assessed
+                    if brew.rating > 0 || brew.acidity > 0 || brew.sweetness > 0 || 
+                       brew.bitterness > 0 || brew.body > 0 || (brew.notes != nil && !brew.notes!.isEmpty) {
+                        brew.isAssessed = true
+                        migrationNeeded = true
+                    }
+                    // If no assessment data exists, it stays as unassessed (false by default)
+                }
+                
+                if migrationNeeded {
+                    try context.save()
+                    print("Successfully migrated existing brews")
+                }
+            } catch {
+                print("Error migrating brews: \(error)")
+            }
+        }
     }
     
     static var sampleRoaster: Roaster {
@@ -276,7 +309,7 @@ struct PersistenceController {
         createStage(recipe: brazilianChemex, type: "slow", waterAmount: 390, seconds: 30, orderIndex: 2)
         
         // Create more comprehensive brews with all required fields
-        let createDetailedBrew = { (recipe: Recipe, rating: Int16, date: Date, notes: String?, acidity: Int16, bitterness: Int16, body: Int16, sweetness: Int16, tds: Double?) in
+        let createDetailedBrew = { (recipe: Recipe, rating: Int16, date: Date, notes: String?, acidity: Int16, bitterness: Int16, body: Int16, sweetness: Int16, tds: Double?, isAssessed: Bool) in
             let brew = Brew(context: viewContext)
             brew.id = UUID()
             brew.recipe = recipe
@@ -305,6 +338,7 @@ struct PersistenceController {
             brew.body = body
             brew.sweetness = sweetness
             brew.tds = tds ?? Double.random(in: 1.2...1.5)
+            brew.isAssessed = isAssessed // Mark preview brews as assessed
         }
         
         // Create brews across the last 60 days for better analytics
@@ -326,7 +360,8 @@ struct PersistenceController {
                 Int16.random(in: 2...3),    // Low bitterness
                 Int16.random(in: 5...7),    // Medium body
                 Int16.random(in: 6...8),    // Good sweetness
-                Double.random(in: 1.35...1.45)
+                Double.random(in: 1.35...1.45),
+                true
             )
         }
         
@@ -345,7 +380,8 @@ struct PersistenceController {
                 Int16.random(in: 6...9),    // High bitterness
                 Int16.random(in: 7...9),    // Full body
                 Int16.random(in: 2...4),    // Low sweetness
-                Double.random(in: 1.2...1.3)
+                Double.random(in: 1.2...1.3),
+                true
             )
         }
         
@@ -364,7 +400,8 @@ struct PersistenceController {
                 Int16.random(in: 1...3),    // Very low bitterness
                 Int16.random(in: 4...6),    // Light-medium body
                 Int16.random(in: 5...7),    // Good sweetness
-                Double.random(in: 1.3...1.4)
+                Double.random(in: 1.3...1.4),
+                true
             )
         }
         
@@ -383,7 +420,8 @@ struct PersistenceController {
                 Int16.random(in: 3...5),    // Medium bitterness
                 Int16.random(in: 6...8),    // Good body
                 Int16.random(in: 4...6),    // Medium sweetness
-                nil
+                nil,
+                true
             )
         }
         
@@ -403,7 +441,8 @@ struct PersistenceController {
                     Int16.random(in: 2...4),    // Low-medium bitterness
                     Int16.random(in: 5...7),    // Medium body
                     Int16.random(in: 6...8),    // Good sweetness
-                    Double.random(in: 1.3...1.45)
+                    Double.random(in: 1.3...1.45),
+                    true
                 )
             }
         }
@@ -422,7 +461,8 @@ struct PersistenceController {
                 Int16.random(in: 2...6),    // Variable bitterness
                 Int16.random(in: 4...8),    // Variable body
                 Int16.random(in: 3...7),    // Variable sweetness
-                Double.random(in: 1.25...1.5)
+                Double.random(in: 1.25...1.5),
+                true
             )
         }
         
@@ -440,7 +480,26 @@ struct PersistenceController {
                 Int16.random(in: 3...5),    // Medium bitterness
                 Int16.random(in: 8...10),   // Full body
                 Int16.random(in: 4...6),    // Medium sweetness
-                Double.random(in: 1.2...1.35)
+                Double.random(in: 1.2...1.35),
+                true
+            )
+        }
+        
+        // Add some unassessed brews (brews that were completed but not yet rated)
+        for i in [0, 3, 6] {
+            let brewDate = calendar.date(byAdding: .day, value: -i, to: today)!
+            
+            createDetailedBrew(
+                defaultRecipe,
+                0,  // No rating yet
+                brewDate,
+                nil,  // No notes
+                0,    // No acidity assessment
+                0,    // No bitterness assessment
+                0,    // No body assessment
+                0,    // No sweetness assessment
+                nil,  // No TDS
+                false // Not assessed
             )
         }
         
@@ -458,7 +517,8 @@ struct PersistenceController {
                 Int16.random(in: 2...3),    // Low bitterness
                 Int16.random(in: 6...8),    // Good body
                 Int16.random(in: 7...9),    // High sweetness
-                Double.random(in: 1.35...1.42)
+                Double.random(in: 1.35...1.42),
+                true
             )
         }
         
@@ -476,7 +536,8 @@ struct PersistenceController {
                 Int16.random(in: 3...5),    // Medium bitterness
                 Int16.random(in: 7...9),    // Full body
                 Int16.random(in: 5...7),    // Good sweetness
-                Double.random(in: 1.38...1.48)
+                Double.random(in: 1.38...1.48),
+                true
             )
         }
         

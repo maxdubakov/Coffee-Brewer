@@ -94,8 +94,15 @@ struct BrewRecipe: View {
         }
         .sheet(isPresented: $showCompletionView) {
             GlobalBackground {
-                BrewCompletion(recipe: recipe, actualElapsedTime: timerViewModel.elapsedTime)
-                    .environmentObject(navigationCoordinator)
+                if let brewId = timerViewModel.savedBrewId,
+                   let brew = fetchBrew(withId: brewId) {
+                    BrewCompletion(brew: brew)
+                        .environmentObject(navigationCoordinator)
+                } else {
+                    // Fallback to old behavior if brew wasn't saved
+                    BrewCompletion(recipe: recipe, actualElapsedTime: timerViewModel.elapsedTime)
+                        .environmentObject(navigationCoordinator)
+                }
             }
             .interactiveDismissDisabled()
         }
@@ -120,6 +127,20 @@ struct BrewRecipe: View {
     }
     
     // MARK: - Methods
+    private func fetchBrew(withId id: UUID) -> Brew? {
+        let request: NSFetchRequest<Brew> = Brew.fetchRequest()
+        request.predicate = NSPredicate(format: "id == %@", id as CVarArg)
+        request.fetchLimit = 1
+        
+        do {
+            let brews = try viewContext.fetch(request)
+            return brews.first
+        } catch {
+            print("Failed to fetch brew: \(error)")
+            return nil
+        }
+    }
+    
     private func skipToStage(_ targetIndex: Int) {
         guard targetIndex >= 0 && targetIndex < recipe.stagesArray.count else { return }
         

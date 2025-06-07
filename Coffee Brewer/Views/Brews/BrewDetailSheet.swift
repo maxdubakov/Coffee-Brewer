@@ -3,6 +3,8 @@ import SwiftUI
 struct BrewDetailSheet: View {
     let brew: Brew
     @Environment(\.dismiss) private var dismiss
+    @State private var showAssessmentView = false
+    @EnvironmentObject private var navigationCoordinator: NavigationCoordinator
     
     var body: some View {
         VStack(spacing: 0) {
@@ -27,13 +29,29 @@ struct BrewDetailSheet: View {
                         
                         Spacer()
                         
-                        if brew.rating > 0 {
+                        if brew.isAssessed && brew.rating > 0 {
                             HStack(spacing: 4) {
                                 ForEach(0..<5) { index in
                                     Image(systemName: index < Int(brew.rating) ? "star.fill" : "star")
                                         .font(.system(size: 16))
                                         .foregroundColor(index < Int(brew.rating) ? BrewerColors.caramel : BrewerColors.textSecondary.opacity(0.3))
                                 }
+                            }
+                        } else if !brew.isAssessed {
+                            Button(action: { showAssessmentView = true }) {
+                                HStack(spacing: 4) {
+                                    Image(systemName: "star")
+                                        .font(.system(size: 14))
+                                    Text("Assess")
+                                        .font(.system(size: 14, weight: .medium))
+                                }
+                                .foregroundColor(BrewerColors.caramel)
+                                .padding(.horizontal, 12)
+                                .padding(.vertical, 6)
+                                .background(
+                                    RoundedRectangle(cornerRadius: 8)
+                                        .fill(BrewerColors.caramel.opacity(0.15))
+                                )
                             }
                         }
                     }
@@ -194,6 +212,13 @@ struct BrewDetailSheet: View {
             Spacer()
         }
         .background(BrewerColors.background.ignoresSafeArea())
+        .sheet(isPresented: $showAssessmentView) {
+            GlobalBackground {
+                BrewCompletion(brew: brew)
+                    .environmentObject(navigationCoordinator)
+            }
+            .interactiveDismissDisabled()
+        }
     }
     
     private var hasTasteProfile: Bool {
@@ -266,4 +291,5 @@ private struct TasteProfileRow: View {
     brew.notes = "Wonderful fruity notes with hints of blueberry and chocolate. The acidity is bright but balanced, with a silky smooth body. This is exactly the profile I was hoping for with this Ethiopian coffee."
     
     return BrewDetailSheet(brew: brew)
+        .environmentObject(NavigationCoordinator())
 }

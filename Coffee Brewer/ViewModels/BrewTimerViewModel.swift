@@ -11,6 +11,7 @@ class BrewTimerViewModel: ObservableObject {
     @Published var totalWaterPoured: Int16 = 0
     @Published var stageElapsedTimes: [Double] = []
     @Published var stageProgress: [Double] = []
+    @Published var savedBrewId: UUID?
     
     // MARK: - Private Properties
     private var timer: AnyCancellable?
@@ -208,6 +209,44 @@ class BrewTimerViewModel: ObservableObject {
     
     private func completeBrewingProcess() {
         stopTimer()
+        
+        // Save the brew immediately with basic data
+        if let recipe = recipe {
+            saveBrew(recipe: recipe)
+        }
+        
         NotificationCenter.default.post(name: .brewingCompleted, object: nil)
+    }
+    
+    private func saveBrew(recipe: Recipe) {
+        guard let context = recipe.managedObjectContext else { return }
+        
+        let brew = Brew(context: context)
+        let brewId = UUID()
+        brew.id = brewId
+        brew.date = Date()
+        brew.actualDurationSeconds = Int16(elapsedTime)
+        brew.recipe = recipe
+        brew.isAssessed = false
+        
+        // Copy recipe data for historical preservation
+        brew.recipeName = recipe.name
+        brew.recipeGrams = recipe.grams
+        brew.recipeWaterAmount = recipe.waterAmount
+        brew.recipeRatio = recipe.ratio
+        brew.recipeTemperature = recipe.temperature
+        brew.recipeGrindSize = recipe.grindSize
+        brew.roasterName = recipe.roaster?.name
+        brew.grinderName = recipe.grinder?.name
+        
+        // Update recipe's last brewed date
+        recipe.lastBrewedAt = Date()
+        
+        do {
+            try context.save()
+            savedBrewId = brewId
+        } catch {
+            print("Failed to save brew: \(error)")
+        }
     }
 }

@@ -45,7 +45,7 @@ struct BrewLibraryRow: View {
                                 .foregroundColor(BrewerColors.textSecondary)
                         }
                         
-                        if brew.rating > 0 {
+                        if brew.isAssessed && brew.rating > 0 {
                             Text("•")
                                 .font(.system(size: 9))
                                 .foregroundColor(BrewerColors.textSecondary.opacity(0.4))
@@ -56,6 +56,19 @@ struct BrewLibraryRow: View {
                                         .font(.system(size: 9))
                                         .foregroundColor(index < Int(brew.rating) ? BrewerColors.caramel : BrewerColors.textSecondary.opacity(0.3))
                                 }
+                            }
+                        } else if !brew.isAssessed {
+                            Text("•")
+                                .font(.system(size: 9))
+                                .foregroundColor(BrewerColors.textSecondary.opacity(0.4))
+                            
+                            HStack(spacing: 2) {
+                                Image(systemName: "star")
+                                    .font(.system(size: 9))
+                                    .foregroundColor(BrewerColors.caramel.opacity(0.6))
+                                Text("Assess")
+                                    .font(.system(size: 11))
+                                    .foregroundColor(BrewerColors.caramel.opacity(0.8))
                             }
                         }
                         

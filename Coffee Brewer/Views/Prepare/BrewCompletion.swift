@@ -13,6 +13,13 @@ struct BrewCompletion: View {
     // MARK: - Focus State
     @FocusState private var focusState: FocusedField?
     
+    init(brew: Brew) {
+        let context = brew.managedObjectContext ?? PersistenceController.shared.container.viewContext
+        self._viewModel = StateObject(wrappedValue: BrewCompletionViewModel(
+            brew: brew,
+            context: context
+        ))
+    }
     
     init(recipe: Recipe, actualElapsedTime: Double) {
         let context = recipe.managedObjectContext ?? PersistenceController.shared.container.viewContext
@@ -182,15 +189,16 @@ struct BrewCompletion: View {
                     .foregroundColor(BrewerColors.caramel)
                 }
             }
-            .alert("Discard Brew?", isPresented: $showCancelAlert) {
+            .alert(viewModel.existingBrew != nil ? "Cancel Assessment?" : "Discard Brew?", isPresented: $showCancelAlert) {
                 Button("Cancel", role: .cancel) {}
-                Button("Discard", role: .destructive) {
+                Button(viewModel.existingBrew != nil ? "Cancel" : "Discard", role: .destructive) {
                     dismiss()
-                    // Navigate back to recipes main screen
                     navigationCoordinator.popToRoot(for: .home)
                 }
             } message: {
-                Text("Your brew data will not be saved. Are you sure you want to discard it?")
+                Text(viewModel.existingBrew != nil ? 
+                     "You can add an assessment later from the brew details." : 
+                     "Your brew data will not be saved. Are you sure you want to discard it?")
             }
             .alert("Error", isPresented: $viewModel.showError) {
                 Button("OK") {}
