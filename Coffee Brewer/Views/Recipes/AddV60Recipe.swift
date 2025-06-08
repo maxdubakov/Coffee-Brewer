@@ -30,10 +30,30 @@ struct AddV60Recipe: View {
                         PageTitleH2(viewModel.headerTitle, subtitle: viewModel.headerSubtitle)
 
                         RecipeForm(
-                            formData: $viewModel.formData,
-                            brewMath: $viewModel.brewMath,
-                            focusedField: $viewModel.focusedField
+                            content: {
+                                BasicInfoSection(
+                                    formData: $viewModel.formData,
+                                    focusedField: $viewModel.focusedField
+                                )
+                                
+                                BrewingParametersSection(
+                                    formData: $viewModel.formData,
+                                    brewMath: $viewModel.brewMath,
+                                    focusedField: $viewModel.focusedField
+                                )
+                                
+                                GrindSection(
+                                    formData: $viewModel.formData,
+                                    focusedField: $viewModel.focusedField
+                                )
+                            }
                         )
+                        .onTapGesture {
+                            // Dismiss any active field when tapping outside
+                            withAnimation(.spring()) {
+                                viewModel.focusedField = nil
+                            }
+                        }
                     }
                 },
                 actions: {

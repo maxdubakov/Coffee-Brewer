@@ -149,8 +149,13 @@ struct Recipes: View {
         }
         .sheet(item: $navigationCoordinator.editingRecipe) { recipe in
             NavigationStack {
-                EditRecipe(recipe: recipe, isPresented: $navigationCoordinator.editingRecipe)
-                    .environment(\.managedObjectContext, viewContext)
+                if recipe.brewMethodEnum == .oreaV4 {
+                    EditOreaRecipe(recipe: recipe, isPresented: $navigationCoordinator.editingRecipe)
+                        .environment(\.managedObjectContext, viewContext)
+                } else {
+                    EditV60Recipe(recipe: recipe, isPresented: $navigationCoordinator.editingRecipe)
+                        .environment(\.managedObjectContext, viewContext)
+                }
             }
             .tint(BrewerColors.cream)
             .interactiveDismissDisabled()

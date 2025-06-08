@@ -19,6 +19,16 @@ enum BrewMethod: String, CaseIterable, Codable {
         }
     }
     
+    // Image name for this brew method
+    var imageName: String {
+        switch self {
+        case .v60:
+            return "V60"
+        case .oreaV4:
+            return "Orea"
+        }
+    }
+    
     // Default parameters for each brew method
     var defaultGrams: Int16 {
         switch self {

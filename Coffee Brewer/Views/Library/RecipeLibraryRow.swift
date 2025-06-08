@@ -29,7 +29,7 @@ struct RecipeLibraryRow: View {
                         )
                         .frame(width: 44, height: 44)
                     
-                    SVGIcon("v60.icon", size: 30, color: BrewerColors.caramel)
+                    SVGIcon(recipe.brewMethodEnum.iconName, size: 30, color: BrewerColors.caramel)
                 }
                 
                 // Recipe Info

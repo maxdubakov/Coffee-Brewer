@@ -51,25 +51,4 @@ class AddOreaRecipeViewModel: BaseAddRecipeViewModel {
             showValidationAlert = true
         }
     }
-    
-    // Method to update bottom type
-    func updateBottomType(_ bottomType: OreaBottomType) {
-        formData.oreaBottomType = bottomType
-        
-        // Adjust parameters based on bottom type
-        switch bottomType {
-        case .fast:
-            // Fast bottom might need coarser grind
-            formData.grindSize = 40
-        case .open:
-            // Open bottom might need even coarser
-            formData.grindSize = 45
-        case .apex:
-            // Apex for precision, medium-fine
-            formData.grindSize = 30
-        case .classic:
-            // Classic balanced settings
-            formData.grindSize = 35
-        }
-    }
 }

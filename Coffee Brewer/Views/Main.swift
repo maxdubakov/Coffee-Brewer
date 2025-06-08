@@ -181,8 +181,13 @@ struct Main: View {
             }
             
         case .editRecipe(let recipe):
-            EditRecipe(recipe: recipe, isPresented: $navigationCoordinator.editingRecipe)
-                .environment(\.managedObjectContext, viewContext)
+            if recipe.brewMethodEnum == .oreaV4 {
+                EditOreaRecipe(recipe: recipe, isPresented: $navigationCoordinator.editingRecipe)
+                    .environment(\.managedObjectContext, viewContext)
+            } else {
+                EditV60Recipe(recipe: recipe, isPresented: $navigationCoordinator.editingRecipe)
+                    .environment(\.managedObjectContext, viewContext)
+            }
             
         case .brewDetail:
             Text("Brew Detail - Coming Soon")

@@ -11,8 +11,13 @@ struct LibraryContainer: View {
         }
         .sheet(item: $navigationCoordinator.editingRecipe) { recipe in
             NavigationStack {
-                EditRecipe(recipe: recipe, isPresented: $navigationCoordinator.editingRecipe)
-                    .environment(\.managedObjectContext, navigationCoordinator.editingRecipe?.managedObjectContext ?? PersistenceController.shared.container.viewContext)
+                if recipe.brewMethodEnum == .oreaV4 {
+                    EditOreaRecipe(recipe: recipe, isPresented: $navigationCoordinator.editingRecipe)
+                        .environment(\.managedObjectContext, navigationCoordinator.editingRecipe?.managedObjectContext ?? PersistenceController.shared.container.viewContext)
+                } else {
+                    EditV60Recipe(recipe: recipe, isPresented: $navigationCoordinator.editingRecipe)
+                        .environment(\.managedObjectContext, navigationCoordinator.editingRecipe?.managedObjectContext ?? PersistenceController.shared.container.viewContext)
+                }
             }
             .tint(BrewerColors.cream)
             .interactiveDismissDisabled()

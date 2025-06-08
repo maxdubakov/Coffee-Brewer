@@ -1,7 +1,7 @@
 import SwiftUI
 import CoreData
 
-struct EditRecipe: View {
+struct EditV60Recipe: View {
     @Environment(\.managedObjectContext) private var viewContext
     @Environment(\.dismiss) private var dismiss
     
@@ -25,11 +25,35 @@ struct EditRecipe: View {
         NavigationStack(path: $navigationPath) {
             FixedBottomLayout(
                 content: {
-//                    RecipeForm(
-//                        formData: $viewModel.formData,
-//                        brewMath: $viewModel.brewMath,
-//                        focusedField: $viewModel.focusedField
-//                    )
+                    VStack(spacing: 16) {
+                        PageTitleH2(viewModel.headerTitle, subtitle: viewModel.headerSubtitle)
+
+                        RecipeForm(
+                            content: {
+                                BasicInfoSection(
+                                    formData: $viewModel.formData,
+                                    focusedField: $viewModel.focusedField
+                                )
+                                
+                                BrewingParametersSection(
+                                    formData: $viewModel.formData,
+                                    brewMath: $viewModel.brewMath,
+                                    focusedField: $viewModel.focusedField
+                                )
+                                
+                                GrindSection(
+                                    formData: $viewModel.formData,
+                                    focusedField: $viewModel.focusedField
+                                )
+                            }
+                        )
+                        .onTapGesture {
+                            // Dismiss any active field when tapping outside
+                            withAnimation(.spring()) {
+                                viewModel.focusedField = nil
+                            }
+                        }
+                    }
                 },
                 actions: {
                     StandardButton(
@@ -113,7 +137,7 @@ struct EditRecipe: View {
     let context = PersistenceController.preview.container.viewContext
     let recipe = PersistenceController.sampleRecipe
     
-    return EditRecipe(recipe: recipe, isPresented: .constant(recipe))
+    return EditV60Recipe(recipe: recipe, isPresented: .constant(recipe))
         .environment(\.managedObjectContext, context)
         .background(BrewerColors.background)
 }

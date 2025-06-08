@@ -29,12 +29,31 @@ struct AddOreaRecipe: View {
                     VStack(spacing: 16) {
                         PageTitleH2(viewModel.headerTitle, subtitle: viewModel.headerSubtitle)
 
-                        OreaRecipeForm(
-                            formData: $viewModel.formData,
-                            brewMath: $viewModel.brewMath,
-                            focusedField: $viewModel.focusedField,
-                            onBottomTypeChange: viewModel.updateBottomType
+                        RecipeForm(
+                            content: {
+                                BasicInfoWithBottomTypeSection(
+                                    formData: $viewModel.formData,
+                                    focusedField: $viewModel.focusedField,
+                                )
+                                
+                                BrewingParametersSection(
+                                    formData: $viewModel.formData,
+                                    brewMath: $viewModel.brewMath,
+                                    focusedField: $viewModel.focusedField
+                                )
+                                
+                                GrindSection(
+                                    formData: $viewModel.formData,
+                                    focusedField: $viewModel.focusedField
+                                )
+                            }
                         )
+                        .onTapGesture {
+                            // Dismiss any active field when tapping outside
+                            withAnimation(.spring()) {
+                                viewModel.focusedField = nil
+                            }
+                        }
                     }
                 },
                 actions: {

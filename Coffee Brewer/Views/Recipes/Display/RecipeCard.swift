@@ -24,7 +24,7 @@ struct RecipeCard: View {
                 // V60 Image with gradient overlays
                 ZStack {
                     // Base V60 image
-                    Image("V60")
+                    Image(recipe.brewMethodEnum.imageName)
                         .resizable()
                         .scaledToFill()
                     
@@ -92,7 +92,7 @@ struct RecipeCard: View {
                 VStack(alignment: .leading, spacing: 10) {
                     // Title and Roaster
                     VStack(alignment: .leading, spacing: 4) {
-                        Text("\(recipe.name ?? "Untitled") (\(recipe.brewMethod ?? "No Method"))")
+                        Text(recipe.name ?? "Untitled")
                             .font(.system(size: 14, weight: .semibold))
                             .foregroundColor(BrewerColors.cream)
                             .lineLimit(1)
