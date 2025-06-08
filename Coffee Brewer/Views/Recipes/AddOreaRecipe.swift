@@ -1,7 +1,7 @@
 import SwiftUI
 import CoreData
 
-struct AddRecipe: View {
+struct AddOreaRecipe: View {
     @Environment(\.managedObjectContext) private var viewContext
     @EnvironmentObject private var coordinator: AddRecipeCoordinator
     @EnvironmentObject private var navigationCoordinator: NavigationCoordinator
@@ -9,13 +9,13 @@ struct AddRecipe: View {
     @Binding var selectedRoaster: Roaster?
     @Binding var selectedGrinder: Grinder?
     
-    @StateObject private var viewModel: AddRecipeViewModel
+    @StateObject private var viewModel: AddOreaRecipeViewModel
     
     init(selectedRoaster: Binding<Roaster?>, selectedGrinder: Binding<Grinder?>, context: NSManagedObjectContext) {
         self._selectedRoaster = selectedRoaster
         self._selectedGrinder = selectedGrinder
         
-        let vm = AddRecipeViewModel(
+        let vm = AddOreaRecipeViewModel(
             selectedRoaster: selectedRoaster.wrappedValue,
             selectedGrinder: selectedGrinder.wrappedValue,
             context: context
@@ -27,12 +27,13 @@ struct AddRecipe: View {
         FixedBottomLayout(
                 content: {
                     VStack(spacing: 16) {
-                        PageTitleH2("Add Recipe", subtitle: "Create a custom coffee brewing recipe")
+                        PageTitleH2(viewModel.headerTitle, subtitle: viewModel.headerSubtitle)
 
-                        RecipeForm(
+                        OreaRecipeForm(
                             formData: $viewModel.formData,
                             brewMath: $viewModel.brewMath,
-                            focusedField: $viewModel.focusedField
+                            focusedField: $viewModel.focusedField,
+                            onBottomTypeChange: viewModel.updateBottomType
                         )
                     }
                 },
@@ -52,27 +53,14 @@ struct AddRecipe: View {
                     dismissButton: .default(Text("OK"))
                 )
             }
-            .overlay {
-                if viewModel.isSaving {
-                    ProgressView()
-                        .progressViewStyle(CircularProgressViewStyle(tint: BrewerColors.caramel))
-                        .scaleEffect(1.5)
-                        .frame(maxWidth: .infinity, maxHeight: .infinity)
-                        .background(Color.black.opacity(0.2))
+            .onAppear {
+                // Set navigation callback to use NavigationCoordinator
+                viewModel.onNavigateToStages = { formData, existingRecipeID in
+                    navigationCoordinator.addPath.append(AppDestination.stageChoice(formData: formData, existingRecipeID: existingRecipeID))
                 }
+                // Register viewModel with coordinator
+                coordinator.setViewModel(viewModel)
             }
-        .onChange(of: selectedRoaster) { _, newValue in
-            // Update viewModel when selectedRoaster changes externally
-            viewModel.updateSelectedRoaster(newValue)
-        }
-        .onAppear {
-            // Set navigation callback to use NavigationCoordinator
-            viewModel.onNavigateToStages = { formData, existingRecipeID in
-                navigationCoordinator.addPath.append(AppDestination.stageChoice(formData: formData, existingRecipeID: existingRecipeID))
-            }
-            // Register viewModel with coordinator
-            coordinator.setViewModel(viewModel)
-        }
     }
     
     func hasUnsavedChanges() -> Bool {
@@ -87,16 +75,14 @@ struct AddRecipe: View {
 #Preview {
     @Previewable @State var selectedRoaster: Roaster? = nil
     @Previewable @State var selectedGrinder: Grinder? = nil
-    let preview = PersistenceController.preview
     
-    return AddRecipe(
-        selectedRoaster: $selectedRoaster,
-        selectedGrinder: $selectedGrinder,
-        context: preview.container.viewContext
-    )
-    .environmentObject(AddRecipeCoordinator())
-    .environmentObject(NavigationCoordinator())
-    .environment(\.managedObjectContext, preview.container.viewContext)
+    GlobalBackground {
+        AddOreaRecipe(
+            selectedRoaster: $selectedRoaster,
+            selectedGrinder: $selectedGrinder,
+            context: PersistenceController.preview.container.viewContext
+        )
+        .environmentObject(AddRecipeCoordinator())
+        .environmentObject(NavigationCoordinator())
+    }
 }
-
-

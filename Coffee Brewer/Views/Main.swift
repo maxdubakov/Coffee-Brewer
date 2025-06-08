@@ -92,7 +92,7 @@ struct Main: View {
             Welcome(
                 onComplete: {
                     onboardingState.dismissOnboarding()
-                    navigationCoordinator.navigateToAddRecipe()
+                    navigationCoordinator.selectedTab.wrappedValue = .add
                 },
                 onSkip: {
                     onboardingState.dismissOnboarding()
@@ -124,8 +124,17 @@ struct Main: View {
     @ViewBuilder
     private func destinationView(for destination: AppDestination) -> some View {
         switch destination {
-        case .addRecipe(_, _):
-            AddRecipe(
+        case .addV60Recipe(_, _):
+            AddV60Recipe(
+                selectedRoaster: $navigationCoordinator.selectedRoaster,
+                selectedGrinder: $navigationCoordinator.selectedGrinder,
+                context: viewContext
+            )
+            .environmentObject(navigationCoordinator.addRecipeCoordinator)
+            .environmentObject(navigationCoordinator)
+            
+        case .addOreaRecipe(_, _):
+            AddOreaRecipe(
                 selectedRoaster: $navigationCoordinator.selectedRoaster,
                 selectedGrinder: $navigationCoordinator.selectedGrinder,
                 context: viewContext

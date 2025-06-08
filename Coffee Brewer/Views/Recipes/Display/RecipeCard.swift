@@ -92,7 +92,7 @@ struct RecipeCard: View {
                 VStack(alignment: .leading, spacing: 10) {
                     // Title and Roaster
                     VStack(alignment: .leading, spacing: 4) {
-                        Text(recipe.name ?? "Untitled Recipe")
+                        Text("\(recipe.name ?? "Untitled") (\(recipe.brewMethod ?? "No Method"))")
                             .font(.system(size: 14, weight: .semibold))
                             .foregroundColor(BrewerColors.cream)
                             .lineLimit(1)

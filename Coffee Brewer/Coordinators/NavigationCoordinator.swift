@@ -4,7 +4,8 @@ import CoreData
 // MARK: - Navigation Destinations
 enum AppDestination: Hashable {
     // Add flow
-    case addRecipe(roaster: Roaster?, grinder: Grinder?)
+    case addV60Recipe(roaster: Roaster?, grinder: Grinder?)
+    case addOreaRecipe(roaster: Roaster?, grinder: Grinder?)
     case addRoaster
     case addGrinder
     case stageChoice(formData: RecipeFormData, existingRecipeID: NSManagedObjectID?)
@@ -80,11 +81,18 @@ class NavigationCoordinator: ObservableObject {
     }
     
     // MARK: - Navigation Methods
-    func navigateToAddRecipe(roaster: Roaster? = nil, grinder: Grinder? = nil) {
+    func navigateToAddV60Recipe(roaster: Roaster? = nil, grinder: Grinder? = nil) {
         selectedRoaster = roaster
         selectedGrinder = grinder
         _selectedTab = .add
-        addPath.append(AppDestination.addRecipe(roaster: roaster, grinder: grinder))
+        addPath.append(AppDestination.addV60Recipe(roaster: roaster, grinder: grinder))
+    }
+    
+    func navigateToAddOreaRecipe(roaster: Roaster? = nil, grinder: Grinder? = nil) {
+        selectedRoaster = roaster
+        selectedGrinder = grinder
+        _selectedTab = .add
+        addPath.append(AppDestination.addOreaRecipe(roaster: roaster, grinder: grinder))
     }
     
     func navigateToAddRoaster() {

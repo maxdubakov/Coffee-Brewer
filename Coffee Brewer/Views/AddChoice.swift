@@ -113,16 +113,29 @@ struct AddChoice: View {
                     .offset(y: showSecondaryChoices ? 0 : 20)
                     
                 } else {
-                    // Primary: Recipe (most common choice)
-                    PrimaryChoiceCard(
-                        title: "Create Recipe",
-                        description: "Start brewing with a new recipe",
-                        imageName: "v60.icon",
-                        badgeText: nil,
-                        action: {
-                            navigationCoordinator.addPath.append(AppDestination.addRecipe(roaster: navigationCoordinator.selectedRoaster, grinder: navigationCoordinator.selectedGrinder))
+                    // Primary: Brew Method Selection
+                    VStack(spacing: 12) {
+                        Text("Choose Brew Method")
+                            .font(.system(size: 18, weight: .semibold))
+                            .foregroundColor(BrewerColors.textPrimary)
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                        
+                        HStack(spacing: 12) {
+                            BrewMethodCard(
+                                brewMethod: .v60,
+                                action: {
+                                    navigationCoordinator.addPath.append(AppDestination.addV60Recipe(roaster: navigationCoordinator.selectedRoaster, grinder: navigationCoordinator.selectedGrinder))
+                                }
+                            )
+                            
+                            BrewMethodCard(
+                                brewMethod: .oreaV4,
+                                action: {
+                                    navigationCoordinator.addPath.append(AppDestination.addOreaRecipe(roaster: navigationCoordinator.selectedRoaster, grinder: navigationCoordinator.selectedGrinder))
+                                }
+                            )
                         }
-                    )
+                    }
                     .opacity(showPrimaryChoice ? 1 : 0)
                     .offset(y: showPrimaryChoice ? 0 : 30)
                     
@@ -464,6 +477,79 @@ struct StatBadge: View {
             RoundedRectangle(cornerRadius: 8)
                 .fill(BrewerColors.surface.opacity(0.5))
         )
+    }
+}
+
+// MARK: - Brew Method Card
+struct BrewMethodCard: View {
+    let brewMethod: BrewMethod
+    let action: () -> Void
+    
+    var body: some View {
+        Button(action: action) {
+            VStack(spacing: 12) {
+                ZStack {
+                    Circle()
+                        .fill(LinearGradient(
+                            gradient: Gradient(colors: [BrewerColors.caramel.opacity(0.8), BrewerColors.caramel]),
+                            startPoint: .topLeading,
+                            endPoint: .bottomTrailing
+                        ))
+                        .frame(width: 60, height: 60)
+                        .overlay(
+                            Circle()
+                                .strokeBorder(BrewerColors.caramel, lineWidth: 2)
+                        )
+                        .shadow(color: BrewerColors.buttonShadow, radius: 4, x: 0, y: 2)
+                    
+                    SVGIcon(brewMethod.iconName, size: 30, color: BrewerColors.cream)
+                }
+                
+                Text(brewMethod.displayName)
+                    .font(.system(size: 16, weight: .semibold))
+                    .foregroundColor(BrewerColors.textPrimary)
+            }
+            .frame(maxWidth: .infinity)
+            .padding(.vertical, 24)
+            .padding(.horizontal, 16)
+            .background(
+                ZStack {
+                    // Base background
+                    BrewerColors.surface
+                    
+                    // Premium gradient overlay
+                    LinearGradient(
+                        gradient: Gradient(colors: [
+                            BrewerColors.caramel.opacity(0.15),
+                            BrewerColors.caramel.opacity(0.05),
+                            Color.clear,
+                            BrewerColors.cream.opacity(0.03)
+                        ]),
+                        startPoint: .topLeading,
+                        endPoint: .bottomTrailing
+                    )
+                    
+                    // Subtle radial gradient for depth
+                    RadialGradient(
+                        gradient: Gradient(colors: [
+                            Color.white.opacity(0.08),
+                            Color.clear
+                        ]),
+                        center: .topLeading,
+                        startRadius: 10,
+                        endRadius: 150
+                    )
+                }
+            )
+            .cornerRadius(16)
+            .overlay(
+                RoundedRectangle(cornerRadius: 16)
+                    .strokeBorder(BrewerColors.caramel.opacity(0.3), lineWidth: 2)
+            )
+            .shadow(color: BrewerColors.caramel.opacity(0.15), radius: 12, x: 0, y: 6)
+            .shadow(color: Color.black.opacity(0.1), radius: 20, x: 0, y: 10)
+        }
+        .buttonStyle(ImprovedScaleButtonStyle())
     }
 }
 

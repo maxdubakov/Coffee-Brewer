@@ -3,10 +3,10 @@ import CoreData
 
 @MainActor
 class AddRecipeCoordinator: ObservableObject {
-    weak var addRecipeViewModel: AddRecipeViewModel? // destroys view after tab switch
+    weak var addRecipeViewModel: BaseAddRecipeViewModel? // destroys view after tab switch
     private var isRecipeSaved = false
     
-    func setViewModel(_ viewModel: AddRecipeViewModel) {
+    func setViewModel(_ viewModel: BaseAddRecipeViewModel) {
         self.addRecipeViewModel = viewModel
     }
     

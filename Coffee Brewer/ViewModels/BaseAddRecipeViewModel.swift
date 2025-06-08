@@ -3,7 +3,7 @@ import CoreData
 import Combine
 
 @MainActor
-class AddRecipeViewModel: ObservableObject {
+class BaseAddRecipeViewModel: ObservableObject {
     // MARK: - Published Properties
     @Published var formData: RecipeFormData
     @Published var brewMath: BrewMathViewModel
@@ -21,7 +21,7 @@ class AddRecipeViewModel: ObservableObject {
     // MARK: - Recipe tracking
     @Published var savedRecipeID: NSManagedObjectID?
     
-    // MARK: - Computed Properties
+    // MARK: - Computed Properties (Override in subclasses)
     var headerTitle: String {
         "New Recipe"
     }
@@ -35,13 +35,14 @@ class AddRecipeViewModel: ObservableObject {
     }
     
     // MARK: - Initialization
-    init(selectedRoaster: Roaster?, selectedGrinder: Grinder? = nil, context: NSManagedObjectContext) {
+    init(selectedRoaster: Roaster?, selectedGrinder: Grinder? = nil, brewMethod: BrewMethod? = nil, context: NSManagedObjectContext) {
         self.viewContext = context
-        self.formData = RecipeFormData(selectedRoaster: selectedRoaster, selectedGrinder: selectedGrinder)
+        let formData = RecipeFormData(selectedRoaster: selectedRoaster, selectedGrinder: selectedGrinder, brewMethod: brewMethod)
+        self.formData = formData
         self.brewMath = BrewMathViewModel(
-            grams: 18,
-            ratio: 16.0,
-            water: 288
+            grams: formData.grams,
+            ratio: formData.ratio,
+            water: formData.waterAmount
         )
         setupBindings()
     }

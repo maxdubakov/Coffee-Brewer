@@ -89,7 +89,7 @@ struct Welcome: View {
     
     private func navigateToRecipeWithData() {
         onboardingState.dismissOnboarding()
-        navigationCoordinator.navigateToAddRecipe(roaster: createdRoaster, grinder: createdGrinder)
+        navigationCoordinator.navigateToAddV60Recipe(roaster: createdRoaster, grinder: createdGrinder)
     }
 }
 
