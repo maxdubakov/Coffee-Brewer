@@ -6,14 +6,14 @@
         <attribute name="bitterness" optional="YES" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES"/>
         <attribute name="body" optional="YES" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES"/>
         <attribute name="date" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
-        <attribute name="isAssessed" optional="YES" attributeType="Boolean" defaultValueString="NO" usesScalarValueType="YES"/>
         <attribute name="grinderName" optional="YES" attributeType="String"/>
         <attribute name="id" optional="YES" attributeType="UUID" usesScalarValueType="NO"/>
+        <attribute name="isAssessed" optional="YES" attributeType="Boolean" defaultValueString="NO" usesScalarValueType="YES"/>
         <attribute name="name" optional="YES" attributeType="String"/>
         <attribute name="notes" optional="YES" attributeType="String"/>
         <attribute name="rating" optional="YES" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES"/>
         <attribute name="recipeGrams" optional="YES" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES"/>
-        <attribute name="recipeGrindSize" optional="YES" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="recipeGrindSize" optional="YES" attributeType="Double" defaultValueString="0" usesScalarValueType="YES"/>
         <attribute name="recipeName" optional="YES" attributeType="String"/>
         <attribute name="recipeRatio" optional="YES" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES"/>
         <attribute name="recipeTemperature" optional="YES" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES"/>
@@ -22,6 +22,24 @@
         <attribute name="sweetness" optional="YES" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES"/>
         <attribute name="tds" optional="YES" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES"/>
         <relationship name="recipe" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="Recipe" inverseName="brews" inverseEntity="Recipe"/>
+    </entity>
+    <entity name="Chart" representedClassName="Chart" syncable="YES" codeGenerationType="class">
+        <attribute name="chartType" optional="YES" attributeType="String"/>
+        <attribute name="color" optional="YES" attributeType="String"/>
+        <attribute name="createdAt" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
+        <attribute name="id" optional="YES" attributeType="UUID" usesScalarValueType="NO"/>
+        <attribute name="isArchived" optional="YES" attributeType="Boolean" defaultValueString="NO" usesScalarValueType="YES"/>
+        <attribute name="isExpanded" optional="YES" attributeType="Boolean" defaultValueString="YES" usesScalarValueType="YES"/>
+        <attribute name="notes" optional="YES" attributeType="String"/>
+        <attribute name="sortOrder" optional="YES" attributeType="Integer 32" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="title" optional="YES" attributeType="String"/>
+        <attribute name="updatedAt" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
+        <attribute name="xAxisDisplayName" optional="YES" attributeType="String"/>
+        <attribute name="xAxisId" optional="YES" attributeType="String"/>
+        <attribute name="xAxisType" optional="YES" attributeType="String"/>
+        <attribute name="yAxisDisplayName" optional="YES" attributeType="String"/>
+        <attribute name="yAxisId" optional="YES" attributeType="String"/>
+        <attribute name="yAxisType" optional="YES" attributeType="String"/>
     </entity>
     <entity name="Country" representedClassName="Country" syncable="YES" codeGenerationType="class">
         <attribute name="flag" optional="YES" attributeType="String"/>
@@ -33,15 +51,18 @@
         <attribute name="burrSize" optional="YES" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES"/>
         <attribute name="burrType" optional="YES" attributeType="String"/>
         <attribute name="dosingType" optional="YES" attributeType="String"/>
+        <attribute name="from" optional="YES" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES"/>
         <attribute name="id" optional="YES" attributeType="UUID" usesScalarValueType="NO"/>
         <attribute name="name" optional="YES" attributeType="String"/>
+        <attribute name="step" optional="YES" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES"/>
+        <attribute name="to" optional="YES" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES"/>
         <attribute name="type" optional="YES" attributeType="String"/>
         <relationship name="recipes" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="Recipe" inverseName="grinder" inverseEntity="Recipe"/>
     </entity>
     <entity name="Recipe" representedClassName="Recipe" syncable="YES" codeGenerationType="class">
         <attribute name="brewMethod" optional="YES" attributeType="String" defaultValueString="V60"/>
         <attribute name="grams" optional="YES" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES"/>
-        <attribute name="grindSize" optional="YES" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="grindSize" optional="YES" attributeType="Double" defaultValueString="0" usesScalarValueType="YES"/>
         <attribute name="id" optional="YES" attributeType="UUID" usesScalarValueType="NO"/>
         <attribute name="lastBrewedAt" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
         <attribute name="name" optional="YES" attributeType="String"/>
@@ -71,23 +92,5 @@
         <attribute name="type" optional="YES" attributeType="String"/>
         <attribute name="waterAmount" optional="YES" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES"/>
         <relationship name="recipe" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="Recipe" inverseName="stages" inverseEntity="Recipe"/>
-    </entity>
-    <entity name="Chart" representedClassName="Chart" syncable="YES" codeGenerationType="class">
-        <attribute name="chartType" optional="YES" attributeType="String"/>
-        <attribute name="color" optional="YES" attributeType="String"/>
-        <attribute name="createdAt" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
-        <attribute name="id" optional="YES" attributeType="UUID" usesScalarValueType="NO"/>
-        <attribute name="isArchived" optional="YES" attributeType="Boolean" defaultValueString="NO" usesScalarValueType="YES"/>
-        <attribute name="isExpanded" optional="YES" attributeType="Boolean" defaultValueString="YES" usesScalarValueType="YES"/>
-        <attribute name="notes" optional="YES" attributeType="String"/>
-        <attribute name="sortOrder" optional="YES" attributeType="Integer 32" defaultValueString="0" usesScalarValueType="YES"/>
-        <attribute name="title" optional="YES" attributeType="String"/>
-        <attribute name="updatedAt" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
-        <attribute name="xAxisDisplayName" optional="YES" attributeType="String"/>
-        <attribute name="xAxisId" optional="YES" attributeType="String"/>
-        <attribute name="xAxisType" optional="YES" attributeType="String"/>
-        <attribute name="yAxisDisplayName" optional="YES" attributeType="String"/>
-        <attribute name="yAxisId" optional="YES" attributeType="String"/>
-        <attribute name="yAxisType" optional="YES" attributeType="String"/>
     </entity>
 </model>

@@ -51,6 +51,12 @@ class AddGrinderViewModel: ObservableObject {
                 return false
             }
         }
+        
+        if formData.settingsFrom >= formData.settingsTo {
+            validationMessage = "Please, enter the correct grind settings"
+            showValidationAlert = true
+            return false
+        }
 
         return saveGrinder()
     }
@@ -68,6 +74,10 @@ class AddGrinderViewModel: ObservableObject {
         if let burrSize = formData.burrSizeInt {
             grinder.burrSize = Int16(burrSize)
         }
+        
+        grinder.from = formData.settingsFrom
+        grinder.to = formData.settingsTo
+        grinder.step = formData.settingsStep
         
         do {
             try viewContext.save()

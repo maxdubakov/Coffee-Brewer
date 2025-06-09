@@ -226,7 +226,7 @@ extension Recipe {
             recipe.id = id
             recipe.name = data["name"] as? String ?? ""
             recipe.grams = Int16(data["grams"] as? Int ?? 0)
-            recipe.grindSize = Int16(data["grindSize"] as? Int ?? 0)
+            recipe.grindSize = data["grindSize"] as? Double ?? 0.0
             recipe.ratio = data["ratio"] as? Double ?? 0.0
             recipe.temperature = data["temperature"] as? Double ?? 0.0
             recipe.waterAmount = Int16(data["waterAmount"] as? Int ?? 0)
@@ -286,7 +286,7 @@ extension Brew {
             brew.tds = data["tds"] as? Double ?? 0.0
             brew.actualDurationSeconds = Int16(data["actualDurationSeconds"] as? Int ?? 0)
             brew.recipeGrams = Int16(data["recipeGrams"] as? Int ?? 0)
-            brew.recipeGrindSize = Int16(data["recipeGrindSize"] as? Int ?? 0)
+            brew.recipeGrindSize = data["recipeGrindSize"] as? Double ?? 0.0
             brew.recipeRatio = data["recipeRatio"] as? Double ?? 0.0
             brew.recipeTemperature = data["recipeTemperature"] as? Double ?? 0.0
             brew.recipeWaterAmount = Int16(data["recipeWaterAmount"] as? Int ?? 0)

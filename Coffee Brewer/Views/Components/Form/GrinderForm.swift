@@ -66,6 +66,19 @@ struct GrinderForm: View {
                     selectedItem: $formData.dosingType,
                     focusedField: $focusedField
                 )
+                
+                Divider()
+                
+                FormTripleExpandableField(
+                    title: "Grind Settings",
+                    fromRange: Array(0...100),
+                    toRange: Array(0...500),
+                    stepRange: [0.1, 0.25, 0.5, 1.0, 2.0],
+                    from: $formData.settingsFrom,
+                    to: $formData.settingsTo,
+                    step: $formData.settingsStep,
+                    focusedField: $focusedField
+                )
             }
         }
     }

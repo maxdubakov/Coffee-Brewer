@@ -19,7 +19,7 @@ struct BrewFormData: Equatable, Hashable {
     var recipeWaterAmount: Int16 = 0
     var recipeRatio: Double = 0.0
     var recipeTemperature: Double = 0.0
-    var recipeGrindSize: Int16 = 0
+    var recipeGrindSize: Double = 0.0
     var roasterName: String = ""
     var grinderName: String = ""
     

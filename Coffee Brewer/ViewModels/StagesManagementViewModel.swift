@@ -148,7 +148,7 @@ class StagesManagementViewModel: ObservableObject {
                     recipe.brewMethod = formData.brewMethod.rawValue
                     recipe.oreaBottomType = formData.oreaBottomType?.rawValue
                     recipe.temperature = formData.temperature
-                    recipe.grindSize = formData.grindSize
+                    recipe.grindSize = formData.grindSize ?? 0.0
                     recipe.grams = brewMath.grams
                     recipe.ratio = brewMath.ratio
                     recipe.waterAmount = brewMath.water

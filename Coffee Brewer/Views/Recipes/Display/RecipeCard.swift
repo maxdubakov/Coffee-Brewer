@@ -79,7 +79,7 @@ struct RecipeCard: View {
                             .opacity(0.6)
                         
                         
-                        Text("\(Int(recipe.grindSize))")
+                        Text(String(format: "%.1f", recipe.grindSize))
                             .font(.system(size: 12, weight: .medium, design: .rounded))
                     }
                     .foregroundColor(.white)
@@ -262,7 +262,7 @@ struct PremiumRecipeCardPreview: PreviewProvider {
         let context = PersistenceController.preview.container.viewContext
         
         // Create test recipes with different characteristics
-        func createRecipe(name: String, roasterName: String, countryFlag: String, grams: Int16, ratio: Double, grindSize: Int16) -> Recipe {
+        func createRecipe(name: String, roasterName: String, countryFlag: String, grams: Int16, ratio: Double, grindSize: Double) -> Recipe {
             let recipe = Recipe(context: context)
             recipe.id = UUID()
             recipe.name = name
@@ -315,7 +315,7 @@ struct PremiumRecipeCardPreview: PreviewProvider {
             countryFlag: "🇩🇰",
             grams: 18,
             ratio: 2.5,
-            grindSize: 8
+            grindSize: 8.0
         )
         addStages(to: espresso, types: [("slow", 45, 30)])
         
@@ -325,7 +325,7 @@ struct PremiumRecipeCardPreview: PreviewProvider {
             countryFlag: "🇳🇴",
             grams: 20,
             ratio: 16.0,
-            grindSize: 28
+            grindSize: 28.0
         )
         addStages(to: pourOver, types: [("fast", 60, 10), ("wait", 0, 30), ("slow", 140, 60), ("fast", 120, 20)])
         
@@ -335,7 +335,7 @@ struct PremiumRecipeCardPreview: PreviewProvider {
             countryFlag: "🇺🇸",
             grams: 15,
             ratio: 11.0,
-            grindSize: 18
+            grindSize: 18.0
         )
         addStages(to: aeropress, types: [("fast", 165, 10), ("wait", 0, 90)])
         

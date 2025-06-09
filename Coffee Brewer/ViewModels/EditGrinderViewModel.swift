@@ -72,6 +72,9 @@ class EditGrinderViewModel: ObservableObject {
             grinder.burrSize = Int16(formData.burrSizeInt ?? 0)
             grinder.dosingType = formData.dosingType.isEmpty ? nil : formData.dosingType
             grinder.type = formData.type.isEmpty ? nil : formData.type
+            grinder.from = formData.settingsFrom
+            grinder.to = formData.settingsTo
+            grinder.step = formData.settingsStep
             
             do {
                 try viewContext.save()

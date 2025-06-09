@@ -111,6 +111,9 @@ struct PersistenceController {
         niche.id = UUID()
         niche.name = "Niche Zero"
         niche.type = "Electric"
+        niche.from = 0
+        niche.to = 50
+        niche.step = 0.2
         
         let commandante = Grinder(context: viewContext)
         commandante.id = UUID()
@@ -126,7 +129,7 @@ struct PersistenceController {
         defaultRecipe.waterAmount = 288
         defaultRecipe.temperature = 94.0
         defaultRecipe.lastBrewedAt = Calendar.current.date(byAdding: .day, value: -2, to: Date())!
-        defaultRecipe.grindSize = 37
+        defaultRecipe.grindSize = 37.0
         defaultRecipe.roaster = madHeads
         defaultRecipe.grinder = niche
         
@@ -139,7 +142,7 @@ struct PersistenceController {
         ethiopianRecipe.waterAmount = 300
         ethiopianRecipe.temperature = 93.0
         ethiopianRecipe.lastBrewedAt = Calendar.current.date(byAdding: .day, value: -1, to: Date())!
-        ethiopianRecipe.grindSize = 28
+        ethiopianRecipe.grindSize = 28.0
         ethiopianRecipe.roaster = ethioRoaster
         ethiopianRecipe.grinder = commandante
         
@@ -205,7 +208,7 @@ struct PersistenceController {
         guatemalaRecipe.waterAmount = 36
         guatemalaRecipe.temperature = 95.0
         guatemalaRecipe.lastBrewedAt = Date() // Just now
-        guatemalaRecipe.grindSize = 12
+        guatemalaRecipe.grindSize = 12.0
         guatemalaRecipe.roaster = guatemalanRoaster
         guatemalaRecipe.grinder = niche
         
@@ -221,7 +224,7 @@ struct PersistenceController {
         nordKenya.waterAmount = 295
         nordKenya.temperature = 92.0
         nordKenya.lastBrewedAt = Date()
-        nordKenya.grindSize = 30
+        nordKenya.grindSize = 30.0
         nordKenya.roaster = nordRoaster
         nordKenya.grinder = commandante
 
@@ -237,7 +240,7 @@ struct PersistenceController {
         nordDecaf.waterAmount = 272
         nordDecaf.temperature = 91.0
         nordDecaf.lastBrewedAt = Calendar.current.date(byAdding: .day, value: -3, to: Date())!
-        nordDecaf.grindSize = 34
+        nordDecaf.grindSize = 34.0
         nordDecaf.roaster = nordRoaster
         nordDecaf.grinder = niche
 
@@ -253,7 +256,7 @@ struct PersistenceController {
         brightBlend.waterAmount = 240
         brightBlend.temperature = 93.5
         brightBlend.lastBrewedAt = Calendar.current.date(byAdding: .day, value: -4, to: Date())!
-        brightBlend.grindSize = 32
+        brightBlend.grindSize = 32.0
         brightBlend.roaster = brightBean
         brightBlend.grinder = commandante
 
@@ -269,7 +272,7 @@ struct PersistenceController {
         brightEspresso.waterAmount = 40
         brightEspresso.temperature = 94.0
         brightEspresso.lastBrewedAt = Date()
-        brightEspresso.grindSize = 10
+        brightEspresso.grindSize = 10.0
         brightEspresso.roaster = brightBean
         brightEspresso.grinder = niche
 
@@ -284,7 +287,7 @@ struct PersistenceController {
         colombianPourOver.waterAmount = 341
         colombianPourOver.temperature = 94.0
         colombianPourOver.lastBrewedAt = Calendar.current.date(byAdding: .day, value: -5, to: Date())!
-        colombianPourOver.grindSize = 26
+        colombianPourOver.grindSize = 26.0
         colombianPourOver.roaster = colombianRoaster
         colombianPourOver.grinder = commandante
         
@@ -300,7 +303,7 @@ struct PersistenceController {
         brazilianChemex.waterAmount = 480
         brazilianChemex.temperature = 96.0
         brazilianChemex.lastBrewedAt = Calendar.current.date(byAdding: .day, value: -3, to: Date())!
-        brazilianChemex.grindSize = 35
+        brazilianChemex.grindSize = 35.0
         brazilianChemex.roaster = brazilianRoaster
         brazilianChemex.grinder = niche
         
@@ -430,7 +433,7 @@ struct PersistenceController {
             let brewDate = calendar.date(byAdding: .day, value: -i, to: today)!
             if calendar.isDateInWeekend(brewDate) {
                 let rating = Int16.random(in: 3...5)
-                let grindVariation = Int16.random(in: -2...2)
+                let grindVariation = Double(Int16.random(in: -2...2))
                 
                 createDetailedBrew(
                     brightBlend,

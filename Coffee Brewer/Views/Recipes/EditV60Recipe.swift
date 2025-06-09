@@ -35,14 +35,14 @@ struct EditV60Recipe: View {
                                     focusedField: $viewModel.focusedField
                                 )
                                 
-                                BrewingParametersSection(
+                                GrindSection(
                                     formData: $viewModel.formData,
-                                    brewMath: $viewModel.brewMath,
                                     focusedField: $viewModel.focusedField
                                 )
                                 
-                                GrindSection(
+                                BrewingParametersSection(
                                     formData: $viewModel.formData,
+                                    brewMath: $viewModel.brewMath,
                                     focusedField: $viewModel.focusedField
                                 )
                             }

@@ -205,7 +205,7 @@ struct TimeSeriesChart: View {
                         brew.rating = Int16.random(in: 2...5)
                         brew.recipeName = "Test Recipe \(i)"
                         brew.roasterName = "Blue Bottle"
-                        brew.recipeGrindSize = Int16.random(in: 15...25)
+                        brew.recipeGrindSize = Double.random(in: 15...25)
                         brew.recipeTemperature = Double.random(in: 92...96)
                         brew.recipeGrams = Int16.random(in: 15...20)
                         brew.recipeWaterAmount = Int16.random(in: 250...300)

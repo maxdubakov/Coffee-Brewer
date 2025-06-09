@@ -106,7 +106,7 @@ struct ScatterPlotChart: View {
                         let brew = Brew(context: context)
                         brew.id = UUID()
                         brew.date = Date().addingTimeInterval(TimeInterval(-i * 86400))
-                        brew.recipeGrindSize = Int16.random(in: 10...30)
+                        brew.recipeGrindSize = Double.random(in: 10...30)
                         brew.rating = Int16.random(in: 1...5)
                         brew.recipeName = "Test Recipe \(i)"
                         brews.append(brew)

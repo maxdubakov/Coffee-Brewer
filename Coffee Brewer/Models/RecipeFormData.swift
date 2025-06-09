@@ -8,7 +8,7 @@ struct RecipeFormData: Equatable, Hashable {
     var brewMethod: BrewMethod = .v60
     var oreaBottomType: OreaBottomType? = nil
     var temperature: Double = 95.0
-    var grindSize: Int16 = 40
+    var grindSize: Double? = nil
     var grams: Int16 = 18
     var ratio: Double = 16.0
     var waterAmount: Int16 = 288
@@ -25,7 +25,7 @@ struct RecipeFormData: Equatable, Hashable {
             self.oreaBottomType = OreaBottomType(rawValue: oreaBottomString)
         }
         self.temperature = recipe.temperature
-        self.grindSize = recipe.grindSize
+        self.grindSize = recipe.grindSize > 0 ? Double(recipe.grindSize) : nil
         self.grams = recipe.grams
         self.ratio = recipe.ratio
         self.waterAmount = recipe.waterAmount
