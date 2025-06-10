@@ -79,14 +79,7 @@ private struct GrinderPickerSheet: View {
                             dismiss()
                         } label: {
                             HStack(spacing: 12) {
-                                if let grinder = item.grinder {
-                                    SVGIcon(grinder.typeIcon, size: 20, color: BrewerColors.caramel)
-                                } else {
-                                    Image(systemName: "bag")
-                                        .font(.system(size: 20))
-                                        .foregroundColor(BrewerColors.caramel)
-                                        .frame(width: 20, height: 20)
-                                }
+                                SVGIcon(item.grinder?.typeIcon ?? "coffee.bag", size: 20, color: BrewerColors.caramel)
                                 
                                 Text(item.sortName)
                                     .font(.body)
