@@ -79,7 +79,7 @@ struct RecipeCard: View {
                             .opacity(0.6)
                         
                         
-                        Text(String(format: "%.1f", recipe.grindSize))
+                        Text(recipe.grinder != nil ? String(format: "%.1f", recipe.grindSize) : "pre")
                             .font(.system(size: 12, weight: .medium, design: .rounded))
                     }
                     .foregroundColor(.white)

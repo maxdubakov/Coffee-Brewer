@@ -20,7 +20,7 @@ struct RecipeMetricsBar: View {
             HStack {
                 RecipeMetric(iconName: "thermometer", value: "\(Int(recipe.temperature))°", color: BrewerColors.caramel)
                 
-                RecipeMetric(iconName: "circle.grid.3x3", value: "\(recipe.grindSize)", color: BrewerColors.caramel)
+                RecipeMetric(iconName: "circle.grid.3x3", value: recipe.grinder != nil ? "\(recipe.grindSize)" : "pre", color: BrewerColors.caramel)
                 
                 RecipeMetric(iconName: "timer", value: formattedTotalTime, color: BrewerColors.caramel)
             }

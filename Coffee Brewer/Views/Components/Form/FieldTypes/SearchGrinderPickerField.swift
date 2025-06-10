@@ -1,4 +1,5 @@
 import SwiftUI
+import CoreData
 
 struct SearchGrinderPickerField: View {
     // MARK: - Environment
@@ -26,34 +27,93 @@ struct SearchGrinderPickerField: View {
                 if let grinder = selectedGrinder {
                     FormValueText(value: grinder.name ?? "")
                 } else {
-                    FormPlaceholderText(value: "Select")
+                    FormPlaceholderText(value: "None (pre-ground)")
                 }
             }
             .onTapGesture {
                 isPresentingSheet = true
             }
-
-            
         }
         .sheet(isPresented: $isPresentingSheet) {
-            SearchablePickerSheetWithIcon(
-                label: "Grinder",
-                items: Array(grinders),
-                searchKeyPath: { $0.name ?? "" },
-                onSelect: { selectedGrinder = $0 },
-                rowContent: { grinder in
-                    HStack(spacing: 12) {
-                        SVGIcon(grinder.typeIcon, size: 20, color: BrewerColors.caramel)
-                        
-                        Text(grinder.name ?? "")
-                            .font(.body)
-                            .foregroundColor(BrewerColors.textPrimary)
-                        
-                        Spacer()
+            GrinderPickerSheet(
+                grinders: Array(grinders),
+                onSelect: { selectedGrinder = $0 }
+            )
+        }
+    }
+}
+
+// MARK: - Grinder Picker Sheet
+private struct GrinderPickerSheet: View {
+    let grinders: [Grinder]
+    let onSelect: (Grinder?) -> Void
+    
+    @Environment(\.dismiss) private var dismiss
+    @State private var searchText: String = ""
+    
+    private var filteredItems: [(grinder: Grinder?, sortName: String)] {
+        var items: [(grinder: Grinder?, sortName: String)] = []
+        
+        // Add pre-ground option if it matches search
+        if searchText.isEmpty || "pre-ground".localizedCaseInsensitiveContains(searchText) || "none".localizedCaseInsensitiveContains(searchText) {
+            items.append((grinder: nil, sortName: "None (pre-ground)"))
+        }
+        
+        // Add filtered grinders
+        let filtered = grinders.filter {
+            searchText.isEmpty || ($0.name ?? "").localizedCaseInsensitiveContains(searchText)
+        }
+        items.append(contentsOf: filtered.map { (grinder: $0, sortName: $0.name ?? "") })
+        
+        // Sort all items alphabetically
+        return items.sorted { $0.sortName.localizedCompare($1.sortName) == .orderedAscending }
+    }
+    
+    var body: some View {
+        NavigationStack {
+            List {
+                Section {
+                    ForEach(filteredItems, id: \.grinder?.objectID) { item in
+                        Button {
+                            onSelect(item.grinder)
+                            dismiss()
+                        } label: {
+                            HStack(spacing: 12) {
+                                if let grinder = item.grinder {
+                                    SVGIcon(grinder.typeIcon, size: 20, color: BrewerColors.caramel)
+                                } else {
+                                    Image(systemName: "bag")
+                                        .font(.system(size: 20))
+                                        .foregroundColor(BrewerColors.caramel)
+                                        .frame(width: 20, height: 20)
+                                }
+                                
+                                Text(item.sortName)
+                                    .font(.body)
+                                    .foregroundColor(BrewerColors.textPrimary)
+                                
+                                Spacer()
+                            }
+                        }
+                        .listRowBackground(BrewerColors.background)
                     }
                 }
-            )
-            .environment(\.managedObjectContext, viewContext)
+            }
+            .listStyle(.insetGrouped)
+            .scrollContentBackground(.hidden)
+            .background(BrewerColors.background)
+            .searchable(text: $searchText, prompt: "Search")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbarBackground(BrewerColors.surface, for: .navigationBar)
+            .toolbarBackground(.visible, for: .navigationBar)
+            .toolbar {
+                ToolbarItem(placement: .principal) {
+                    Text("Grinder")
+                        .font(.headline)
+                        .foregroundColor(BrewerColors.textPrimary)
+                }
+            }
         }
+        .background(BrewerColors.background.ignoresSafeArea())
     }
 }
