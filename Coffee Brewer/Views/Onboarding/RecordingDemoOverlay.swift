@@ -96,6 +96,34 @@ struct RecordingDemoOverlayView: View {
                         EmptyView()
                     }
                 }
+                .contentShape(Rectangle())
+                .onTapGesture {
+                    demo.advanceDemo()
+                }
+                .gesture(
+                    DragGesture()
+                        .onEnded { value in
+                            if value.translation.width > 50 && demo.demoStep > 0 {
+                                // Swipe right - go to previous step
+                                withAnimation(.easeInOut(duration: 0.3)) {
+                                    demo.demoStep -= 1
+                                }
+                            } else if value.translation.width < -50 && demo.demoStep < 4 {
+                                // Swipe left - go to next step
+                                withAnimation(.easeInOut(duration: 0.3)) {
+                                    demo.demoStep += 1
+                                    
+                                    // Set up demo stages when reaching step 2
+                                    if demo.demoStep == 2 && demo.demoRecordedStages.isEmpty {
+                                        demo.demoRecordedStages = [
+                                            (time: 8.0, id: UUID(), type: .fast),
+                                            (time: 15.0, id: UUID(), type: .wait),
+                                        ]
+                                    }
+                                }
+                            }
+                        }
+                )
                 
                 HStack(spacing: 8) {
                     ForEach(0..<5) { index in
@@ -104,13 +132,22 @@ struct RecordingDemoOverlayView: View {
                             .frame(width: 8, height: 8)
                             .scaleEffect(index == demo.demoStep ? 1.2 : 1.0)
                             .animation(.easeInOut(duration: 0.3), value: demo.demoStep)
+                            .onTapGesture {
+                                withAnimation(.easeInOut(duration: 0.3)) {
+                                    demo.demoStep = index
+                                    
+                                    // Set up demo stages when jumping to step 2
+                                    if index == 2 && demo.demoRecordedStages.isEmpty {
+                                        demo.demoRecordedStages = [
+                                            (time: 8.0, id: UUID(), type: .fast),
+                                            (time: 15.0, id: UUID(), type: .wait),
+                                        ]
+                                    }
+                                }
+                            }
                     }
                 }
                 .padding(.bottom, 70)
-            }
-            .contentShape(Rectangle())
-            .onTapGesture {
-                demo.advanceDemo()
             }
         }
     }
