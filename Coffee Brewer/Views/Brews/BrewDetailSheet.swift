@@ -3,6 +3,7 @@ import SwiftUI
 struct BrewDetailSheet: View {
     let brew: Brew
     @Environment(\.dismiss) private var dismiss
+    @EnvironmentObject private var navigationCoordinator: NavigationCoordinator
 
     var body: some View {
         VStack(spacing: 0) {
@@ -161,6 +162,29 @@ struct BrewDetailSheet: View {
                 }
                 .padding(.top, 24)
             }
+
+            // Brew Again button
+            Button {
+                navigationCoordinator.pendingCloneBrew = brew
+                dismiss()
+            } label: {
+                HStack(spacing: 8) {
+                    Image(systemName: "arrow.counterclockwise")
+                        .font(.system(size: 15, weight: .medium))
+                    Text("Brew Again")
+                        .font(.system(size: 15, weight: .semibold))
+                }
+                .foregroundColor(BrewerColors.caramel)
+                .frame(maxWidth: .infinity)
+                .padding(.vertical, 14)
+                .background(
+                    RoundedRectangle(cornerRadius: 12)
+                        .fill(BrewerColors.caramel.opacity(0.12))
+                )
+            }
+            .buttonStyle(.plain)
+            .padding(.horizontal, 20)
+            .padding(.top, 24)
 
             Spacer()
         }

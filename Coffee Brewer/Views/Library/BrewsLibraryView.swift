@@ -126,7 +126,9 @@ struct BrewsLibraryView: View {
                 Text("Are you sure you want to delete this brew?")
             }
         }
-        .sheet(item: $selectedBrewForDetail) { brew in
+        .sheet(item: $selectedBrewForDetail, onDismiss: {
+            navigationCoordinator.processPendingClone()
+        }) { brew in
             BrewDetailSheet(brew: brew)
                 .presentationDetents([.large])
                 .presentationDragIndicator(.visible)

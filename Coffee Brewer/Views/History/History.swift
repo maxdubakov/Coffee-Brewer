@@ -62,7 +62,9 @@ struct History: View {
             } message: {
                 Text("Are you sure you want to delete \(selectedCharts.count) chart\(selectedCharts.count == 1 ? "" : "s")? This action cannot be undone.")
             }
-            .sheet(item: $selectedBrew) { brew in
+            .sheet(item: $selectedBrew, onDismiss: {
+                navigationCoordinator.processPendingClone()
+            }) { brew in
                 BrewDetailSheet(brew: brew)
                     .presentationDetents([.large])
                     .presentationDragIndicator(.visible)
@@ -306,6 +308,13 @@ struct History: View {
                             }
                         )
                         .padding(.horizontal)
+                        .contextMenu {
+                            Button {
+                                navigationCoordinator.startBrewFromClone(brew: brew)
+                            } label: {
+                                Label("Brew Again", systemImage: "arrow.counterclockwise")
+                            }
+                        }
                         
                         if index < recentBrews.count - 1 {
                             CustomDivider()

@@ -1,9 +1,16 @@
 import SwiftUI
 import CoreData
 
+// MARK: - Brew Editor Route
+enum BrewEditorRoute: Hashable {
+    case template(BrewMethod)
+    case cloneFromBrew(NSManagedObjectID)
+}
+
 // MARK: - Navigation Destinations
 enum AppDestination: Hashable {
     // Add flow
+    case addCoffee
     case addRoaster
     case addGrinder
 
@@ -34,10 +41,16 @@ class NavigationCoordinator: ObservableObject {
     @Published var homePath = NavigationPath()
     @Published var addPath = NavigationPath()
     @Published var historyPath = NavigationPath()
+    @Published var brewPath = NavigationPath()
 
     // MARK: - Modal States
+    @Published var editingCoffee: Coffee?
     @Published var editingRoaster: Roaster?
     @Published var editingGrinder: Grinder?
+
+    // MARK: - Delete Coffee State
+    @Published var showingDeleteCoffeeAlert = false
+    @Published var coffeeToDelete: Coffee?
 
     // MARK: - Delete Roaster State
     @Published var showingDeleteRoasterAlert = false
@@ -51,11 +64,19 @@ class NavigationCoordinator: ObservableObject {
     @Published var showingDeleteBrewAlert = false
     @Published var brewToDelete: Brew?
 
+    // MARK: - Pending Clone State
+    @Published var pendingCloneBrew: Brew?
+
     init() {
         setupNotificationListeners()
     }
 
     // MARK: - Navigation Methods
+    func navigateToAddCoffee() {
+        _selectedTab = .add
+        addPath.append(AppDestination.addCoffee)
+    }
+
     func navigateToAddRoaster() {
         _selectedTab = .add
         addPath.append(AppDestination.addRoaster)
@@ -79,8 +100,33 @@ class NavigationCoordinator: ObservableObject {
         _selectedTab = .home
     }
 
+    func navigateToHistory() {
+        _selectedTab = .history
+    }
+
     func navigateToSettings() {
         homePath.append(AppDestination.settings)
+    }
+
+    func startBrewFromClone(brew: Brew) {
+        brewPath = NavigationPath()
+        _selectedTab = .brew
+        brewPath.append(BrewEditorRoute.cloneFromBrew(brew.objectID))
+    }
+
+    /// Called from sheet `onDismiss` to process a pending "Brew Again" action.
+    func processPendingClone() {
+        guard let brew = pendingCloneBrew else { return }
+        pendingCloneBrew = nil
+        startBrewFromClone(brew: brew)
+    }
+
+    func presentEditCoffee(_ coffee: Coffee) {
+        editingCoffee = coffee
+    }
+
+    func dismissEditCoffee() {
+        editingCoffee = nil
     }
 
     func presentEditRoaster(_ roaster: Roaster) {
@@ -97,6 +143,34 @@ class NavigationCoordinator: ObservableObject {
 
     func dismissEditGrinder() {
         editingGrinder = nil
+    }
+
+    // MARK: - Coffee Deletion
+    func confirmDeleteCoffee(_ coffee: Coffee) {
+        coffeeToDelete = coffee
+        showingDeleteCoffeeAlert = true
+    }
+
+    func deleteCoffee(in context: NSManagedObjectContext) {
+        guard let coffee = coffeeToDelete else { return }
+
+        withAnimation(.bouncy(duration: 0.5)) {
+            context.delete(coffee)
+
+            do {
+                try context.save()
+            } catch {
+                print("Error deleting coffee: \(error)")
+            }
+        }
+
+        coffeeToDelete = nil
+        showingDeleteCoffeeAlert = false
+    }
+
+    func cancelDeleteCoffee() {
+        coffeeToDelete = nil
+        showingDeleteCoffeeAlert = false
     }
 
     // MARK: - Roaster Deletion
@@ -188,6 +262,8 @@ class NavigationCoordinator: ObservableObject {
         switch tab {
         case .home:
             homePath = NavigationPath()
+        case .brew:
+            brewPath = NavigationPath()
         case .add:
             addPath = NavigationPath()
         case .history:
@@ -197,12 +273,43 @@ class NavigationCoordinator: ObservableObject {
 
     func popToRoot() {
         homePath = NavigationPath()
+        brewPath = NavigationPath()
         addPath = NavigationPath()
         historyPath = NavigationPath()
     }
 
     // MARK: - Event Handlers
     private func setupNotificationListeners() {
+        NotificationCenter.default.addObserver(
+            forName: .brewSaved,
+            object: nil,
+            queue: .main
+        ) { [weak self] _ in
+            Task { @MainActor in
+                self?.handleBrewSaved()
+            }
+        }
+
+        NotificationCenter.default.addObserver(
+            forName: .coffeeSaved,
+            object: nil,
+            queue: .main
+        ) { [weak self] _ in
+            Task { @MainActor in
+                self?.handleCoffeeSaved()
+            }
+        }
+
+        NotificationCenter.default.addObserver(
+            forName: .coffeeUpdated,
+            object: nil,
+            queue: .main
+        ) { [weak self] _ in
+            Task { @MainActor in
+                self?.handleCoffeeUpdated()
+            }
+        }
+
         NotificationCenter.default.addObserver(
             forName: .roasterSaved,
             object: nil,
@@ -222,6 +329,20 @@ class NavigationCoordinator: ObservableObject {
                 self?.handleGrinderSaved()
             }
         }
+    }
+
+    private func handleBrewSaved() {
+        popToRoot(for: .brew)
+        _selectedTab = .home
+    }
+
+    private func handleCoffeeSaved() {
+        popToRoot(for: .add)
+        _selectedTab = .home
+    }
+
+    private func handleCoffeeUpdated() {
+        editingCoffee = nil
     }
 
     private func handleRoasterSaved() {

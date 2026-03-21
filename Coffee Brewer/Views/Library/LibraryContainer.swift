@@ -10,6 +10,13 @@ struct LibraryContainer: View {
             AllLibraryView(navigationCoordinator: navigationCoordinator, searchText: searchText)
                 .padding(.horizontal, 20)
         }
+        .sheet(item: $navigationCoordinator.editingCoffee) { coffee in
+            NavigationStack {
+                EditCoffee(coffee: coffee, isPresented: $navigationCoordinator.editingCoffee)
+                    .environment(\.managedObjectContext, navigationCoordinator.editingCoffee?.managedObjectContext ?? PersistenceController.shared.container.viewContext)
+            }
+            .tint(BrewerColors.cream)
+        }
         .sheet(item: $navigationCoordinator.editingRoaster) { roaster in
             NavigationStack {
                 EditRoaster(roaster: roaster, isPresented: $navigationCoordinator.editingRoaster)

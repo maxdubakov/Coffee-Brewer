@@ -38,7 +38,7 @@ struct AddChoice: View {
 
             VStack(spacing: 20) {
                 if needsRoaster {
-                    // Primary: Roaster
+                    // Primary: Roaster (required first)
                     PrimaryChoiceCard(
                         title: "Add Roaster",
                         description: "Add your coffee source first",
@@ -55,6 +55,17 @@ struct AddChoice: View {
                         .opacity(showSecondaryChoices ? 1 : 0)
 
                     SecondaryChoiceCard(
+                        title: "Coffee",
+                        description: "Add a coffee to your library",
+                        imageName: "coffee.bag",
+                        action: {
+                            navigationCoordinator.addPath.append(AppDestination.addCoffee)
+                        }
+                    )
+                    .opacity(showSecondaryChoices ? 1 : 0)
+                    .offset(y: showSecondaryChoices ? 0 : 20)
+
+                    SecondaryChoiceCard(
                         title: "Grinder",
                         description: "Add a coffee grinder",
                         imageName: "grinder",
@@ -66,7 +77,7 @@ struct AddChoice: View {
                     .offset(y: showSecondaryChoices ? 0 : 20)
 
                 } else if needsGrinder {
-                    // Primary: Grinder
+                    // Primary: Grinder (almost ready)
                     PrimaryChoiceCard(
                         title: "Add Grinder",
                         description: "Add your grinder to complete setup",
@@ -83,6 +94,17 @@ struct AddChoice: View {
                         .opacity(showSecondaryChoices ? 1 : 0)
 
                     SecondaryChoiceCard(
+                        title: "Coffee",
+                        description: "Add a coffee to your library",
+                        imageName: "coffee.bag",
+                        action: {
+                            navigationCoordinator.addPath.append(AppDestination.addCoffee)
+                        }
+                    )
+                    .opacity(showSecondaryChoices ? 1 : 0)
+                    .offset(y: showSecondaryChoices ? 0 : 20)
+
+                    SecondaryChoiceCard(
                         title: "Roaster",
                         description: "Add another roaster",
                         imageName: "roaster",
@@ -94,7 +116,22 @@ struct AddChoice: View {
                     .offset(y: showSecondaryChoices ? 0 : 20)
 
                 } else {
-                    // Equal choices: Roaster and Grinder
+                    // Setup complete — Coffee is the primary/most prominent choice
+                    PrimaryChoiceCard(
+                        title: "Add Coffee",
+                        description: "Add a coffee to your library",
+                        imageName: "coffee.bag",
+                        badgeText: nil,
+                        action: {
+                            navigationCoordinator.addPath.append(AppDestination.addCoffee)
+                        }
+                    )
+                    .opacity(showPrimaryChoice ? 1 : 0)
+                    .offset(y: showPrimaryChoice ? 0 : 30)
+
+                    ORDivider()
+                        .opacity(showSecondaryChoices ? 1 : 0)
+
                     VStack(spacing: 12) {
                         SecondaryChoiceCard(
                             title: "Roaster",
@@ -114,8 +151,8 @@ struct AddChoice: View {
                             }
                         )
                     }
-                    .opacity(showPrimaryChoice ? 1 : 0)
-                    .offset(y: showPrimaryChoice ? 0 : 30)
+                    .opacity(showSecondaryChoices ? 1 : 0)
+                    .offset(y: showSecondaryChoices ? 0 : 20)
                 }
             }
 

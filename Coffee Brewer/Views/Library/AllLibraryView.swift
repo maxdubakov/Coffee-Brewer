@@ -32,6 +32,7 @@ struct AllLibraryView: View {
     )
     private var brews: FetchedResults<Brew>
 
+    @State private var selectedCoffeeForDetail: Coffee?
     @State private var selectedRoasterForDetail: Roaster?
     @State private var selectedGrinderForDetail: Grinder?
     @State private var selectedBrewForDetail: Brew?
@@ -148,34 +149,18 @@ struct AllLibraryView: View {
                         Section {
                             ForEach(Array(filteredCoffees.enumerated()), id: \.element.objectID) { index, coffee in
                                 VStack(spacing: 0) {
-                                    HStack(spacing: 12) {
-                                        if isEditMode {
-                                            Image(systemName: selectedCoffees.contains(coffee.objectID) ? "checkmark.circle.fill" : "circle")
-                                                .font(.system(size: 20))
-                                                .foregroundColor(selectedCoffees.contains(coffee.objectID) ? BrewerColors.caramel : BrewerColors.textSecondary)
-                                        }
-
-                                        VStack(alignment: .leading, spacing: 4) {
-                                            Text(coffee.name ?? "Unknown Coffee")
-                                                .font(.system(size: 16, weight: .semibold))
-                                                .foregroundColor(BrewerColors.textPrimary)
-
-                                            if let roasterName = coffee.roaster?.name {
-                                                Text(roasterName)
-                                                    .font(.system(size: 14))
-                                                    .foregroundColor(BrewerColors.textSecondary)
+                                    CoffeeLibraryRow(
+                                        coffee: coffee,
+                                        isEditMode: isEditMode,
+                                        isSelected: selectedCoffees.contains(coffee.objectID),
+                                        onTap: {
+                                            if isEditMode {
+                                                toggleCoffeeSelection(for: coffee)
+                                            } else {
+                                                selectedCoffeeForDetail = coffee
                                             }
                                         }
-
-                                        Spacer()
-                                    }
-                                    .padding(.vertical, 10)
-                                    .contentShape(Rectangle())
-                                    .onTapGesture {
-                                        if isEditMode {
-                                            toggleCoffeeSelection(for: coffee)
-                                        }
-                                    }
+                                    )
 
                                     if index < filteredCoffees.count - 1 {
                                         CustomDivider()
@@ -185,6 +170,13 @@ struct AllLibraryView: View {
                                 .listRowBackground(Color.clear)
                                 .listRowSeparator(.hidden)
                                 .listRowInsets(EdgeInsets(top: 4, leading: 0, bottom: 4, trailing: 0))
+                                .contextMenu {
+                                    Button(role: .destructive) {
+                                        navigationCoordinator.confirmDeleteCoffee(coffee)
+                                    } label: {
+                                        Label("Delete", systemImage: "trash")
+                                    }
+                                }
                             }
                         } header: {
                             SectionHeaderView(title: "Coffees", count: filteredCoffees.count)
@@ -308,6 +300,12 @@ struct AllLibraryView: View {
                                 .listRowSeparator(.hidden)
                                 .listRowInsets(EdgeInsets(top: 4, leading: 0, bottom: 4, trailing: 0))
                                 .contextMenu {
+                                    Button {
+                                        navigationCoordinator.startBrewFromClone(brew: brew)
+                                    } label: {
+                                        Label("Brew Again", systemImage: "arrow.counterclockwise")
+                                    }
+
                                     Button(role: .destructive) {
                                         navigationCoordinator.confirmDeleteBrew(brew)
                                     } label: {
@@ -327,6 +325,11 @@ struct AllLibraryView: View {
             }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+        .sheet(item: $selectedCoffeeForDetail) { coffee in
+            CoffeeDetailSheet(coffee: coffee)
+                .presentationDetents([.medium, .large])
+                .presentationDragIndicator(.visible)
+        }
         .sheet(item: $selectedRoasterForDetail) { roaster in
             RoasterDetailSheet(roaster: roaster)
                 .presentationDetents([.medium, .large])
@@ -337,7 +340,9 @@ struct AllLibraryView: View {
                 .presentationDetents([.medium, .large])
                 .presentationDragIndicator(.visible)
         }
-        .sheet(item: $selectedBrewForDetail) { brew in
+        .sheet(item: $selectedBrewForDetail, onDismiss: {
+            navigationCoordinator.processPendingClone()
+        }) { brew in
             BrewDetailSheet(brew: brew)
                 .presentationDetents([.large])
                 .presentationDragIndicator(.visible)
@@ -349,6 +354,16 @@ struct AllLibraryView: View {
             }
         } message: {
             Text("Are you sure you want to delete \(totalSelectedItems) selected item\(totalSelectedItems == 1 ? "" : "s")? This action cannot be undone.")
+        }
+        .alert("Delete Coffee?", isPresented: $navigationCoordinator.showingDeleteCoffeeAlert) {
+            Button("Delete", role: .destructive) {
+                navigationCoordinator.deleteCoffee(in: viewContext)
+            }
+            Button("Cancel", role: .cancel) {
+                navigationCoordinator.cancelDeleteCoffee()
+            }
+        } message: {
+            Text("Are you sure? This will also delete all brews associated with this coffee.")
         }
         .alert("Delete Roaster?", isPresented: $navigationCoordinator.showingDeleteRoasterAlert) {
             Button("Cancel", role: .cancel) {}

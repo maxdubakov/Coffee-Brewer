@@ -9,6 +9,210 @@
 **Test target**: `Coffee BrewerTests`  
 **Min iOS**: 17.0  
 
+---
+
+## Vision, Workflow & Design Decisions
+
+### The User's Real Brewing Workflow
+
+The owner brews pour-over coffee (V60, Orea V4) every morning while also preparing breakfast. The workflow is:
+
+1. **Buy a new pack** (e.g., from MadHeads roaster)
+2. **First brew with default recipe** — a recipe that barely changes between packs or even roasters. One default for V60, one for Orea V4.
+3. **Taste it**, notice what's off (too sour, too bitter, etc.)
+4. **Change 1-2 things** for the next brew — almost always the **pour pattern** (number of pours, fast vs slow, water amounts per pour). Rarely grind size. Rarely temperature. Grind size is treated as a "basement" — you change everything else first.
+5. **Repeat** — iterate daily until the coffee tastes right for that pack
+6. **New pack arrives** → back to step 2 with the default
+
+**Key insight**: The pour pattern is the primary variable, not grind size. The user iterates by cloning the previous experiment and tweaking 1-2 pour parameters.
+
+### What the User Does NOT Want
+- **No timer in the app** — they have a timer on their coffee scale. The app should not be needed during actual brewing.
+- **No "record live" feature** — tapping through stages while pouring is too tedious during a morning rush
+- **No heavy forms** — entering lots of data while brewing is a non-starter
+- **No wait stages** — the user watches the coffee bed visually and pours when it's about to go dry. Timing between pours is managed by feel/sight, not the app.
+- **No auto water redistribution** (yet) — when changing one pour's amount, don't auto-adjust others. The user will manually tweak. This avoids surprising behavior. Can be added later.
+- **No onboarding** — removed, was overengineered
+
+### What the User DOES Want
+- **Small, slick, beautiful app** — minimal, not feature-heavy
+- **The app is a log, not a brewing guide** — set up experiment before brewing, rate after brewing, never interact during brewing
+- **Clone from previous experiment** as the primary way to create a new brew — "last brew + tweak 1-2 things"
+- **Delayed rating via push notification** — ~1 hour after brew is saved, send a local notification. User rates whenever convenient (could be hours later). The notification can hang around.
+- **Quick access to what matters later** — pour pattern, grind, rating. The user wants to see "what did I do and what did I think about it" to decide what to change next.
+- **TDS tracking** (future) — planning to buy a TDS meter, so the field exists but isn't priority UX
+
+### The Quick Brew Screen (Core UX — Not Yet Built)
+
+This is the most important screen in the app. One screen, no navigation, everything inline.
+
+**Entry point**: Tap "Brew" → three quick-pick options:
+```
+┌──────────────────────────────────┐
+│  [V60 Default]  [Orea Default]  │
+│  [Last Brew: Ethiopian Natural]  │
+│                                  │
+│  Browse experiments...      [▼]  │  ← expands to full list
+└──────────────────────────────────┘
+```
+
+**After picking a starting point**, params load and user can adjust:
+```
+┌─────────────────────────────────────┐
+│  Ethiopian Natural · Mad Heads      │
+│                                     │
+│  ┌─────────────────────────────┐   │
+│  │  Fast ▼         60ml  [▼]  │   │  ← row per stage
+│  ├─────────────────────────────┤   │
+│  │  Slow ▼        230ml  [▼]  │   │
+│  └─────────────────────────────┘   │
+│  [ + Add pour ]                     │
+│                                     │
+│  Grind  26 · Dose 18g · 1:15       │  ← compact params row
+│  Temp 93°C · V60                    │
+│                                     │
+│  [ Save & Brew ]                    │
+└─────────────────────────────────────┘
+```
+
+**Stage rows** (top, prominent — this is what changes most):
+- One row per stage
+- Tap type to toggle Fast ↔ Slow
+- Tap amount to edit ml inline (no second screen)
+- Swipe row left to delete
+- `+` to add a new pour at the end
+- Long-press drag to reorder (rare but available)
+
+**Compact params row** (bottom, secondary — rarely changed):
+- Grind, dose, ratio, temp, brew method shown in a compact row
+- Tap any value to edit inline (one tap, no sub-screen)
+- These are touched maybe once every 5-10 brews
+
+**"Save & Brew"** saves the brew and returns. User goes and brews with their scale timer. No app interaction during brewing.
+
+**"Save as template"** (opt-in, in a menu) — if the user likes a pour pattern, they can name it and save as a reusable template alongside V60/Orea defaults.
+
+### Rating Flow (Not Yet Built)
+
+1. Brew is saved via "Save & Brew"
+2. ~1 hour later: local push notification — "How was your brew?"
+3. User taps notification → quick rating screen (stars + optional taste profile + notes)
+4. Unrated brews shown with an indicator in the library
+5. User can also rate from brew detail anytime (not just via notification)
+
+### Design Principles (Agreed)
+1. **Speed over completeness** — 10 seconds to set up a brew, 5 seconds to rate
+2. **Clone-and-tweak over create-from-scratch** — every new brew starts from a previous one
+3. **Stages are the primary control** — they get top billing on the brew screen
+4. **Everything on one screen** — no nested navigation for the core brewing flow
+5. **No interaction during brewing** — the app is used before and after, never during
+6. **No data migration needed** — app is in dev, never deployed to production. Clean slate is fine.
+7. **Pre-fill database** — seed with sample data for development/preview (roasters, coffees, brews, built-in templates)
+
+---
+
+---
+
+## Vision, Workflow & Design Decisions
+
+### The User's Real Brewing Workflow
+
+The owner brews pour-over coffee (V60, Orea V4) every morning while also preparing breakfast. The workflow is:
+
+1. **Buy a new pack** (e.g., from MadHeads roaster)
+2. **First brew with default recipe** — a recipe that barely changes between packs or even roasters. One default for V60, one for Orea V4.
+3. **Taste it**, notice what's off (too sour, too bitter, etc.)
+4. **Change 1-2 things** for the next brew — almost always the **pour pattern** (number of pours, fast vs slow, water amounts per pour). Rarely grind size. Rarely temperature. Grind size is treated as a "basement" — you change everything else first.
+5. **Repeat** — iterate daily until the coffee tastes right for that pack
+6. **New pack arrives** → back to step 2 with the default
+
+**Key insight**: The pour pattern is the primary variable, not grind size. The user iterates by cloning the previous experiment and tweaking 1-2 pour parameters.
+
+### What the User Does NOT Want
+- **No timer in the app** — they have a timer on their coffee scale. The app should not be needed during actual brewing.
+- **No "record live" feature** — tapping through stages while pouring is too tedious during a morning rush
+- **No heavy forms** — entering lots of data while brewing is a non-starter
+- **No wait stages** — the user watches the coffee bed visually and pours when it's about to go dry. Timing between pours is managed by feel/sight, not the app.
+- **No auto water redistribution** (yet) — when changing one pour's amount, don't auto-adjust others. The user will manually tweak. This avoids surprising behavior. Can be added later.
+- **No onboarding** — removed, was overengineered
+
+### What the User DOES Want
+- **Small, slick, beautiful app** — minimal, not feature-heavy
+- **The app is a log, not a brewing guide** — set up experiment before brewing, rate after brewing, never interact during brewing
+- **Clone from previous experiment** as the primary way to create a new brew — "last brew + tweak 1-2 things"
+- **Delayed rating via push notification** — ~1 hour after brew is saved, send a local notification. User rates whenever convenient (could be hours later). The notification can hang around.
+- **Quick access to what matters later** — pour pattern, grind, rating. The user wants to see "what did I do and what did I think about it" to decide what to change next.
+- **TDS tracking** (future) — planning to buy a TDS meter, so the field exists but isn't priority UX
+
+### The Quick Brew Screen (Core UX — Not Yet Built)
+
+This is the most important screen in the app. One screen, no navigation, everything inline.
+
+**Entry point**: Tap "Brew" → three quick-pick options:
+```
+┌──────────────────────────────────┐
+│  [V60 Default]  [Orea Default]  │
+│  [Last Brew: Ethiopian Natural]  │
+│                                  │
+│  Browse experiments...      [▼]  │  ← expands to full list
+└──────────────────────────────────┘
+```
+
+**After picking a starting point**, params load and user can adjust:
+```
+┌─────────────────────────────────────┐
+│  Ethiopian Natural · Mad Heads      │
+│                                     │
+│  ┌─────────────────────────────┐   │
+│  │  Fast ▼         60ml  [▼]  │   │  ← row per stage
+│  ├─────────────────────────────┤   │
+│  │  Slow ▼        230ml  [▼]  │   │
+│  └─────────────────────────────┘   │
+│  [ + Add pour ]                     │
+│                                     │
+│  Grind  26 · Dose 18g · 1:15       │  ← compact params row
+│  Temp 93°C · V60                    │
+│                                     │
+│  [ Save & Brew ]                    │
+└─────────────────────────────────────┘
+```
+
+**Stage rows** (top, prominent — this is what changes most):
+- One row per stage
+- Tap type to toggle Fast ↔ Slow
+- Tap amount to edit ml inline (no second screen)
+- Swipe row left to delete
+- `+` to add a new pour at the end
+- Long-press drag to reorder (rare but available)
+
+**Compact params row** (bottom, secondary — rarely changed):
+- Grind, dose, ratio, temp, brew method shown in a compact row
+- Tap any value to edit inline (one tap, no sub-screen)
+- These are touched maybe once every 5-10 brews
+
+**"Save & Brew"** saves the brew and returns. User goes and brews with their scale timer. No app interaction during brewing.
+
+**"Save as template"** (opt-in, in a menu) — if the user likes a pour pattern, they can name it and save as a reusable template alongside V60/Orea defaults.
+
+### Rating Flow (Not Yet Built)
+
+1. Brew is saved via "Save & Brew"
+2. ~1 hour later: local push notification — "How was your brew?"
+3. User taps notification → quick rating screen (stars + optional taste profile + notes)
+4. Unrated brews shown with an indicator in the library
+5. User can also rate from brew detail anytime (not just via notification)
+
+### Design Principles (Agreed)
+1. **Speed over completeness** — 10 seconds to set up a brew, 5 seconds to rate
+2. **Clone-and-tweak over create-from-scratch** — every new brew starts from a previous one
+3. **Stages are the primary control** — they get top billing on the brew screen
+4. **Everything on one screen** — no nested navigation for the core brewing flow
+5. **No interaction during brewing** — the app is used before and after, never during
+6. **No data migration needed** — app is in dev, never deployed to production. Clean slate is fine.
+7. **Pre-fill database** — seed with sample data for development/preview (roasters, coffees, brews, built-in templates)
+
+---
+
 ## What Was Done (Phases 1 & 2)
 
 The app is being refactored from a **recipe-centric** model to a **coffee-bag-centric / experiment-focused** model. Two phases are complete:
@@ -45,21 +249,22 @@ xcodebuild -project "Coffee Brewer.xcodeproj" -scheme "Coffee Brewer" \
   -destination "platform=iOS Simulator,name=iPhone 16" build
 ```
 
-### Test Status: ⚠️ NOT YET VERIFIED
-Tests could not be run due to a persistent **"database is locked"** error from `xcodebuild`. This is a transient environment issue (likely Xcode holding a lock on DerivedData), NOT a code problem. To resolve:
-1. Quit Xcode completely
-2. `rm -rf ~/Library/Developer/Xcode/DerivedData/Coffee_Brewer-*`
-3. Run tests:
+### Test Status: ✅ ALL 55 TESTS PASS
 ```
 xcodebuild -project "Coffee Brewer.xcodeproj" -scheme "Coffee Brewer" \
   -destination "platform=iOS Simulator,name=iPhone 16" \
   -only-testing:"Coffee BrewerTests" test
 ```
+- `Coffee_BrewerTests`: 2 tests (default)
+- `BrewExtensionsTests`: 13 tests
+- `CoffeeExtensionsTests`: 12 tests
+- `BrewFormDataTests`: 9 tests
+- `PourTemplateExtensionsTests`: 6 tests
+- `StageFormDataTests`: 7 tests
+- `CoffeeFormDataTests`: 6 tests
 
-Expected: **48 tests** across 6 test files + 2 default tests in `Coffee_BrewerTests.swift` = **50 tests total**.
-
-### Git Status: ALL CHANGES ARE UNCOMMITTED
-Nothing has been committed. `git status` shows 92 changed files (53 deleted, 31 modified, 8 added). Last commit is `ad7c0bb Add coffee bad to pre-ground option`.
+### Git Status: COMMITTED
+All changes committed as `88da9ca Get rid of recipies. Prepare code for experiment-centric app`.
 
 ---
 
@@ -94,6 +299,32 @@ Core Data uses **`codeGenerationType="class"`** — entity classes are auto-gene
 - `AppDestination` enum cases: `.addRoaster`, `.addGrinder`, `.brewDetail(brewID:)`, `.chartDetail(chart:)`, `.settings`
 - `Main.swift` is the root view with NavigationStack
 - `AddChoice.swift` — simplified to only offer adding Roaster or Grinder (recipe creation flows removed)
+
+### Stages & Pour Templates (Design)
+
+The app models pour-over brewing as a sequence of **stages** (individual pours). There are two levels:
+
+#### 1. `Stage` (actual recorded stages on a Brew)
+- Each `Stage` belongs to one `Brew` (to-many from Brew, cascade delete)
+- Attributes: `id`, `orderIndex` (Int16, for sorting), `type` (String: `"fast"` or `"slow"`), `waterAmount` (Int16, in ml)
+- **No "wait" stage type** — the user manages timing themselves visually (watching the coffee bed)
+- **No duration/seconds field** — timing is not tracked per stage
+- `Brew.stagesArray` returns stages sorted by `orderIndex`
+- `Brew.totalStageWater` sums all stage water amounts
+- `StageFormData` is the Swift struct used in forms: has `type: StageType` enum (`.fast`/`.slow`), `waterAmount: Int16`, `orderIndex: Int16`. Can init from a `Stage` entity.
+- `StageType` is an enum with `.fast` and `.slow` cases, with `StageType.fromString()` parser
+
+#### 2. `PourTemplate` + `TemplateStage` (reusable pour patterns)
+- A `PourTemplate` is a reusable blueprint (e.g., "V60 Default", "Orea V4 Default")
+- Attributes: `id`, `name`, `brewMethod` (String: `"V60"`, `"Orea V4"`), `isBuiltIn` (Bool)
+- Each template has to-many `TemplateStage` children (cascade delete)
+- `TemplateStage` uses **percentages** instead of absolute water: `waterPercentage` (Double, e.g. 20.0 = 20%)
+- `TemplateStage` also has: `id`, `orderIndex`, `type` (same `"fast"`/`"slow"` strings)
+- `PourTemplate.stagesArray` returns template stages sorted by `orderIndex`
+- `PourTemplate.createStages(for:waterAmount:context:)` — **instantiates concrete `Stage` objects** on a Brew by converting percentages to absolute ml: `Int16(Double(waterAmount) * templateStage.waterPercentage / 100.0)`
+- `PourTemplate.seedBuiltInTemplates(in:)` — idempotent seeder that creates 2 built-in templates if none exist:
+  - **V60 Default**: Fast bloom (20%) → Slow pour (80%)
+  - **Orea V4 Default**: Fast bloom (20%) → Slow pour (40%) → Fast pour (40%)
 
 ### Key Extension Files
 - `Brew+Extensions.swift` — `coffeeName: String`, `coffeeRoasterName: String`, convenience init
@@ -191,16 +422,40 @@ Core Data uses **`codeGenerationType="class"`** — entity classes are auto-gene
 
 ---
 
-## What's Left (Future Phases)
+## What's Left (Implementation Plan)
 
-The app builds but is now in a **stripped-down state**. Key missing functionality that needs to be rebuilt with the new coffee-bag-centric model:
+The app builds but is now in a **stripped-down state**. Each phase leaves the app in a buildable state.
 
-1. **Coffee management UI** — Add/edit/view Coffee entities (bag of coffee from a roaster)
-2. **Brew creation flow** — New flow to create a Brew linked to a Coffee (replacing the old Recipe→Brew flow)
-3. **Pour template management** — UI for PourTemplate/TemplateStage (reusable pour patterns)
-4. **Brew detail improvements** — Show coffee info, pour stages, etc.
-5. **Data migration** — If there's existing user data with Recipes, need a Core Data migration plan
-6. **Tests** — Verify the 48 new unit tests pass; add more tests for new UI/VM code
+### Phase 3: Coffee Management UI
+- `AddCoffee.swift` view + `AddCoffeeViewModel` (modeled after existing Roaster add flow)
+- `CoffeeDetailSheet.swift` — view a coffee bag and its brews
+- `CoffeeLibraryRow.swift` for the library list
+- Wire into `NavigationCoordinator` + `AddChoice`
+- Update `AllLibraryView` to show real Coffee rows
+
+### Phase 4: Quick Brew Screen (Core Feature)
+- Build the one-screen brew setup (see "The Quick Brew Screen" in Vision section above)
+- Three quick-pick options: V60 Default, Orea Default, Last Brew
+- "Browse experiments" expandable list
+- Inline stage rows (tap to toggle type, tap to edit amount, swipe to delete, + to add, drag to reorder)
+- Compact params row (grind, dose, ratio, temp — tap to edit inline)
+- "Clone from previous brew" logic — clone all params + stages into new draft
+- "Save & Brew" — saves brew and returns
+- "Save as template" (opt-in menu option)
+
+### Phase 5: Rating + Notifications
+- Local push notification scheduled ~1hr after brew save
+- Notification deep-links to rating screen
+- Quick rating screen: stars + optional taste profile (acidity, bitterness, body, sweetness) + notes
+- Unrated brews shown with indicator in library
+- Can also rate from brew detail anytime
+
+### Phase 6 (Future/Optional)
+- Auto water redistribution when adding/removing pours
+- TDS meter integration (field exists, needs UX prominence)
+- Pour template management UI (create/edit/delete custom templates)
+- Data export improvements
+- Additional tests for new UI/VM code
 
 ## How to Build & Test
 
@@ -221,4 +476,4 @@ xcodebuild -project "Coffee Brewer.xcodeproj" -scheme "Coffee Brewer" \
 1. **Core Data class generation**: Entity classes (Brew, Coffee, Roaster, etc.) are generated at build time from `.xcdatamodeld`. There are no `.swift` source files for them. LSP will show false positive errors about missing types — **ignore them**, the project builds fine.
 2. **Test target pbxproj**: Test files need explicit entries in `project.pbxproj`. Main app files are auto-discovered.
 3. **Database lock**: If you get "database is locked" errors from xcodebuild, quit Xcode and clear DerivedData.
-4. **No commits yet**: All changes are uncommitted working tree modifications against `ad7c0bb`.
+4. **Latest commit**: `88da9ca Get rid of recipies. Prepare code for experiment-centric app`.
