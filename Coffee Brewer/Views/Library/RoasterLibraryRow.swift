@@ -52,15 +52,15 @@ struct RoasterLibraryRow: View {
                                 .lineLimit(1)
                         }
                         
-                        // Show recipe count
-                        if let recipes = roaster.recipes, recipes.count > 0 {
+                        // Show coffee count
+                        if let coffees = roaster.coffees, coffees.count > 0 {
                             if roaster.country != nil {
                                 Text("•")
                                     .font(.system(size: 9))
                                     .foregroundColor(BrewerColors.textSecondary.opacity(0.4))
                             }
                             
-                            Text("\(recipes.count) recipe\(recipes.count == 1 ? "" : "s")")
+                            Text("\(coffees.count) coffee\(coffees.count == 1 ? "" : "s")")
                                 .font(.system(size: 12))
                                 .foregroundColor(BrewerColors.textSecondary)
                         }

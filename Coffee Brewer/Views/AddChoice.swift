@@ -4,39 +4,38 @@ import CoreData
 struct AddChoice: View {
     @ObservedObject var navigationCoordinator: NavigationCoordinator
     @Environment(\.managedObjectContext) private var viewContext
-    
+
     @State private var showPrimaryChoice = false
     @State private var showSecondaryChoices = false
     @State private var roasterCount = 0
     @State private var grinderCount = 0
-    @State private var recipeCount = 0
-    
+
     init(navigationCoordinator: NavigationCoordinator) {
         self.navigationCoordinator = navigationCoordinator
     }
-    
+
     var needsRoaster: Bool {
         roasterCount == 0
     }
-    
+
     var needsGrinder: Bool {
         grinderCount == 0
     }
-    
+
     var shouldShowGuidance: Bool {
         needsRoaster || needsGrinder
     }
-    
+
     var body: some View {
         VStack(spacing: 24) {
             PageTitleH1("Add New", subtitle: shouldShowGuidance ? "Let's set up your brewing essentials" : "What would you like to add?")
-            
+
             if shouldShowGuidance {
                 GuidanceCard()
                     .opacity(showPrimaryChoice ? 1 : 0)
                     .offset(y: showPrimaryChoice ? 0 : 20)
             }
-            
+
             VStack(spacing: 20) {
                 if needsRoaster {
                     // Primary: Roaster
@@ -51,30 +50,21 @@ struct AddChoice: View {
                     )
                     .opacity(showPrimaryChoice ? 1 : 0)
                     .offset(y: showPrimaryChoice ? 0 : 30)
-                    
+
                     ORDivider()
                         .opacity(showSecondaryChoices ? 1 : 0)
-                    
-                    VStack(spacing: 12) {
-                        SecondaryChoiceCard(
-                            title: "Recipe",
-                            description: "Add roaster first",
-                            imageName: "v60.icon",
-                            disabled: true
-                        )
-                        
-                        SecondaryChoiceCard(
-                            title: "Grinder",
-                            description: "Add a coffee grinder",
-                            imageName: "grinder",
-                            action: {
-                                navigationCoordinator.addPath.append(AppDestination.addGrinder)
-                            }
-                        )
-                    }
+
+                    SecondaryChoiceCard(
+                        title: "Grinder",
+                        description: "Add a coffee grinder",
+                        imageName: "grinder",
+                        action: {
+                            navigationCoordinator.addPath.append(AppDestination.addGrinder)
+                        }
+                    )
                     .opacity(showSecondaryChoices ? 1 : 0)
                     .offset(y: showSecondaryChoices ? 0 : 20)
-                    
+
                 } else if needsGrinder {
                     // Primary: Grinder
                     PrimaryChoiceCard(
@@ -88,60 +78,23 @@ struct AddChoice: View {
                     )
                     .opacity(showPrimaryChoice ? 1 : 0)
                     .offset(y: showPrimaryChoice ? 0 : 30)
-                    
+
                     ORDivider()
                         .opacity(showSecondaryChoices ? 1 : 0)
-                    
-                    VStack(spacing: 12) {
-                        SecondaryChoiceCard(
-                            title: "Recipe",
-                            description: "Add grinder first",
-                            imageName: "v60.icon",
-                            disabled: true
-                        )
-                        
-                        SecondaryChoiceCard(
-                            title: "Roaster",
-                            description: "Add another roaster",
-                            imageName: "roaster",
-                            action: {
-                                navigationCoordinator.addPath.append(AppDestination.addRoaster)
-                            }
-                        )
-                    }
+
+                    SecondaryChoiceCard(
+                        title: "Roaster",
+                        description: "Add another roaster",
+                        imageName: "roaster",
+                        action: {
+                            navigationCoordinator.addPath.append(AppDestination.addRoaster)
+                        }
+                    )
                     .opacity(showSecondaryChoices ? 1 : 0)
                     .offset(y: showSecondaryChoices ? 0 : 20)
-                    
+
                 } else {
-                    // Primary: Brew Method Selection
-                    VStack(spacing: 12) {
-                        Text("Choose Brew Method")
-                            .font(.system(size: 18, weight: .semibold))
-                            .foregroundColor(BrewerColors.textPrimary)
-                            .frame(maxWidth: .infinity, alignment: .leading)
-                        
-                        HStack(spacing: 12) {
-                            BrewMethodCard(
-                                brewMethod: .v60,
-                                action: {
-                                    navigationCoordinator.addPath.append(AppDestination.addV60Recipe(roaster: navigationCoordinator.selectedRoaster, grinder: navigationCoordinator.selectedGrinder))
-                                }
-                            )
-                            
-                            BrewMethodCard(
-                                brewMethod: .oreaV4,
-                                action: {
-                                    navigationCoordinator.addPath.append(AppDestination.addOreaRecipe(roaster: navigationCoordinator.selectedRoaster, grinder: navigationCoordinator.selectedGrinder))
-                                }
-                            )
-                        }
-                    }
-                    .opacity(showPrimaryChoice ? 1 : 0)
-                    .offset(y: showPrimaryChoice ? 0 : 30)
-                    
-                    ORDivider()
-                        .opacity(showSecondaryChoices ? 1 : 0)
-                    
+                    // Equal choices: Roaster and Grinder
                     VStack(spacing: 12) {
                         SecondaryChoiceCard(
                             title: "Roaster",
@@ -151,7 +104,7 @@ struct AddChoice: View {
                                 navigationCoordinator.addPath.append(AppDestination.addRoaster)
                             }
                         )
-                        
+
                         SecondaryChoiceCard(
                             title: "Grinder",
                             description: "Add a coffee grinder",
@@ -161,12 +114,11 @@ struct AddChoice: View {
                             }
                         )
                     }
-                    .opacity(showSecondaryChoices ? 1 : 0)
-                    .offset(y: showSecondaryChoices ? 0 : 20)
+                    .opacity(showPrimaryChoice ? 1 : 0)
+                    .offset(y: showPrimaryChoice ? 0 : 30)
                 }
             }
-            
-            
+
             Spacer()
         }
         .padding(.top, 24)
@@ -174,12 +126,7 @@ struct AddChoice: View {
         .background(BrewerColors.background)
         .onAppear {
             loadCounts()
-            
-            // Clear selectedGrinder when showing AddChoice normally
-            if navigationCoordinator.addPath.isEmpty {
-                navigationCoordinator.selectedGrinder = nil
-            }
-            
+
             // Staggered entrance animations
             withAnimation(.spring(response: 0.6, dampingFraction: 0.8).delay(0.1)) {
                 showPrimaryChoice = true
@@ -189,16 +136,14 @@ struct AddChoice: View {
             }
         }
     }
-    
+
     private func loadCounts() {
         let roasterRequest: NSFetchRequest<Roaster> = Roaster.fetchRequest()
         let grinderRequest: NSFetchRequest<Grinder> = Grinder.fetchRequest()
-        let recipeRequest: NSFetchRequest<Recipe> = Recipe.fetchRequest()
-        
+
         do {
             roasterCount = try viewContext.count(for: roasterRequest)
             grinderCount = try viewContext.count(for: grinderRequest)
-            recipeCount = try viewContext.count(for: recipeRequest)
         } catch {
             print("Error loading counts: \(error)")
         }
@@ -212,7 +157,7 @@ struct PrimaryChoiceCard: View {
     let imageName: String
     let badgeText: String?
     let action: () -> Void
-    
+
     var body: some View {
         Button(action: action) {
             VStack(spacing: 20) {
@@ -229,21 +174,21 @@ struct PrimaryChoiceCard: View {
                                 .strokeBorder(BrewerColors.caramel, lineWidth: 2)
                         )
                         .shadow(color: BrewerColors.buttonShadow, radius: 6, x: 0, y: 3)
-                    
+
                     SVGIcon(imageName, size: 40, color: BrewerColors.cream)
                 }
-                
+
                 VStack(spacing: 8) {
                     Text(title)
                         .font(.system(size: 20, weight: .semibold))
                         .foregroundColor(BrewerColors.textPrimary)
-                    
+
                     Text(description)
                         .font(.system(size: 16))
                         .foregroundColor(BrewerColors.textSecondary)
                         .multilineTextAlignment(.center)
-                    
-                    if (badgeText != nil) {
+
+                    if badgeText != nil {
                         HStack(spacing: 4) {
                             Image(systemName: "sparkles")
                                 .font(.system(size: 14))
@@ -262,7 +207,7 @@ struct PrimaryChoiceCard: View {
                 ZStack {
                     // Base background
                     BrewerColors.surface
-                    
+
                     // Premium gradient overlay
                     LinearGradient(
                         gradient: Gradient(colors: [
@@ -274,7 +219,7 @@ struct PrimaryChoiceCard: View {
                         startPoint: .topLeading,
                         endPoint: .bottomTrailing
                     )
-                    
+
                     // Subtle radial gradient for depth
                     RadialGradient(
                         gradient: Gradient(colors: [
@@ -306,7 +251,7 @@ struct SecondaryChoiceCard: View {
     let imageName: String
     let disabled: Bool
     let action: (() -> Void)?
-    
+
     init(title: String, description: String, imageName: String, disabled: Bool = false, action: (() -> Void)? = nil) {
         self.title = title
         self.description = description
@@ -314,7 +259,7 @@ struct SecondaryChoiceCard: View {
         self.disabled = disabled
         self.action = action
     }
-    
+
     var body: some View {
         Button(action: {
             if !disabled {
@@ -330,22 +275,22 @@ struct SecondaryChoiceCard: View {
                             Circle()
                                 .strokeBorder(disabled ? BrewerColors.divider.opacity(0.5) : BrewerColors.divider, lineWidth: 1.5)
                         )
-                    
+
                     SVGIcon(imageName, size: 24, color: disabled ? BrewerColors.textSecondary.opacity(0.5) : BrewerColors.cream)
                 }
-                
+
                 VStack(alignment: .leading, spacing: 4) {
                     Text(title)
                         .font(.system(size: 16, weight: .semibold))
                         .foregroundColor(disabled ? BrewerColors.textSecondary.opacity(0.5) : BrewerColors.textPrimary)
-                    
+
                     Text(description)
                         .font(.system(size: 14))
                         .foregroundColor(disabled ? BrewerColors.textSecondary.opacity(0.3) : BrewerColors.textSecondary)
                 }
-                
+
                 Spacer()
-                
+
                 if !disabled {
                     Image(systemName: "chevron.right")
                         .font(.system(size: 14, weight: .medium))
@@ -367,7 +312,7 @@ struct SecondaryChoiceCard: View {
                                 endPoint: .bottomTrailing
                             )
                         )
-                    
+
                     RoundedRectangle(cornerRadius: 16)
                         .stroke(
                             LinearGradient(
@@ -396,17 +341,17 @@ struct GuidanceCard: View {
             Image(systemName: "lightbulb.fill")
                 .font(.system(size: 20))
                 .foregroundColor(BrewerColors.caramel)
-            
+
             VStack(alignment: .leading, spacing: 4) {
                 Text("Setup Guide")
                     .font(.system(size: 16, weight: .semibold))
                     .foregroundColor(BrewerColors.textPrimary)
-                
-                Text("Complete your setup to start brewing recipes")
+
+                Text("Complete your setup to start tracking your brews")
                     .font(.system(size: 14))
                     .foregroundColor(BrewerColors.textSecondary)
             }
-            
+
             Spacer()
         }
         .padding(16)
@@ -428,11 +373,11 @@ struct ORDivider: View {
             Rectangle()
                 .fill(BrewerColors.divider)
                 .frame(height: 1)
-            
+
             Text("OR")
                 .font(.system(size: 14, weight: .medium))
                 .foregroundColor(BrewerColors.textSecondary)
-            
+
             Rectangle()
                 .fill(BrewerColors.divider)
                 .frame(height: 1)
@@ -445,13 +390,11 @@ struct ORDivider: View {
 struct QuickStatsBar: View {
     let roasterCount: Int
     let grinderCount: Int
-    let recipeCount: Int
-    
+
     var body: some View {
         HStack(spacing: 20) {
             StatBadge(count: roasterCount, label: "Roasters")
             StatBadge(count: grinderCount, label: "Grinders")
-            StatBadge(count: recipeCount, label: "Recipes")
         }
         .padding(.horizontal, 18)
     }
@@ -460,13 +403,13 @@ struct QuickStatsBar: View {
 struct StatBadge: View {
     let count: Int
     let label: String
-    
+
     var body: some View {
         VStack(spacing: 4) {
             Text("\(count)")
                 .font(.system(size: 18, weight: .bold))
                 .foregroundColor(BrewerColors.caramel)
-            
+
             Text(label)
                 .font(.system(size: 12, weight: .medium))
                 .foregroundColor(BrewerColors.textSecondary)
@@ -477,79 +420,6 @@ struct StatBadge: View {
             RoundedRectangle(cornerRadius: 8)
                 .fill(BrewerColors.surface.opacity(0.5))
         )
-    }
-}
-
-// MARK: - Brew Method Card
-struct BrewMethodCard: View {
-    let brewMethod: BrewMethod
-    let action: () -> Void
-    
-    var body: some View {
-        Button(action: action) {
-            VStack(spacing: 12) {
-                ZStack {
-                    Circle()
-                        .fill(LinearGradient(
-                            gradient: Gradient(colors: [BrewerColors.caramel.opacity(0.8), BrewerColors.caramel]),
-                            startPoint: .topLeading,
-                            endPoint: .bottomTrailing
-                        ))
-                        .frame(width: 60, height: 60)
-                        .overlay(
-                            Circle()
-                                .strokeBorder(BrewerColors.caramel, lineWidth: 2)
-                        )
-                        .shadow(color: BrewerColors.buttonShadow, radius: 4, x: 0, y: 2)
-                    
-                    SVGIcon(brewMethod.iconName, size: 30, color: BrewerColors.cream)
-                }
-                
-                Text(brewMethod.displayName)
-                    .font(.system(size: 16, weight: .semibold))
-                    .foregroundColor(BrewerColors.textPrimary)
-            }
-            .frame(maxWidth: .infinity)
-            .padding(.vertical, 24)
-            .padding(.horizontal, 16)
-            .background(
-                ZStack {
-                    // Base background
-                    BrewerColors.surface
-                    
-                    // Premium gradient overlay
-                    LinearGradient(
-                        gradient: Gradient(colors: [
-                            BrewerColors.caramel.opacity(0.15),
-                            BrewerColors.caramel.opacity(0.05),
-                            Color.clear,
-                            BrewerColors.cream.opacity(0.03)
-                        ]),
-                        startPoint: .topLeading,
-                        endPoint: .bottomTrailing
-                    )
-                    
-                    // Subtle radial gradient for depth
-                    RadialGradient(
-                        gradient: Gradient(colors: [
-                            Color.white.opacity(0.08),
-                            Color.clear
-                        ]),
-                        center: .topLeading,
-                        startRadius: 10,
-                        endRadius: 150
-                    )
-                }
-            )
-            .cornerRadius(16)
-            .overlay(
-                RoundedRectangle(cornerRadius: 16)
-                    .strokeBorder(BrewerColors.caramel.opacity(0.3), lineWidth: 2)
-            )
-            .shadow(color: BrewerColors.caramel.opacity(0.15), radius: 12, x: 0, y: 6)
-            .shadow(color: Color.black.opacity(0.1), radius: 20, x: 0, y: 10)
-        }
-        .buttonStyle(ImprovedScaleButtonStyle())
     }
 }
 
@@ -564,7 +434,7 @@ struct ImprovedScaleButtonStyle: ButtonStyle {
 // MARK: - Preview
 #Preview {
     @Previewable @State var navigationCoordinator = NavigationCoordinator()
-    
+
     GlobalBackground {
         AddChoice(navigationCoordinator: navigationCoordinator)
             .environment(\.managedObjectContext, PersistenceController.preview.container.viewContext)

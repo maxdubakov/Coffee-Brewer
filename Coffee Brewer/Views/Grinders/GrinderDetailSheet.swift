@@ -3,19 +3,16 @@ import SwiftUI
 struct GrinderDetailSheet: View {
     let grinder: Grinder
     @Environment(\.dismiss) private var dismiss
-    
-    @FetchRequest private var recipes: FetchedResults<Recipe>
-    
-    init(grinder: Grinder) {
-        self.grinder = grinder
-        self._recipes = FetchRequest(
-            entity: Recipe.entity(),
-            sortDescriptors: [NSSortDescriptor(keyPath: \Recipe.lastBrewedAt, ascending: false)],
-            predicate: NSPredicate(format: "grinder == %@", grinder),
-            animation: .default
-        )
+
+    private var sortedBrews: [Brew] {
+        (grinder.brews as? Set<Brew> ?? [])
+            .sorted { ($0.date ?? .distantPast) > ($1.date ?? .distantPast) }
     }
-    
+
+    private var lastBrewDate: Date? {
+        sortedBrews.first?.date
+    }
+
     var body: some View {
         VStack(spacing: 0) {
             // Main grinder card
@@ -29,39 +26,39 @@ struct GrinderDetailSheet: View {
                                 .font(.system(size: 32, weight: .medium))
                                 .foregroundColor(BrewerColors.caramel)
                         }
-                        
+
                         Text(grinder.name ?? "Unknown Grinder")
                             .font(.system(size: 22, weight: .bold))
                             .foregroundColor(BrewerColors.cream)
                             .lineLimit(2)
-                        
+
                         Spacer()
                     }
-                    
+
                     // Bottom: Burr size and last used info aligned left
                     HStack(spacing: 32) {
                         VStack(alignment: .leading, spacing: 4) {
                             Text("Burr Size")
                                 .font(.system(size: 11, weight: .medium))
                                 .foregroundColor(BrewerColors.textSecondary.opacity(0.8))
-                            
+
                             Text("\(grinder.burrSize)mm")
                                 .font(.system(size: 16, weight: .bold))
                                 .foregroundColor(BrewerColors.cream)
                         }
-                        
-                        if let lastBrew = recipes.first?.lastBrewedAt {
+
+                        if let lastBrew = lastBrewDate {
                             VStack(alignment: .leading, spacing: 4) {
                                 Text("Last Used")
                                     .font(.system(size: 11, weight: .medium))
                                     .foregroundColor(BrewerColors.textSecondary.opacity(0.8))
-                                
+
                                 Text(lastBrew.timeAgoDescription())
                                     .font(.system(size: 16, weight: .bold))
                                     .foregroundColor(BrewerColors.cream)
                             }
                         }
-                        
+
                         Spacer()
                     }
                 }
@@ -83,7 +80,7 @@ struct GrinderDetailSheet: View {
                                 endPoint: .bottomTrailing
                             )
                         )
-                    
+
                     RoundedRectangle(cornerRadius: 20)
                         .stroke(
                             LinearGradient(
@@ -101,53 +98,54 @@ struct GrinderDetailSheet: View {
             )
             .padding(.horizontal, 20)
             .padding(.top, 20)
-            
-            // Recent recipes section
-            if !recipes.isEmpty {
+
+            // Recent brews section
+            if !sortedBrews.isEmpty {
                 VStack(alignment: .leading, spacing: 16) {
                     HStack {
-                        Text("Recent Recipes")
+                        Text("Recent Brews")
                             .font(.system(size: 18, weight: .semibold))
                             .foregroundColor(BrewerColors.cream)
                         Spacer()
-                        Text("\(recipes.count)")
+                        Text("\(sortedBrews.count)")
                             .font(.system(size: 18, weight: .bold))
                             .foregroundColor(BrewerColors.caramel)
                     }
-                    
+
                     ScrollView {
                         LazyVStack(spacing: 12) {
-                            ForEach(recipes.prefix(4)) { recipe in
+                            ForEach(sortedBrews.prefix(4)) { brew in
                                 HStack(spacing: 16) {
-                                    // Recipe indicator dot
                                     Circle()
                                         .fill(BrewerColors.caramel)
                                         .frame(width: 6, height: 6)
                                         .padding(.top, 2)
-                                    
+
                                     VStack(alignment: .leading, spacing: 4) {
-                                        Text(recipe.name ?? "Untitled")
+                                        Text(brew.name ?? brew.roasterName ?? "Untitled Brew")
                                             .font(.system(size: 15, weight: .medium))
                                             .foregroundColor(BrewerColors.cream)
                                             .lineLimit(1)
-                                        
+
                                         HStack(spacing: 12) {
-                                            Text("Grind \(recipe.grindSize)")
+                                            if brew.grindSize > 0 {
+                                                Text("Grind \(String(format: "%.1f", brew.grindSize))")
+                                                    .font(.system(size: 12, weight: .medium))
+                                                    .foregroundColor(BrewerColors.textSecondary)
+
+                                                Text("•")
+                                                    .font(.system(size: 8))
+                                                    .foregroundColor(BrewerColors.textSecondary.opacity(0.6))
+                                            }
+
+                                            Text("\(brew.grams)g")
                                                 .font(.system(size: 12, weight: .medium))
                                                 .foregroundColor(BrewerColors.textSecondary)
-                                            
-                                            Text("•")
-                                                .font(.system(size: 8))
-                                                .foregroundColor(BrewerColors.textSecondary.opacity(0.6))
-                                            
-                                            Text("\(recipe.grams)g")
-                                                .font(.system(size: 12, weight: .medium))
-                                                .foregroundColor(BrewerColors.textSecondary)
-                                            
+
                                             Spacer()
-                                            
-                                            if let lastBrew = recipe.lastBrewedAt {
-                                                Text(lastBrew.timeAgoDescription())
+
+                                            if let date = brew.date {
+                                                Text(date.timeAgoDescription())
                                                     .font(.system(size: 11, weight: .medium))
                                                     .foregroundColor(BrewerColors.textSecondary.opacity(0.8))
                                             }
@@ -166,11 +164,5 @@ struct GrinderDetailSheet: View {
             Spacer()
         }
         .background(BrewerColors.background.ignoresSafeArea())
-    }
-    
-    private var averageGrindSize: Double? {
-        guard !recipes.isEmpty else { return nil }
-        let total = recipes.reduce(0) { $0 + Double($1.grindSize) }
-        return total / Double(recipes.count)
     }
 }

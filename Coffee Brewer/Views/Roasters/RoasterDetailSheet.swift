@@ -3,19 +3,19 @@ import SwiftUI
 struct RoasterDetailSheet: View {
     let roaster: Roaster
     @Environment(\.dismiss) private var dismiss
-    
-    @FetchRequest private var recipes: FetchedResults<Recipe>
-    
-    init(roaster: Roaster) {
-        self.roaster = roaster
-        self._recipes = FetchRequest(
-            entity: Recipe.entity(),
-            sortDescriptors: [NSSortDescriptor(keyPath: \Recipe.lastBrewedAt, ascending: false)],
-            predicate: NSPredicate(format: "roaster == %@", roaster),
-            animation: .default
-        )
+
+    private var sortedCoffees: [Coffee] {
+        (roaster.coffees as? Set<Coffee> ?? [])
+            .sorted { ($0.name ?? "") < ($1.name ?? "") }
     }
-    
+
+    private var lastBrewDate: Date? {
+        sortedCoffees
+            .flatMap { ($0.brews as? Set<Brew> ?? []) }
+            .compactMap { $0.date }
+            .max()
+    }
+
     var body: some View {
         VStack(spacing: 0) {
             // Main roaster card
@@ -28,15 +28,15 @@ struct RoasterDetailSheet: View {
                             Text(country.flag ?? "")
                                 .font(.system(size: 32))
                         }
-                        
+
                         Text(roaster.name ?? "Unknown Roaster")
                             .font(.system(size: 22, weight: .bold))
                             .foregroundColor(BrewerColors.cream)
                             .lineLimit(2)
-                        
+
                         Spacer()
                     }
-                    
+
                     // Bottom: Country, founded year, and last brew info aligned left
                     HStack(spacing: 28) {
                         if let country = roaster.country {
@@ -44,37 +44,37 @@ struct RoasterDetailSheet: View {
                                 Text("Country")
                                     .font(.system(size: 11, weight: .medium))
                                     .foregroundColor(BrewerColors.textSecondary.opacity(0.8))
-                                
+
                                 Text(country.name ?? "")
                                     .font(.system(size: 16, weight: .bold))
                                     .foregroundColor(BrewerColors.cream)
                             }
                         }
-                        
+
                         if roaster.foundedYear > 0 {
                             VStack(alignment: .leading, spacing: 4) {
                                 Text("Founded")
                                     .font(.system(size: 11, weight: .medium))
                                     .foregroundColor(BrewerColors.textSecondary.opacity(0.8))
-                                
+
                                 Text("\(roaster.foundedYear)")
                                     .font(.system(size: 16, weight: .bold))
                                     .foregroundColor(BrewerColors.cream)
                             }
                         }
-                        
-                        if let lastBrew = recipes.first?.lastBrewedAt {
+
+                        if let lastBrew = lastBrewDate {
                             VStack(alignment: .leading, spacing: 4) {
                                 Text("Last Brew")
                                     .font(.system(size: 11, weight: .medium))
                                     .foregroundColor(BrewerColors.textSecondary.opacity(0.8))
-                                
+
                                 Text(lastBrew.timeAgoDescription())
                                     .font(.system(size: 16, weight: .bold))
                                     .foregroundColor(BrewerColors.cream)
                             }
                         }
-                        
+
                         Spacer()
                     }
                 }
@@ -96,7 +96,7 @@ struct RoasterDetailSheet: View {
                                 endPoint: .bottomTrailing
                             )
                         )
-                    
+
                     RoundedRectangle(cornerRadius: 20)
                         .stroke(
                             LinearGradient(
@@ -114,53 +114,38 @@ struct RoasterDetailSheet: View {
             )
             .padding(.horizontal, 20)
             .padding(.top, 20)
-            
-            // Recent recipes section
-            if !recipes.isEmpty {
+
+            // Recent coffees section
+            if !sortedCoffees.isEmpty {
                 VStack(alignment: .leading, spacing: 16) {
-                    Text("Recent Recipes")
+                    Text("Coffees")
                         .font(.system(size: 18, weight: .semibold))
                         .foregroundColor(BrewerColors.cream)
                         .padding(.horizontal, 20)
-                    
+
                     ScrollView {
                         LazyVStack(spacing: 12) {
-                            ForEach(recipes.prefix(4)) { recipe in
+                            ForEach(sortedCoffees.prefix(4)) { coffee in
                                 HStack(spacing: 16) {
-                                    // Recipe indicator dot
                                     Circle()
                                         .fill(BrewerColors.caramel)
                                         .frame(width: 6, height: 6)
                                         .padding(.top, 2)
-                                    
+
                                     VStack(alignment: .leading, spacing: 4) {
-                                        Text(recipe.name ?? "Untitled")
+                                        Text(coffee.name ?? "Untitled")
                                             .font(.system(size: 15, weight: .medium))
                                             .foregroundColor(BrewerColors.cream)
                                             .lineLimit(1)
-                                        
-                                        HStack(spacing: 12) {
-                                            Text("\(recipe.grams)g")
+
+                                        if let process = coffee.process, !process.isEmpty {
+                                            Text(process)
                                                 .font(.system(size: 12, weight: .medium))
                                                 .foregroundColor(BrewerColors.textSecondary)
-                                            
-                                            Text("•")
-                                                .font(.system(size: 8))
-                                                .foregroundColor(BrewerColors.textSecondary.opacity(0.6))
-                                            
-                                            Text("\(recipe.waterAmount)ml")
-                                                .font(.system(size: 12, weight: .medium))
-                                                .foregroundColor(BrewerColors.textSecondary)
-                                            
-                                            Spacer()
-                                            
-                                            if let lastBrew = recipe.lastBrewedAt {
-                                                Text(lastBrew.timeAgoDescription())
-                                                    .font(.system(size: 11, weight: .medium))
-                                                    .foregroundColor(BrewerColors.textSecondary.opacity(0.8))
-                                            }
                                         }
                                     }
+
+                                    Spacer()
                                 }
                                 .padding(.horizontal, 20)
                                 .padding(.vertical, 4)
@@ -171,7 +156,7 @@ struct RoasterDetailSheet: View {
                 }
                 .padding(.top, 24)
             }
-            
+
             Spacer()
         }
         .background(BrewerColors.background.ignoresSafeArea())

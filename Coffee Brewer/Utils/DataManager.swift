@@ -27,23 +27,23 @@ class DataManager: ObservableObject {
     }
     
     private func buildExportData() async throws -> [String: Any] {
-        let recipesRequest: NSFetchRequest<Recipe> = Recipe.fetchRequest()
+        let coffeesRequest: NSFetchRequest<Coffee> = Coffee.fetchRequest()
         let brewsRequest: NSFetchRequest<Brew> = Brew.fetchRequest()
         let roastersRequest: NSFetchRequest<Roaster> = Roaster.fetchRequest()
         let grindersRequest: NSFetchRequest<Grinder> = Grinder.fetchRequest()
         let chartsRequest: NSFetchRequest<Chart> = Chart.fetchRequest()
         
-        let recipes = try viewContext.fetch(recipesRequest)
+        let coffees = try viewContext.fetch(coffeesRequest)
         let brews = try viewContext.fetch(brewsRequest)
         let roasters = try viewContext.fetch(roastersRequest)
         let grinders = try viewContext.fetch(grindersRequest)
         let charts = try viewContext.fetch(chartsRequest)
         
         return [
-            "version": "1.0",
+            "version": "2.0",
             "exportDate": ISO8601DateFormatter().string(from: Date()),
             "data": [
-                "recipes": recipes.map { $0.export() },
+                "coffees": coffees.map { $0.export() },
                 "brews": brews.map { $0.export() },
                 "roasters": roasters.map { $0.export() },
                 "grinders": grinders.map { $0.export() },
@@ -74,7 +74,7 @@ class DataManager: ObservableObject {
             
             guard let json = json,
                   let version = json["version"] as? String,
-                  version == "1.0" else {
+                  version == "2.0" else {
                 throw DataImportError.invalidFormat
             }
             
@@ -114,18 +114,18 @@ class DataManager: ObservableObject {
             }
         }
         
-        // Import recipes (depends on roasters and grinders)
-        if let recipes = data["recipes"] as? [[String: Any]] {
-            for recipeData in recipes {
-                if try Recipe.importFromData(recipeData, context: viewContext) {
-                    counter.incrementImported("Recipes")
+        // Import coffees (depends on roasters)
+        if let coffees = data["coffees"] as? [[String: Any]] {
+            for coffeeData in coffees {
+                if try Coffee.importFromData(coffeeData, context: viewContext) {
+                    counter.incrementImported("Coffees")
                 } else {
-                    counter.incrementIgnored("Recipes")
+                    counter.incrementIgnored("Coffees")
                 }
             }
         }
         
-        // Import brews (depends on recipes)
+        // Import brews (depends on coffees and grinders)
         if let brews = data["brews"] as? [[String: Any]] {
             for brewData in brews {
                 if try Brew.importFromData(brewData, context: viewContext) {
@@ -155,20 +155,20 @@ class DataManager: ObservableObject {
     // MARK: - Statistics
     
     func getTotalDataSize() -> Int {
-        let recipesRequest: NSFetchRequest<Recipe> = Recipe.fetchRequest()
+        let coffeesRequest: NSFetchRequest<Coffee> = Coffee.fetchRequest()
         let brewsRequest: NSFetchRequest<Brew> = Brew.fetchRequest()
         let roastersRequest: NSFetchRequest<Roaster> = Roaster.fetchRequest()
         let grindersRequest: NSFetchRequest<Grinder> = Grinder.fetchRequest()
         let chartsRequest: NSFetchRequest<Chart> = Chart.fetchRequest()
         
         do {
-            let recipesCount = try viewContext.count(for: recipesRequest)
+            let coffeesCount = try viewContext.count(for: coffeesRequest)
             let brewsCount = try viewContext.count(for: brewsRequest)
             let roastersCount = try viewContext.count(for: roastersRequest)
             let grindersCount = try viewContext.count(for: grindersRequest)
             let chartsCount = try viewContext.count(for: chartsRequest)
             
-            return recipesCount + brewsCount + roastersCount + grindersCount + chartsCount
+            return coffeesCount + brewsCount + roastersCount + grindersCount + chartsCount
         } catch {
             return 0
         }

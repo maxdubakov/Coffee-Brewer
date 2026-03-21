@@ -466,21 +466,11 @@ struct BrewHistoryCard: View {
     }
     
     private var recipeName: String {
-        // Use snapshot data if recipe is deleted
-        if let recipe = brew.recipe {
-            return recipe.name ?? "Unknown Recipe"
-        } else {
-            return brew.recipeName ?? "Deleted Recipe"
-        }
+        brew.coffeeName
     }
     
     private var roasterName: String {
-        // Use snapshot data if recipe is deleted
-        if let recipe = brew.recipe {
-            return recipe.roaster?.name ?? "Unknown Roaster"
-        } else {
-            return brew.roasterName ?? "Unknown Roaster"
-        }
+        brew.coffeeRoasterName
     }
     
     var body: some View {
@@ -517,32 +507,21 @@ struct BrewHistoryCard: View {
             
             // Recipe details in small format
             HStack(spacing: 12) {
-                // Use recipe data if available, otherwise use snapshot
-                let grams = brew.recipe?.grams ?? brew.recipeGrams
-                let waterAmount = brew.recipe?.waterAmount ?? brew.recipeWaterAmount
-                let temperature = brew.recipe?.temperature ?? brew.recipeTemperature
-                
                 RecipeDetailTag(
                     icon: "scalemass",
-                    value: "\(grams)g",
+                    value: "\(brew.grams)g",
                     color: BrewerColors.caramel
                 )
                 
                 RecipeDetailTag(
                     icon: "drop",
-                    value: "\(waterAmount)ml",
+                    value: "\(brew.waterAmount)ml",
                     color: BrewerColors.caramel
                 )
                 
                 RecipeDetailTag(
                     icon: "thermometer",
-                    value: "\(Int(temperature))°C",
-                    color: BrewerColors.caramel
-                )
-                
-                RecipeDetailTag(
-                    icon: "timer",
-                    value: "\(Int(brew.actualDurationSeconds))s",
+                    value: "\(Int(brew.temperature))°C",
                     color: BrewerColors.caramel
                 )
             }
@@ -643,19 +622,11 @@ struct CompactBrewCard: View {
     @ObservedObject var brew: Brew
     
     private var recipeName: String {
-        if let recipe = brew.recipe {
-            return recipe.name ?? "Unknown Recipe"
-        } else {
-            return brew.recipeName ?? "Deleted Recipe"
-        }
+        brew.coffeeName
     }
     
     private var roasterName: String {
-        if let recipe = brew.recipe {
-            return recipe.roaster?.name ?? "Unknown"
-        } else {
-            return brew.roasterName ?? "Unknown"
-        }
+        brew.coffeeRoasterName
     }
     
     private var ratingStars: String {
@@ -717,68 +688,31 @@ struct CompactBrewCard: View {
 // MARK: - Preview
 #Preview {
     let context = PersistenceController.preview.container.viewContext
-    
-    // Create some sample brews for the preview
-    let createSampleBrew = { (recipeName: String, rating: Int16, date: Date, notes: String?) in
-        let brew = Brew(context: context)
-        brew.id = UUID()
-        
-        // Find or create a recipe
-        let fetchRequest: NSFetchRequest<Recipe> = Recipe.fetchRequest()
-        fetchRequest.predicate = NSPredicate(format: "name == %@", recipeName)
-        fetchRequest.fetchLimit = 1
-        
-        let recipes = try? context.fetch(fetchRequest)
-        let recipe = recipes?.first ?? Recipe(context: context)
-        
-        if recipes?.first == nil {
-            recipe.name = recipeName
-            recipe.grams = 18
-            recipe.waterAmount = 250
-            recipe.temperature = 94
-            
-            // Create a roaster if needed
-            let roaster = Roaster(context: context)
-            roaster.id = UUID()
-            roaster.name = "Sample Roaster"
-            recipe.roaster = roaster
-        }
-        
-        brew.recipe = recipe
-        brew.rating = rating
-        brew.date = date
-        brew.notes = notes
-        
-        return brew
-    }
-    
-    // Create sample brews with different dates
     let calendar = Calendar.current
     let today = Date()
-    let yesterday = calendar.date(byAdding: .day, value: -1, to: today)!
-    let twoDaysAgo = calendar.date(byAdding: .day, value: -2, to: today)!
-    
-    let _ = createSampleBrew(
-        "Ethiopian Pour Over",
-        5,
-        today,
-        "Wonderful fruity notes with a hint of blueberry. Very balanced with a clean finish."
-    )
-    
-    let _ = createSampleBrew(
-        "Colombia Espresso",
-        3,
-        yesterday,
-        "A bit too bitter, might need to adjust the grind size next time."
-    )
-    
-    let _ = createSampleBrew(
-        "Kenya Light Roast",
-        4,
-        twoDaysAgo,
-        nil
-    )
-    
-    return History()
+
+    let _ = {
+        let brew1 = Brew(context: context)
+        brew1.id = UUID()
+        brew1.roasterName = "Blue Bottle Coffee"
+        brew1.rating = 5
+        brew1.date = today
+        brew1.notes = "Wonderful fruity notes with a hint of blueberry. Very balanced with a clean finish."
+
+        let brew2 = Brew(context: context)
+        brew2.id = UUID()
+        brew2.roasterName = "Intelligentsia"
+        brew2.rating = 3
+        brew2.date = calendar.date(byAdding: .day, value: -1, to: today)
+        brew2.notes = "A bit too bitter, might need to adjust the grind size next time."
+
+        let brew3 = Brew(context: context)
+        brew3.id = UUID()
+        brew3.roasterName = "Stumptown"
+        brew3.rating = 4
+        brew3.date = calendar.date(byAdding: .day, value: -2, to: today)
+    }()
+
+    History()
         .environment(\.managedObjectContext, context)
 }

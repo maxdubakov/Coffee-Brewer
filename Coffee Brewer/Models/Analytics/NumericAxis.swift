@@ -3,27 +3,27 @@ import CoreData
 
 struct NumericAxis: ChartAxis {
     let type: NumericAxisType
-    
+
     var id: String { type.rawValue }
     var displayName: String { type.displayName }
     var axisType: AxisType { .numeric }
-    
+
     func extractValue(from brew: Brew) -> Any? {
         let value: Double? = switch type {
         case .rating:
             Double(brew.rating)
         case .grindSize:
-            Double(brew.recipeGrindSize)
+            brew.grindSize
         case .temperature:
-            brew.recipeTemperature
+            brew.temperature
         case .coffeeAmount:
-            Double(brew.recipeGrams)
+            Double(brew.grams)
         case .waterAmount:
-            Double(brew.recipeWaterAmount)
+            Double(brew.waterAmount)
         case .ratio:
-            brew.recipeRatio
+            brew.ratio
         case .brewDuration:
-            Double(brew.actualDurationSeconds)
+            nil as Double?
         case .acidity:
             Double(brew.acidity)
         case .bitterness:
@@ -35,24 +35,24 @@ struct NumericAxis: ChartAxis {
         case .tds:
             brew.tds
         }
-        
+
         return value.map { NumericAxisValue(numericValue: $0) }
     }
-    
+
     func range(for brews: [Brew]) -> ClosedRange<Double>? {
         let values = brews.compactMap { extractValue(from: $0) as? NumericAxisValue }
             .map { $0.numericValue }
-        
+
         guard !values.isEmpty else { return nil }
-        
+
         let min = values.min() ?? 0
         let max = values.max() ?? 0
-        
+
         // Add some padding for better visualization
         let padding = (max - min) * 0.1
         return (min - padding)...(max + padding)
     }
-    
+
     // Helper to format values for display
     func formatValue(_ value: Double) -> String {
         switch type {

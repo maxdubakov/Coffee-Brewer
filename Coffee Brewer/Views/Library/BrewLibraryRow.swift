@@ -33,7 +33,7 @@ struct BrewLibraryRow: View {
                 
                 // Brew Info
                 VStack(alignment: .leading, spacing: 3) {
-                    Text(brew.name ?? brew.recipeName ?? "Untitled Brew")
+                    Text(brew.name ?? "Untitled Brew")
                         .font(.system(size: 15, weight: .medium))
                         .foregroundColor(BrewerColors.cream)
                         .lineLimit(1)

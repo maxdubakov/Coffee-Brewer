@@ -77,13 +77,13 @@ struct GrinderLibraryRow: View {
                                 .foregroundColor(BrewerColors.textSecondary)
                         }
                         
-                        // Show recipe count
-                        if let recipes = grinder.recipes, recipes.count > 0 {
+                        // Show brew count
+                        if let brews = grinder.brews, brews.count > 0 {
                             Text("•")
                                 .font(.system(size: 9))
                                 .foregroundColor(BrewerColors.textSecondary.opacity(0.4))
                             
-                            Text("\(recipes.count) recipe\(recipes.count == 1 ? "" : "s")")
+                            Text("\(brews.count) brew\(brews.count == 1 ? "" : "s")")
                                 .font(.system(size: 12))
                                 .foregroundColor(BrewerColors.textSecondary)
                         }

@@ -3,33 +3,31 @@ import SwiftUI
 struct BrewDetailSheet: View {
     let brew: Brew
     @Environment(\.dismiss) private var dismiss
-    @State private var showAssessmentView = false
-    @EnvironmentObject private var navigationCoordinator: NavigationCoordinator
-    
+
     var body: some View {
         VStack(spacing: 0) {
             // Main brew card
             VStack(spacing: 0) {
                 // Header section with brew info
                 VStack(spacing: 20) {
-                    // Top: Recipe name and rating
+                    // Top: Coffee name and rating
                     HStack(alignment: .top, spacing: 12) {
                         VStack(alignment: .leading, spacing: 8) {
-                            Text(brew.recipeName ?? "Untitled Brew")
+                            Text(brew.coffeeName)
                                 .font(.system(size: 22, weight: .bold))
                                 .foregroundColor(BrewerColors.cream)
                                 .lineLimit(2)
-                            
+
                             if let roasterName = brew.roasterName {
                                 Text(roasterName)
                                     .font(.system(size: 16, weight: .medium))
                                     .foregroundColor(BrewerColors.textSecondary)
                             }
                         }
-                        
+
                         Spacer()
-                        
-                        if brew.isAssessed && brew.rating > 0 {
+
+                        if brew.rating > 0 {
                             HStack(spacing: 4) {
                                 ForEach(0..<5) { index in
                                     Image(systemName: index < Int(brew.rating) ? "star.fill" : "star")
@@ -37,95 +35,50 @@ struct BrewDetailSheet: View {
                                         .foregroundColor(index < Int(brew.rating) ? BrewerColors.caramel : BrewerColors.textSecondary.opacity(0.3))
                                 }
                             }
-                        } else if !brew.isAssessed {
-                            Button(action: { showAssessmentView = true }) {
-                                HStack(spacing: 4) {
-                                    Image(systemName: "star")
-                                        .font(.system(size: 14))
-                                    Text("Assess")
-                                        .font(.system(size: 14, weight: .medium))
-                                }
-                                .foregroundColor(BrewerColors.caramel)
-                                .padding(.horizontal, 12)
-                                .padding(.vertical, 6)
-                                .background(
-                                    RoundedRectangle(cornerRadius: 8)
-                                        .fill(BrewerColors.caramel.opacity(0.15))
-                                )
-                            }
                         }
                     }
-                    
-                    // Bottom: Brew date and key metrics
+
+                    // Bottom: key metrics
                     VStack(spacing: 16) {
-                        HStack(spacing: 24) {
-                            if let date = brew.date {
-                                VStack(alignment: .leading, spacing: 4) {
-                                    Text("Brewed")
-                                        .font(.system(size: 11, weight: .medium))
-                                        .foregroundColor(BrewerColors.textSecondary.opacity(0.8))
-                                    
-                                    Text(date.formatted(date: .abbreviated, time: .shortened))
-                                        .font(.system(size: 14, weight: .bold))
-                                        .foregroundColor(BrewerColors.cream)
-                                }
-                            }
-                            
-                            VStack(alignment: .leading, spacing: 4) {
-                                Text("Duration")
-                                    .font(.system(size: 11, weight: .medium))
-                                    .foregroundColor(BrewerColors.textSecondary.opacity(0.8))
-                                
-                                Text(formatTime(seconds: Int(brew.actualDurationSeconds)))
-                                    .font(.system(size: 14, weight: .bold))
-                                    .foregroundColor(BrewerColors.cream)
-                            }
-                            
-                            if brew.tds > 0 {
+                        if brew.tds > 0 {
+                            HStack(spacing: 24) {
                                 VStack(alignment: .leading, spacing: 4) {
                                     Text("TDS")
                                         .font(.system(size: 11, weight: .medium))
                                         .foregroundColor(BrewerColors.textSecondary.opacity(0.8))
-                                    
+
                                     Text(String(format: "%.2f%%", brew.tds))
                                         .font(.system(size: 14, weight: .bold))
                                         .foregroundColor(BrewerColors.cream)
                                 }
+
+                                Spacer()
                             }
-                            
-                            Spacer()
                         }
-                        
-                        // Recipe parameters
+
+                        // Brew parameters
                         HStack(spacing: 12) {
-                            RecipeMetric(
+                            BrewMetric(
                                 iconName: "scalemass",
-                                value: "\(brew.recipeGrams)g",
+                                value: "\(brew.grams)g",
                                 color: BrewerColors.caramel
                             )
                             .frame(maxWidth: 80)
-                            
-                            RecipeMetric(
+
+                            BrewMetric(
                                 iconName: "drop",
-                                value: "\(brew.recipeWaterAmount)ml",
+                                value: "\(brew.waterAmount)ml",
                                 color: BrewerColors.caramel
                             )
                             .frame(maxWidth: 80)
-                            
-                            RecipeMetric(
+
+                            BrewMetric(
                                 iconName: "thermometer",
-                                value: "\(Int(brew.recipeTemperature))°C",
+                                value: "\(Int(brew.temperature))°C",
                                 color: BrewerColors.caramel
                             )
                             .frame(maxWidth: 80)
-                            
-                            RecipeMetric(
-                                iconName: "circle.grid.3x3",
-                                value: "Grind \(brew.recipeGrindSize)",
-                                color: BrewerColors.caramel
-                            )
-                            .frame(maxWidth: 100)
-                            
+
                             Spacer()
                         }
                     }
@@ -148,7 +101,7 @@ struct BrewDetailSheet: View {
                                 endPoint: .bottomTrailing
                             )
                         )
-                    
+
                     RoundedRectangle(cornerRadius: 20)
                         .stroke(
                             LinearGradient(
@@ -166,7 +119,7 @@ struct BrewDetailSheet: View {
             )
             .padding(.horizontal, 20)
             .padding(.top, 20)
-            
+
             // Taste profile section
             if hasTasteProfile {
                 VStack(alignment: .leading, spacing: 16) {
@@ -174,7 +127,7 @@ struct BrewDetailSheet: View {
                         .font(.system(size: 18, weight: .semibold))
                         .foregroundColor(BrewerColors.cream)
                         .padding(.horizontal, 20)
-                    
+
                     VStack(spacing: 12) {
                         TasteProfileRow(label: "Acidity", value: Int(brew.acidity))
                         TasteProfileRow(label: "Sweetness", value: Int(brew.sweetness))
@@ -185,7 +138,7 @@ struct BrewDetailSheet: View {
                 }
                 .padding(.top, 24)
             }
-            
+
             // Notes section
             if let notes = brew.notes, !notes.isEmpty {
                 VStack(alignment: .leading, spacing: 12) {
@@ -193,7 +146,7 @@ struct BrewDetailSheet: View {
                         .font(.system(size: 18, weight: .semibold))
                         .foregroundColor(BrewerColors.cream)
                         .padding(.horizontal, 20)
-                    
+
                     Text(notes)
                         .font(.system(size: 15))
                         .foregroundColor(BrewerColors.textPrimary)
@@ -208,27 +161,41 @@ struct BrewDetailSheet: View {
                 }
                 .padding(.top, 24)
             }
-            
+
             Spacer()
         }
         .background(BrewerColors.background.ignoresSafeArea())
-        .sheet(isPresented: $showAssessmentView) {
-            GlobalBackground {
-                BrewCompletion(brew: brew)
-                    .environmentObject(navigationCoordinator)
-            }
-            .interactiveDismissDisabled()
-        }
     }
-    
+
     private var hasTasteProfile: Bool {
         brew.acidity > 0 || brew.sweetness > 0 || brew.bitterness > 0 || brew.body > 0
     }
-    
-    private func formatTime(seconds: Int) -> String {
-        let minutes = seconds / 60
-        let remainingSeconds = seconds % 60
-        return String(format: "%d:%02d", minutes, remainingSeconds)
+}
+
+// MARK: - Brew Metric
+private struct BrewMetric: View {
+    let iconName: String
+    let value: String
+    let color: Color
+
+    var body: some View {
+        VStack(spacing: 4) {
+            Image(systemName: iconName)
+                .font(.system(size: 14))
+                .foregroundColor(color)
+
+            Text(value)
+                .font(.system(size: 13, weight: .semibold))
+                .foregroundColor(BrewerColors.cream)
+                .lineLimit(1)
+                .minimumScaleFactor(0.8)
+        }
+        .padding(.vertical, 8)
+        .padding(.horizontal, 6)
+        .background(
+            RoundedRectangle(cornerRadius: 8)
+                .fill(color.opacity(0.1))
+        )
     }
 }
 
@@ -236,21 +203,21 @@ struct BrewDetailSheet: View {
 private struct TasteProfileRow: View {
     let label: String
     let value: Int
-    
+
     var body: some View {
         HStack(spacing: 16) {
             Text(label)
                 .font(.system(size: 14, weight: .medium))
                 .foregroundColor(BrewerColors.textSecondary)
                 .frame(width: 80, alignment: .leading)
-            
+
             // Progress bar
             GeometryReader { geometry in
                 ZStack(alignment: .leading) {
                     RoundedRectangle(cornerRadius: 4)
                         .fill(BrewerColors.divider)
                         .frame(height: 8)
-                    
+
                     if value > 0 {
                         RoundedRectangle(cornerRadius: 4)
                             .fill(BrewerColors.caramel)
@@ -259,7 +226,7 @@ private struct TasteProfileRow: View {
                 }
             }
             .frame(height: 8)
-            
+
             Text("\(value)")
                 .font(.system(size: 14, weight: .semibold))
                 .foregroundColor(BrewerColors.cream)
@@ -271,25 +238,23 @@ private struct TasteProfileRow: View {
 // MARK: - Preview
 #Preview {
     let context = PersistenceController.preview.container.viewContext
-    
+
     let brew = Brew(context: context)
-    brew.id = UUID()
-    brew.recipeName = "Ethiopian Pour Over"
-    brew.roasterName = "Blue Bottle Coffee"
-    brew.date = Date()
-    brew.rating = 4
-    brew.actualDurationSeconds = 210
-    brew.recipeGrams = 18
-    brew.recipeWaterAmount = 250
-    brew.recipeTemperature = 94
-    brew.recipeGrindSize = 14
-    brew.tds = 1.35
-    brew.acidity = 7
-    brew.sweetness = 8
-    brew.bitterness = 3
-    brew.body = 6
-    brew.notes = "Wonderful fruity notes with hints of blueberry and chocolate. The acidity is bright but balanced, with a silky smooth body. This is exactly the profile I was hoping for with this Ethiopian coffee."
-    
-    return BrewDetailSheet(brew: brew)
-        .environmentObject(NavigationCoordinator())
+    let _ = {
+        brew.id = UUID()
+        brew.roasterName = "Blue Bottle Coffee"
+        brew.date = Date()
+        brew.rating = 4
+        brew.grams = 18
+        brew.waterAmount = 250
+        brew.temperature = 94
+        brew.tds = 1.35
+        brew.acidity = 7
+        brew.sweetness = 8
+        brew.bitterness = 3
+        brew.body = 6
+        brew.notes = "Wonderful fruity notes with hints of blueberry and chocolate."
+    }()
+
+    BrewDetailSheet(brew: brew)
 }

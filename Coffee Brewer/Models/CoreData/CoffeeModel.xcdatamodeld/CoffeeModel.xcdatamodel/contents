@@ -2,26 +2,27 @@
 <model type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="23788" systemVersion="24E263" minimumToolsVersion="Automatic" sourceLanguage="Swift" usedWithSwiftData="YES" userDefinedModelVersionIdentifier="">
     <entity name="Brew" representedClassName="Brew" syncable="YES" codeGenerationType="class">
         <attribute name="acidity" optional="YES" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES"/>
-        <attribute name="actualDurationSeconds" optional="YES" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES"/>
         <attribute name="bitterness" optional="YES" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES"/>
         <attribute name="body" optional="YES" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="brewMethod" optional="YES" attributeType="String" defaultValueString="V60"/>
         <attribute name="date" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
+        <attribute name="grams" optional="YES" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="grindSize" optional="YES" attributeType="Double" defaultValueString="0" usesScalarValueType="YES"/>
         <attribute name="grinderName" optional="YES" attributeType="String"/>
         <attribute name="id" optional="YES" attributeType="UUID" usesScalarValueType="NO"/>
         <attribute name="isAssessed" optional="YES" attributeType="Boolean" defaultValueString="NO" usesScalarValueType="YES"/>
         <attribute name="name" optional="YES" attributeType="String"/>
         <attribute name="notes" optional="YES" attributeType="String"/>
+        <attribute name="ratio" optional="YES" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES"/>
         <attribute name="rating" optional="YES" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES"/>
-        <attribute name="recipeGrams" optional="YES" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES"/>
-        <attribute name="recipeGrindSize" optional="YES" attributeType="Double" defaultValueString="0" usesScalarValueType="YES"/>
-        <attribute name="recipeName" optional="YES" attributeType="String"/>
-        <attribute name="recipeRatio" optional="YES" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES"/>
-        <attribute name="recipeTemperature" optional="YES" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES"/>
-        <attribute name="recipeWaterAmount" optional="YES" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES"/>
         <attribute name="roasterName" optional="YES" attributeType="String"/>
         <attribute name="sweetness" optional="YES" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES"/>
         <attribute name="tds" optional="YES" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES"/>
-        <relationship name="recipe" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="Recipe" inverseName="brews" inverseEntity="Recipe"/>
+        <attribute name="temperature" optional="YES" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES"/>
+        <attribute name="waterAmount" optional="YES" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES"/>
+        <relationship name="coffee" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="Coffee" inverseName="brews" inverseEntity="Coffee"/>
+        <relationship name="grinder" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="Grinder" inverseName="brews" inverseEntity="Grinder"/>
+        <relationship name="stages" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="Stage" inverseName="brew" inverseEntity="Stage"/>
     </entity>
     <entity name="Chart" representedClassName="Chart" syncable="YES" codeGenerationType="class">
         <attribute name="chartType" optional="YES" attributeType="String"/>
@@ -41,10 +42,21 @@
         <attribute name="yAxisId" optional="YES" attributeType="String"/>
         <attribute name="yAxisType" optional="YES" attributeType="String"/>
     </entity>
+    <entity name="Coffee" representedClassName="Coffee" syncable="YES" codeGenerationType="class">
+        <attribute name="createdAt" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
+        <attribute name="id" optional="YES" attributeType="UUID" usesScalarValueType="NO"/>
+        <attribute name="name" optional="YES" attributeType="String"/>
+        <attribute name="notes" optional="YES" attributeType="String"/>
+        <attribute name="process" optional="YES" attributeType="String"/>
+        <relationship name="brews" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="Brew" inverseName="coffee" inverseEntity="Brew"/>
+        <relationship name="country" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="Country" inverseName="coffees" inverseEntity="Country"/>
+        <relationship name="roaster" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="Roaster" inverseName="coffees" inverseEntity="Roaster"/>
+    </entity>
     <entity name="Country" representedClassName="Country" syncable="YES" codeGenerationType="class">
         <attribute name="flag" optional="YES" attributeType="String"/>
         <attribute name="id" optional="YES" attributeType="UUID" usesScalarValueType="NO"/>
         <attribute name="name" optional="YES" attributeType="String"/>
+        <relationship name="coffees" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="Coffee" inverseName="country" inverseEntity="Coffee"/>
         <relationship name="roasters" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="Roaster" inverseName="country" inverseEntity="Roaster"/>
     </entity>
     <entity name="Grinder" representedClassName="Grinder" syncable="YES" codeGenerationType="class">
@@ -57,23 +69,14 @@
         <attribute name="step" optional="YES" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES"/>
         <attribute name="to" optional="YES" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES"/>
         <attribute name="type" optional="YES" attributeType="String"/>
-        <relationship name="recipes" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="Recipe" inverseName="grinder" inverseEntity="Recipe"/>
+        <relationship name="brews" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="Brew" inverseName="grinder" inverseEntity="Brew"/>
     </entity>
-    <entity name="Recipe" representedClassName="Recipe" syncable="YES" codeGenerationType="class">
-        <attribute name="brewMethod" optional="YES" attributeType="String" defaultValueString="V60"/>
-        <attribute name="grams" optional="YES" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES"/>
-        <attribute name="grindSize" optional="YES" attributeType="Double" defaultValueString="0" usesScalarValueType="YES"/>
+    <entity name="PourTemplate" representedClassName="PourTemplate" syncable="YES" codeGenerationType="class">
+        <attribute name="brewMethod" optional="YES" attributeType="String"/>
         <attribute name="id" optional="YES" attributeType="UUID" usesScalarValueType="NO"/>
-        <attribute name="lastBrewedAt" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
+        <attribute name="isBuiltIn" optional="YES" attributeType="Boolean" defaultValueString="NO" usesScalarValueType="YES"/>
         <attribute name="name" optional="YES" attributeType="String"/>
-        <attribute name="oreaBottomType" optional="YES" attributeType="String"/>
-        <attribute name="ratio" optional="YES" attributeType="Double" defaultValueString="0" usesScalarValueType="YES"/>
-        <attribute name="temperature" optional="YES" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES"/>
-        <attribute name="waterAmount" optional="YES" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES"/>
-        <relationship name="brews" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="Brew" inverseName="recipe" inverseEntity="Brew"/>
-        <relationship name="grinder" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="Grinder" inverseName="recipes" inverseEntity="Grinder"/>
-        <relationship name="roaster" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="Roaster" inverseName="recipes" inverseEntity="Roaster"/>
-        <relationship name="stages" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="Stage" inverseName="recipe" inverseEntity="Stage"/>
+        <relationship name="stages" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="TemplateStage" inverseName="template" inverseEntity="TemplateStage"/>
     </entity>
     <entity name="Roaster" representedClassName="Roaster" syncable="YES" codeGenerationType="class">
         <attribute name="foundedYear" optional="YES" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES"/>
@@ -82,15 +85,21 @@
         <attribute name="name" optional="YES" attributeType="String"/>
         <attribute name="notes" optional="YES" attributeType="String"/>
         <attribute name="website" optional="YES" attributeType="String"/>
+        <relationship name="coffees" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="Coffee" inverseName="roaster" inverseEntity="Coffee"/>
         <relationship name="country" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="Country" inverseName="roasters" inverseEntity="Country"/>
-        <relationship name="recipes" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="Recipe" inverseName="roaster" inverseEntity="Recipe"/>
     </entity>
     <entity name="Stage" representedClassName="Stage" syncable="YES" codeGenerationType="class">
         <attribute name="id" optional="YES" attributeType="UUID" usesScalarValueType="NO"/>
         <attribute name="orderIndex" optional="YES" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES"/>
-        <attribute name="seconds" optional="YES" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES"/>
         <attribute name="type" optional="YES" attributeType="String"/>
         <attribute name="waterAmount" optional="YES" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES"/>
-        <relationship name="recipe" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="Recipe" inverseName="stages" inverseEntity="Recipe"/>
+        <relationship name="brew" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="Brew" inverseName="stages" inverseEntity="Brew"/>
+    </entity>
+    <entity name="TemplateStage" representedClassName="TemplateStage" syncable="YES" codeGenerationType="class">
+        <attribute name="id" optional="YES" attributeType="UUID" usesScalarValueType="NO"/>
+        <attribute name="orderIndex" optional="YES" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="type" optional="YES" attributeType="String"/>
+        <attribute name="waterPercentage" optional="YES" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES"/>
+        <relationship name="template" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="PourTemplate" inverseName="stages" inverseEntity="PourTemplate"/>
     </entity>
 </model>

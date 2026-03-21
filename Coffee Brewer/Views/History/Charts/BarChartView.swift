@@ -222,7 +222,6 @@ struct BarChartView: View {
                         brew.date = Date().addingTimeInterval(TimeInterval(-i * 86400))
                         brew.roasterName = roasters.randomElement()!
                         brew.rating = Int16.random(in: 1...5)
-                        brew.recipeName = "Test Recipe \(i)"
                         brews.append(brew)
                     }
                 }

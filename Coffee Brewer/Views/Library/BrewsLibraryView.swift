@@ -26,10 +26,10 @@ struct BrewsLibraryView: View {
         } else {
             return allBrews.filter { brew in
                 let nameMatch = brew.name?.localizedCaseInsensitiveContains(searchText) ?? false
-                let recipeNameMatch = brew.recipeName?.localizedCaseInsensitiveContains(searchText) ?? false
+                let coffeeNameMatch = brew.coffeeName.localizedCaseInsensitiveContains(searchText)
                 let roasterNameMatch = brew.roasterName?.localizedCaseInsensitiveContains(searchText) ?? false
                 let notesMatch = brew.notes?.localizedCaseInsensitiveContains(searchText) ?? false
-                return nameMatch || recipeNameMatch || roasterNameMatch || notesMatch
+                return nameMatch || coffeeNameMatch || roasterNameMatch || notesMatch
             }
         }
     }

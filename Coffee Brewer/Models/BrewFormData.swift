@@ -2,7 +2,16 @@ import Foundation
 import CoreData
 
 struct BrewFormData: Equatable, Hashable {
-    var name: String = ""
+    // Brew parameters (owned directly by brew now)
+    var brewMethod: BrewMethod = .v60
+    var grams: Int16 = 18
+    var ratio: Double = 16.0
+    var waterAmount: Int16 = 288
+    var temperature: Double = 95.0
+    var grindSize: Double = 0.0
+    var stages: [StageFormData] = []
+    
+    // Assessment (filled in later)
     var rating: Int16 = 0
     var acidity: Int16 = 0
     var bitterness: Int16 = 0
@@ -10,41 +19,51 @@ struct BrewFormData: Equatable, Hashable {
     var sweetness: Int16 = 0
     var tds: Double = 0.0
     var notes: String = ""
-    var date: Date = Date()
-    var actualDurationSeconds: Int16 = 0
+    var isAssessed: Bool = false
     
-    // Recipe snapshot data for historical preservation
-    var recipeName: String = ""
-    var recipeGrams: Int16 = 0
-    var recipeWaterAmount: Int16 = 0
-    var recipeRatio: Double = 0.0
-    var recipeTemperature: Double = 0.0
-    var recipeGrindSize: Double = 0.0
+    // Metadata
+    var name: String = ""
+    var date: Date = Date()
+    
+    // Denormalized names for history display
     var roasterName: String = ""
     var grinderName: String = ""
     
     init() {}
     
-    init(recipe: Recipe, actualElapsedTime: Double) {
-        let dateFormatter = DateFormatter()
-        dateFormatter.dateFormat = "MMM d, yyyy"
-        self.name = "\(recipe.name ?? "Untitled Recipe") - \(dateFormatter.string(from: Date()))"
-        self.date = Date()
-        self.actualDurationSeconds = Int16(actualElapsedTime)
-        
-        // Copy recipe data for historical preservation
-        self.recipeName = recipe.name ?? ""
-        self.recipeGrams = recipe.grams
-        self.recipeWaterAmount = recipe.waterAmount
-        self.recipeRatio = recipe.ratio
-        self.recipeTemperature = recipe.temperature
-        self.recipeGrindSize = recipe.grindSize
-        self.roasterName = recipe.roaster?.name ?? ""
-        self.grinderName = recipe.grinder?.name ?? ""
+    /// Create a new brew form pre-populated from defaults for a brew method
+    init(brewMethod: BrewMethod) {
+        self.brewMethod = brewMethod
+        self.grams = brewMethod.defaultGrams
+        self.ratio = brewMethod.defaultRatio
+        self.temperature = brewMethod.defaultTemperature
+        self.waterAmount = Int16(Double(brewMethod.defaultGrams) * brewMethod.defaultRatio)
     }
     
+    /// Clone from a previous brew (the "clone and tweak" pattern)
+    init(cloning brew: Brew) {
+        self.brewMethod = brew.brewMethodEnum
+        self.grams = brew.grams
+        self.ratio = brew.ratio
+        self.waterAmount = brew.waterAmount
+        self.temperature = brew.temperature
+        self.grindSize = brew.grindSize
+        self.roasterName = brew.roasterName ?? ""
+        self.grinderName = brew.grinderName ?? ""
+        self.date = Date()
+        
+        // Clone stages from previous brew
+        self.stages = brew.stagesArray.map { StageFormData(from: $0) }
+    }
+    
+    /// Edit an existing brew
     init(from brew: Brew) {
-        self.name = brew.name ?? ""
+        self.brewMethod = brew.brewMethodEnum
+        self.grams = brew.grams
+        self.ratio = brew.ratio
+        self.waterAmount = brew.waterAmount
+        self.temperature = brew.temperature
+        self.grindSize = brew.grindSize
         self.rating = brew.rating
         self.acidity = brew.acidity
         self.bitterness = brew.bitterness
@@ -52,22 +71,28 @@ struct BrewFormData: Equatable, Hashable {
         self.sweetness = brew.sweetness
         self.tds = brew.tds
         self.notes = brew.notes ?? ""
+        self.isAssessed = brew.isAssessed
+        self.name = brew.name ?? ""
         self.date = brew.date ?? Date()
-        self.actualDurationSeconds = brew.actualDurationSeconds
-        
-        self.recipeName = brew.recipeName ?? ""
-        self.recipeGrams = brew.recipeGrams
-        self.recipeWaterAmount = brew.recipeWaterAmount
-        self.recipeRatio = brew.recipeRatio
-        self.recipeTemperature = brew.recipeTemperature
-        self.recipeGrindSize = brew.recipeGrindSize
         self.roasterName = brew.roasterName ?? ""
         self.grinderName = brew.grinderName ?? ""
+        self.stages = brew.stagesArray.map { StageFormData(from: $0) }
+    }
+    
+    // MARK: - Computed Properties
+    
+    var totalStageWater: Int16 {
+        stages.reduce(0) { $0 + $1.waterAmount }
     }
     
     // MARK: - Equatable
     static func == (lhs: BrewFormData, rhs: BrewFormData) -> Bool {
-        lhs.name == rhs.name &&
+        lhs.brewMethod == rhs.brewMethod &&
+        lhs.grams == rhs.grams &&
+        lhs.ratio == rhs.ratio &&
+        lhs.waterAmount == rhs.waterAmount &&
+        lhs.temperature == rhs.temperature &&
+        lhs.grindSize == rhs.grindSize &&
         lhs.rating == rhs.rating &&
         lhs.acidity == rhs.acidity &&
         lhs.bitterness == rhs.bitterness &&
@@ -75,21 +100,24 @@ struct BrewFormData: Equatable, Hashable {
         lhs.sweetness == rhs.sweetness &&
         lhs.tds == rhs.tds &&
         lhs.notes == rhs.notes &&
+        lhs.isAssessed == rhs.isAssessed &&
+        lhs.name == rhs.name &&
         lhs.date == rhs.date &&
-        lhs.actualDurationSeconds == rhs.actualDurationSeconds
+        lhs.stages == rhs.stages
     }
     
     // MARK: - Hashable
     func hash(into hasher: inout Hasher) {
-        hasher.combine(name)
+        hasher.combine(brewMethod)
+        hasher.combine(grams)
+        hasher.combine(ratio)
+        hasher.combine(waterAmount)
+        hasher.combine(temperature)
+        hasher.combine(grindSize)
         hasher.combine(rating)
-        hasher.combine(acidity)
-        hasher.combine(bitterness)
-        hasher.combine(body)
-        hasher.combine(sweetness)
-        hasher.combine(tds)
         hasher.combine(notes)
+        hasher.combine(name)
         hasher.combine(date)
-        hasher.combine(actualDurationSeconds)
+        hasher.combine(stages)
     }
 }

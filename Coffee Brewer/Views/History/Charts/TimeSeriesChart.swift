@@ -203,13 +203,11 @@ struct TimeSeriesChart: View {
                         brew.id = UUID()
                         brew.date = Calendar.current.date(byAdding: .day, value: -i, to: Date())!
                         brew.rating = Int16.random(in: 2...5)
-                        brew.recipeName = "Test Recipe \(i)"
                         brew.roasterName = "Blue Bottle"
-                        brew.recipeGrindSize = Double.random(in: 15...25)
-                        brew.recipeTemperature = Double.random(in: 92...96)
-                        brew.recipeGrams = Int16.random(in: 15...20)
-                        brew.recipeWaterAmount = Int16.random(in: 250...300)
-                        brew.actualDurationSeconds = Int16.random(in: 180...300)
+                        brew.grindSize = Double.random(in: 15...25)
+                        brew.temperature = Double.random(in: 92...96)
+                        brew.grams = Int16.random(in: 15...20)
+                        brew.waterAmount = Int16.random(in: 250...300)
                         brews.append(brew)
                     }
                 }

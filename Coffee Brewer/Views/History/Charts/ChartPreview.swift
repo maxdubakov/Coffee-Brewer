@@ -141,9 +141,8 @@ struct ChartPreview: View {
                         let brew = Brew(context: context)
                         brew.id = UUID()
                         brew.date = Date().addingTimeInterval(TimeInterval(-i * 86400))
-                        brew.recipeGrindSize = Double.random(in: 10...30)
+                        brew.grindSize = Double.random(in: 10...30)
                         brew.rating = Int16.random(in: 2...5)
-                        brew.recipeName = "Sample Recipe \(i)"
                         brew.roasterName = ["Blue Bottle", "Stumptown", "Intelligentsia"].randomElement()!
                         brews.append(brew)
                     }

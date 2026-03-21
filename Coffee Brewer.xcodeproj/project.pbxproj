@@ -12,6 +12,12 @@
 		500273B82D5C895800BB903F /* Coffee_BrewerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 500273B72D5C895800BB903F /* Coffee_BrewerTests.swift */; };
 		500273C22D5C895800BB903F /* Coffee_BrewerUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 500273C12D5C895800BB903F /* Coffee_BrewerUITests.swift */; };
 		500273C42D5C895800BB903F /* Coffee_BrewerUITestsLaunchTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 500273C32D5C895800BB903F /* Coffee_BrewerUITestsLaunchTests.swift */; };
+		AA00000100000000000000B1 /* BrewExtensionsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA00000100000000000000A1 /* BrewExtensionsTests.swift */; };
+		AA00000100000000000000B2 /* CoffeeExtensionsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA00000100000000000000A2 /* CoffeeExtensionsTests.swift */; };
+		AA00000100000000000000B3 /* PourTemplateExtensionsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA00000100000000000000A3 /* PourTemplateExtensionsTests.swift */; };
+		AA00000100000000000000B4 /* BrewFormDataTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA00000100000000000000A4 /* BrewFormDataTests.swift */; };
+		AA00000100000000000000B5 /* StageFormDataTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA00000100000000000000A5 /* StageFormDataTests.swift */; };
+		AA00000100000000000000B6 /* CoffeeFormDataTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA00000100000000000000A6 /* CoffeeFormDataTests.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -41,6 +47,12 @@
 		500273C12D5C895800BB903F /* Coffee_BrewerUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Coffee_BrewerUITests.swift; sourceTree = "<group>"; };
 		500273C32D5C895800BB903F /* Coffee_BrewerUITestsLaunchTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Coffee_BrewerUITestsLaunchTests.swift; sourceTree = "<group>"; };
 		50FDA7322D632F1A003E3DB4 /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
+		AA00000100000000000000A1 /* BrewExtensionsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BrewExtensionsTests.swift; sourceTree = "<group>"; };
+		AA00000100000000000000A2 /* CoffeeExtensionsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoffeeExtensionsTests.swift; sourceTree = "<group>"; };
+		AA00000100000000000000A3 /* PourTemplateExtensionsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PourTemplateExtensionsTests.swift; sourceTree = "<group>"; };
+		AA00000100000000000000A4 /* BrewFormDataTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BrewFormDataTests.swift; sourceTree = "<group>"; };
+		AA00000100000000000000A5 /* StageFormDataTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StageFormDataTests.swift; sourceTree = "<group>"; };
+		AA00000100000000000000A6 /* CoffeeFormDataTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoffeeFormDataTests.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
@@ -125,6 +137,12 @@
 			isa = PBXGroup;
 			children = (
 				500273B72D5C895800BB903F /* Coffee_BrewerTests.swift */,
+				AA00000100000000000000A1 /* BrewExtensionsTests.swift */,
+				AA00000100000000000000A2 /* CoffeeExtensionsTests.swift */,
+				AA00000100000000000000A3 /* PourTemplateExtensionsTests.swift */,
+				AA00000100000000000000A4 /* BrewFormDataTests.swift */,
+				AA00000100000000000000A5 /* StageFormDataTests.swift */,
+				AA00000100000000000000A6 /* CoffeeFormDataTests.swift */,
 			);
 			path = "Coffee BrewerTests";
 			sourceTree = "<group>";
@@ -284,6 +302,12 @@
 			buildActionMask = 2147483647;
 			files = (
 				500273B82D5C895800BB903F /* Coffee_BrewerTests.swift in Sources */,
+				AA00000100000000000000B1 /* BrewExtensionsTests.swift in Sources */,
+				AA00000100000000000000B2 /* CoffeeExtensionsTests.swift in Sources */,
+				AA00000100000000000000B3 /* PourTemplateExtensionsTests.swift in Sources */,
+				AA00000100000000000000B4 /* BrewFormDataTests.swift in Sources */,
+				AA00000100000000000000B5 /* StageFormDataTests.swift in Sources */,
+				AA00000100000000000000B6 /* CoffeeFormDataTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
