@@ -9,20 +9,10 @@ struct GrinderForm: View {
     let dosingTypes = ["Single Dose", "Hopper Fed", "Doserless", "Timer Based"]
     
     var body: some View {
-        ScrollView {
-            VStack(spacing: 0) {
-                VStack(spacing: 30) {
-                    basicInfoSection
-                    burrSection
-                }
-            }
-            .padding(.bottom, 100)
-        }
-        .scrollDismissesKeyboard(.interactively)
-        .onTapGesture {
-            // Dismiss any active field when tapping outside
-            withAnimation(.spring()) {
-                focusedField = nil
+        VStack(spacing: 0) {
+            VStack(spacing: 30) {
+                basicInfoSection
+                burrSection
             }
         }
     }

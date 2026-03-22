@@ -477,3 +477,100 @@ xcodebuild -project "Coffee Brewer.xcodeproj" -scheme "Coffee Brewer" \
 2. **Test target pbxproj**: Test files need explicit entries in `project.pbxproj`. Main app files are auto-discovered.
 3. **Database lock**: If you get "database is locked" errors from xcodebuild, quit Xcode and clear DerivedData.
 4. **Latest commit**: `88da9ca Get rid of recipies. Prepare code for experiment-centric app`.
+
+---
+
+## Session Update (2026-03-21)
+
+This session completed the planned implementation for **Phase 3** and **Phase 4 (4a, 4b, 4c)**, including follow-up polish and review fixes.
+
+### Completed This Session
+
+#### Phase 3: Coffee Management UI ✅
+- Added full Coffee CRUD flow and UI:
+  - New Coffee form component and add/edit screens
+  - New Coffee row in library and Coffee detail sheet
+  - AddChoice integration (Coffee first)
+  - NavigationCoordinator wiring for add/edit/delete Coffee
+  - LibraryContainer and AllLibraryView integration (sheets, context menus, delete alerts)
+- Process field behavior finalized:
+  - Picker options: `Washed`, `Natural`, `Honey`, `Anaerobic`, `Other`
+  - `Other` reveals custom text input
+- Review-driven fixes applied:
+  - Correct process default synchronization
+  - Improved unsaved-changes handling
+  - Save error alert parity in edit VM
+  - Notes consistency and minor robustness improvements
+
+#### Phase 4a: Brew Tab + Core Brew Editor ✅
+- Added a new **Brew** tab.
+- Implemented core `BrewEditor` screen (full-screen flow) with:
+  - Inline stage rows (toggle Fast/Slow, edit ml inline, add/delete)
+  - Coffee picker (required for save)
+  - Compact params (grind, dose, temp, brew method)
+  - Auto-generated brew name
+  - Save & Brew to Core Data with stage persistence
+- Review-driven fixes applied:
+  - Total water overflow safety
+  - Better validation (non-empty stages, coffee required)
+  - ViewModel reset after save
+  - Defensive stage index handling
+- UX polish requested by user:
+  - Brew tab icon resized/fixed (new proper 24x24 bottom-bar asset)
+  - Removed notes section from BrewEditor
+  - Removed duplicate bottom water total (kept total in stages header)
+
+#### Phase 4b: Starting Point Picker + Clone Logic ✅
+- Added `BrewPicker` as Brew tab root.
+- Added three start options:
+  - V60 Default
+  - Orea V4 Default
+  - Last Brew
+- Added starting-point-aware editor initialization:
+  - Template mode (`.template(BrewMethod)`)
+  - Clone mode (`.cloneFromBrew(Brew)`)
+- Clone mode pre-fills coffee + all brew params/stages.
+
+#### Phase 4c: Brew Again Entry Points ✅
+- Added **Browse past brews →** link on BrewPicker (switches to History tab).
+- Added **Brew Again** actions in:
+  - History recent activity brew context menu
+  - Library brews context menu
+  - Brew detail sheet button
+- Added coordinator-driven cross-tab clone navigation:
+  - Programmatic jump to Brew tab and open BrewEditor with clone source
+  - Value-based route handling via `BrewEditorRoute`
+- Reliability fixes:
+  - Replaced fragile timed sheet-dismiss navigation with pending-clone + `onDismiss` processing
+  - Replaced dead-end missing-brew state with recovery back to Brew root
+
+### Build/Test Status After Session
+
+- ✅ Build succeeds (`xcodebuild ... build`)
+- ✅ All tests pass (`xcodebuild ... -only-testing:"Coffee BrewerTests" test`)
+
+### What Is Left
+
+#### Phase 5: Rating + Notifications (next major phase)
+- Schedule local notification ~1 hour after brew save
+- Deep-link to quick rating UI
+- Rating UI: stars + optional taste profile + notes
+- Unrated brew indicator in library/history
+- Rating entry from brew detail (not notification-only)
+
+#### Phase 6 (Future/Optional)
+- Custom template management UI (create/edit/delete)
+- Grouping/filtering past brews (by coffee/roaster)
+- Optional drag-reorder for stage rows (if desired)
+- TDS-focused UX improvements
+- Extra tests around new Brew flow UI/VMs
+
+### Planning Artifacts Added
+
+Task briefs were created under:
+- `misc/coding-team/coffee-management-ui/001-foundation-views-and-viewmodels.md`
+- `misc/coding-team/coffee-management-ui/002-navigation-wiring.md`
+- `misc/coding-team/coffee-management-ui/003-all-library-view-integration.md`
+- `misc/coding-team/coffee-management-ui/004-brew-tab-and-editor.md`
+- `misc/coding-team/coffee-management-ui/005-brew-picker-and-clone.md`
+- `misc/coding-team/coffee-management-ui/006-brew-again-and-browse.md`

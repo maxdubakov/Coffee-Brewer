@@ -3,7 +3,7 @@ import SwiftUI
 struct Main: View {
     // MARK: - Nested Types
     enum Tab {
-        case home, brew, add, history
+        case brew, add, history
     }
 
     // MARK: - Environment
@@ -18,6 +18,14 @@ struct Main: View {
         appearance.backgroundColor = UIColor(BrewerColors.background)
         appearance.shadowColor = .clear
 
+        let itemAppearance = UITabBarItemAppearance()
+        itemAppearance.selected.iconColor = UIColor(BrewerColors.cream)
+        itemAppearance.normal.iconColor = UIColor(BrewerColors.cream.opacity(0.5))
+
+        appearance.stackedLayoutAppearance = itemAppearance
+        appearance.inlineLayoutAppearance = itemAppearance
+        appearance.compactInlineLayoutAppearance = itemAppearance
+
         UITabBar.appearance().standardAppearance = appearance
         UITabBar.appearance().scrollEdgeAppearance = appearance
 
@@ -28,19 +36,6 @@ struct Main: View {
 
     var body: some View {
         TabView(selection: navigationCoordinator.selectedTab) {
-            // Home tab
-            NavigationStack(path: $navigationCoordinator.homePath) {
-                LibraryContainer(navigationCoordinator: navigationCoordinator)
-                    .background(BrewerColors.background)
-                    .navigationDestination(for: AppDestination.self) { destination in
-                        destinationView(for: destination)
-                    }
-            }
-            .tabItem {
-                TabIcon(imageName: "home", label: "Home")
-            }
-            .tag(Tab.home)
-
             // Brew tab — picker is the root, pushes to BrewEditor
             NavigationStack(path: $navigationCoordinator.brewPath) {
                 BrewPicker()
@@ -53,7 +48,7 @@ struct Main: View {
                     }
             }
             .tabItem {
-                TabIcon(imageName: "brew", label: "Brew")
+                Image("brew").renderingMode(.template)
             }
             .tag(Tab.brew)
 
@@ -66,7 +61,7 @@ struct Main: View {
                     }
             }
             .tabItem {
-                TabIcon(imageName: "add.recipe", label: "Add")
+                Image("add.recipe").renderingMode(.template)
             }
             .tag(Tab.add)
 
@@ -79,7 +74,7 @@ struct Main: View {
                     }
             }
             .tabItem {
-                TabIcon(imageName: "history", label: "History")
+                Image("history").renderingMode(.template)
             }
             .tag(Tab.history)
         }
@@ -89,6 +84,14 @@ struct Main: View {
             appearance.configureWithOpaqueBackground()
             appearance.backgroundColor = UIColor(BrewerColors.background)
             appearance.shadowColor = .clear
+
+            let itemAppearance = UITabBarItemAppearance()
+            itemAppearance.selected.iconColor = UIColor(BrewerColors.cream)
+            itemAppearance.normal.iconColor = UIColor(BrewerColors.cream.opacity(0.5))
+
+            appearance.stackedLayoutAppearance = itemAppearance
+            appearance.inlineLayoutAppearance = itemAppearance
+            appearance.compactInlineLayoutAppearance = itemAppearance
 
             UITabBar.appearance().standardAppearance = appearance
             UITabBar.appearance().scrollEdgeAppearance = appearance
@@ -142,19 +145,6 @@ struct Main: View {
         case .settings:
             Settings()
                 .environment(\.managedObjectContext, viewContext)
-        }
-    }
-
-    struct TabIcon: View {
-        let imageName: String
-        let label: String
-
-        var body: some View {
-            VStack(spacing: 4) {
-                SVGIcon(imageName, size: 20)
-                Text(label)
-                    .font(.caption)
-            }
         }
     }
 }

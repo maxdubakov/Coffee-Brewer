@@ -22,20 +22,11 @@ struct CoffeeForm: View {
     }
 
     var body: some View {
-        ScrollView {
-            VStack(spacing: 0) {
-                VStack(spacing: 30) {
-                    basicInfoSection
-                    processSection
-                    notesSection
-                }
-            }
-            .padding(.bottom, 100)
-        }
-        .scrollDismissesKeyboard(.interactively)
-        .onTapGesture {
-            withAnimation(.spring()) {
-                focusedField = nil
+        VStack(spacing: 0) {
+            VStack(spacing: 30) {
+                basicInfoSection
+                processSection
+                notesSection
             }
         }
         .onAppear {

@@ -5,22 +5,11 @@ struct RoasterForm: View {
     @Binding var focusedField: FocusedField?
     
     var body: some View {
-        ScrollView {
-            VStack(spacing: 0) {
-                VStack(spacing: 30) {
-                    basicInfoSection
-                    detailsSection
-                    notesSection
-                }
-            }
-//            .padding(.horizontal, 16)
-            .padding(.bottom, 100)
-        }
-        .scrollDismissesKeyboard(.interactively)
-        .onTapGesture {
-            // Dismiss any active field when tapping outside
-            withAnimation(.spring()) {
-                focusedField = nil
+        VStack(spacing: 0) {
+            VStack(spacing: 30) {
+                basicInfoSection
+                detailsSection
+                notesSection
             }
         }
     }

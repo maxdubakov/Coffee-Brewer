@@ -1,4 +1,5 @@
 import SwiftUI
+import Combine
 
 struct FixedBottomLayout<Content: View, Actions: View>: View {
     let content: Content
@@ -6,7 +7,9 @@ struct FixedBottomLayout<Content: View, Actions: View>: View {
     let contentPadding: EdgeInsets
     let actionPadding: EdgeInsets
     let scrollable: Bool
-    
+
+    @State private var isKeyboardVisible = false
+
     init(
         scrollable: Bool = true,
         contentPadding: EdgeInsets = EdgeInsets(top: 20, leading: 0, bottom: 0, trailing: 0),
@@ -20,7 +23,7 @@ struct FixedBottomLayout<Content: View, Actions: View>: View {
         self.content = content()
         self.actions = actions()
     }
-    
+
     var body: some View {
         VStack(spacing: 0) {
             if scrollable {
@@ -29,8 +32,20 @@ struct FixedBottomLayout<Content: View, Actions: View>: View {
                         content
                     }
                     .padding(contentPadding)
+                    .padding(.bottom, 80)
+                    .onTapGesture {
+                        UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
+                    }
                 }
                 .scrollDismissesKeyboard(.immediately)
+                .toolbar {
+                    ToolbarItemGroup(placement: .keyboard) {
+                        Spacer()
+                        Button("Done") {
+                            UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
+                        }
+                    }
+                }
             } else {
                 VStack(alignment: .leading, spacing: 30) {
                     content
@@ -38,17 +53,25 @@ struct FixedBottomLayout<Content: View, Actions: View>: View {
                 }
                 .padding(contentPadding)
             }
-            
-            VStack {
-                Divider()
-                    .background(BrewerColors.divider)
-                
-                actions
-                    .padding(actionPadding)
+
+            if !isKeyboardVisible {
+                VStack {
+                    Divider()
+                        .background(BrewerColors.divider)
+
+                    actions
+                        .padding(actionPadding)
+                }
+                .background(BrewerColors.background)
             }
-            .background(BrewerColors.background)
         }
         .background(BrewerColors.background)
+        .onReceive(NotificationCenter.default.publisher(for: UIResponder.keyboardWillShowNotification)) { _ in
+            isKeyboardVisible = true
+        }
+        .onReceive(NotificationCenter.default.publisher(for: UIResponder.keyboardWillHideNotification)) { _ in
+            isKeyboardVisible = false
+        }
     }
 }
 

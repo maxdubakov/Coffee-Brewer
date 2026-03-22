@@ -26,7 +26,7 @@ enum AppDestination: Hashable {
 @MainActor
 class NavigationCoordinator: ObservableObject {
     // MARK: - Tab Management
-    @Published private var _selectedTab: Main.Tab = .home
+    @Published private var _selectedTab: Main.Tab = .brew
 
     var selectedTab: Binding<Main.Tab> {
         Binding(
@@ -38,7 +38,6 @@ class NavigationCoordinator: ObservableObject {
     }
 
     // MARK: - Navigation Paths
-    @Published var homePath = NavigationPath()
     @Published var addPath = NavigationPath()
     @Published var historyPath = NavigationPath()
     @Published var brewPath = NavigationPath()
@@ -91,21 +90,12 @@ class NavigationCoordinator: ObservableObject {
         historyPath.append(AppDestination.chartDetail(chart: chart))
     }
 
-    func navigateToLibraryBrews() {
-        _selectedTab = .home
-        NotificationCenter.default.post(name: .navigateToLibraryBrews, object: nil)
-    }
-
-    func navigateToHome() {
-        _selectedTab = .home
-    }
-
     func navigateToHistory() {
         _selectedTab = .history
     }
 
     func navigateToSettings() {
-        homePath.append(AppDestination.settings)
+        brewPath.append(AppDestination.settings)
     }
 
     func startBrewFromClone(brew: Brew) {
@@ -260,8 +250,6 @@ class NavigationCoordinator: ObservableObject {
     // MARK: - Navigation Stack Management
     func popToRoot(for tab: Main.Tab) {
         switch tab {
-        case .home:
-            homePath = NavigationPath()
         case .brew:
             brewPath = NavigationPath()
         case .add:
@@ -272,7 +260,6 @@ class NavigationCoordinator: ObservableObject {
     }
 
     func popToRoot() {
-        homePath = NavigationPath()
         brewPath = NavigationPath()
         addPath = NavigationPath()
         historyPath = NavigationPath()
@@ -333,12 +320,12 @@ class NavigationCoordinator: ObservableObject {
 
     private func handleBrewSaved() {
         popToRoot(for: .brew)
-        _selectedTab = .home
+        _selectedTab = .brew
     }
 
     private func handleCoffeeSaved() {
         popToRoot(for: .add)
-        _selectedTab = .home
+        _selectedTab = .brew
     }
 
     private func handleCoffeeUpdated() {
@@ -347,19 +334,15 @@ class NavigationCoordinator: ObservableObject {
 
     private func handleRoasterSaved() {
         popToRoot(for: .add)
-        _selectedTab = .home
+        _selectedTab = .brew
     }
 
     private func handleGrinderSaved() {
         popToRoot(for: .add)
-        _selectedTab = .home
+        _selectedTab = .brew
     }
 
     deinit {
         NotificationCenter.default.removeObserver(self)
     }
-}
-
-extension Notification.Name {
-    static let navigateToLibraryBrews = Notification.Name("navigateToLibraryBrews")
 }

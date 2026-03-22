@@ -325,24 +325,6 @@ struct History: View {
                 }
             }
             
-            // See All in Library link
-            if brews.count > 20 {
-                Button(action: {
-                    navigationCoordinator.navigateToLibraryBrews()
-                }) {
-                    HStack {
-                        Text("See All in Library")
-                            .font(.system(size: 15, weight: .medium))
-                            .foregroundColor(BrewerColors.caramel)
-                        
-                        Image(systemName: "arrow.right")
-                            .font(.system(size: 12, weight: .medium))
-                            .foregroundColor(BrewerColors.caramel)
-                    }
-                }
-                .padding(.horizontal)
-                .padding(.top, 8)
-            }
         }
     }
     
