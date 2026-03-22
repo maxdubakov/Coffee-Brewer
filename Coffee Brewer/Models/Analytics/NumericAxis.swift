@@ -11,7 +11,7 @@ struct NumericAxis: ChartAxis {
     func extractValue(from brew: Brew) -> Any? {
         let value: Double? = switch type {
         case .rating:
-            Double(brew.rating)
+            brew.rating
         case .grindSize:
             brew.grindSize
         case .temperature:

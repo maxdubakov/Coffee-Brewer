@@ -37,12 +37,21 @@ struct FixedBottomLayout<Content: View, Actions: View>: View {
                         UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
                     }
                 }
-                .scrollDismissesKeyboard(.immediately)
-                .toolbar {
-                    ToolbarItemGroup(placement: .keyboard) {
-                        Spacer()
-                        Button("Done") {
-                            UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
+                .scrollDismissesKeyboard(.interactively)
+                .safeAreaInset(edge: .bottom) {
+                    if isKeyboardVisible {
+                        VStack(spacing: 0) {
+                            Spacer().frame(height: 20)
+                            HStack {
+                                Spacer()
+                                Button("Done") {
+                                    UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
+                                }
+                            }
+                            .padding(.leading, 16)
+                            .padding(.trailing, 20)
+                            .padding(.vertical, 8)
+                            .background(BrewerColors.background)
                         }
                     }
                 }

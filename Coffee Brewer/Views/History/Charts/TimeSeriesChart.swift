@@ -202,7 +202,7 @@ struct TimeSeriesChart: View {
                         let brew = Brew(context: context)
                         brew.id = UUID()
                         brew.date = Calendar.current.date(byAdding: .day, value: -i, to: Date())!
-                        brew.rating = Int16.random(in: 2...5)
+                        brew.rating = Double.random(in: 2.0...5.0)
                         brew.roasterName = "Blue Bottle"
                         brew.grindSize = Double.random(in: 15...25)
                         brew.temperature = Double.random(in: 92...96)

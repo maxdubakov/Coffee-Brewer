@@ -142,7 +142,7 @@ struct ChartPreview: View {
                         brew.id = UUID()
                         brew.date = Date().addingTimeInterval(TimeInterval(-i * 86400))
                         brew.grindSize = Double.random(in: 10...30)
-                        brew.rating = Int16.random(in: 2...5)
+                        brew.rating = Double.random(in: 2.0...5.0)
                         brew.roasterName = ["Blue Bottle", "Stumptown", "Intelligentsia"].randomElement()!
                         brews.append(brew)
                     }

@@ -95,7 +95,7 @@ class BrewEditorViewModel: ObservableObject {
 
     private static func makeFormData(for method: BrewMethod) -> BrewFormData {
         var data = BrewFormData(brewMethod: method)
-        data.grindSize = method == .v60 ? 26 : 20
+        data.grindSize = 31.5
         data.stages = defaultStages(for: method)
         return data
     }
@@ -103,17 +103,19 @@ class BrewEditorViewModel: ObservableObject {
     private static func defaultStages(for method: BrewMethod) -> [StageFormData] {
         switch method {
         case .v60:
-            // Bloom + main pour (60 + 228 = 288ml, matches 18g × 16 ratio)
+            // fast 80ml + slow 120ml + slow 106ml = 306ml (18g × 17 ratio)
             return [
-                StageFormData(type: .fast, waterAmount: 60, orderIndex: 0),
-                StageFormData(type: .slow, waterAmount: 228, orderIndex: 1)
+                StageFormData(type: .fast, waterAmount: 80, orderIndex: 0),
+                StageFormData(type: .slow, waterAmount: 120, orderIndex: 1),
+                StageFormData(type: .slow, waterAmount: 106, orderIndex: 2)
             ]
         case .oreaV4:
-            // Bloom + two main pours (60 + 120 + 120 = 300ml, matches 20g × 15 ratio)
+            // fast 80ml + slow 70ml + fast 80ml + slow 76ml = 306ml (18g × 17 ratio)
             return [
-                StageFormData(type: .fast, waterAmount: 60, orderIndex: 0),
-                StageFormData(type: .slow, waterAmount: 120, orderIndex: 1),
-                StageFormData(type: .fast, waterAmount: 120, orderIndex: 2)
+                StageFormData(type: .fast, waterAmount: 80, orderIndex: 0),
+                StageFormData(type: .slow, waterAmount: 70, orderIndex: 1),
+                StageFormData(type: .fast, waterAmount: 80, orderIndex: 2),
+                StageFormData(type: .slow, waterAmount: 76, orderIndex: 3)
             ]
         }
     }
@@ -157,6 +159,7 @@ class BrewEditorViewModel: ObservableObject {
         do {
             try viewContext.save()
             isSaving = false
+            NotificationService.scheduleBrewRatingReminder(brewID: brew.id!)
             NotificationCenter.default.post(name: .brewSaved, object: nil)
             return true
         } catch {

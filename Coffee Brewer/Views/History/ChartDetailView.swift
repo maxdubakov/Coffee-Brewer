@@ -211,7 +211,7 @@ extension AxisConfiguration {
                             brew.id = UUID()
                             brew.date = Date().addingTimeInterval(TimeInterval(-i * 86400))
                             brew.roasterName = roasters.randomElement()!
-                            brew.rating = Int16.random(in: 1...5)
+                            brew.rating = Double.random(in: 1.0...5.0)
                             brews.append(brew)
                         }
                     }

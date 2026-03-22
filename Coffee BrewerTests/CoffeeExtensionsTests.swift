@@ -26,16 +26,16 @@ final class CoffeeExtensionsTests: XCTestCase {
         let midDate = Calendar.current.date(byAdding: .day, value: -5, to: Date())!
         let newDate = Date()
         
-        _ = createBrew(coffee: coffee, date: oldDate, rating: 3)
-        _ = createBrew(coffee: coffee, date: newDate, rating: 5)
-        _ = createBrew(coffee: coffee, date: midDate, rating: 4)
+        _ = createBrew(coffee: coffee, date: oldDate, rating: 3.0)
+        _ = createBrew(coffee: coffee, date: newDate, rating: 5.0)
+        _ = createBrew(coffee: coffee, date: midDate, rating: 4.0)
         
         let sorted = coffee.brewsArray
         
         XCTAssertEqual(sorted.count, 3)
-        XCTAssertEqual(sorted[0].rating, 5)  // newest
-        XCTAssertEqual(sorted[1].rating, 4)  // middle
-        XCTAssertEqual(sorted[2].rating, 3)  // oldest
+        XCTAssertEqual(sorted[0].rating, 5.0)  // newest
+        XCTAssertEqual(sorted[1].rating, 4.0)  // middle
+        XCTAssertEqual(sorted[2].rating, 3.0)  // oldest
     }
     
     func testBrewsArrayEmptyWhenNoBrews() {
@@ -49,10 +49,10 @@ final class CoffeeExtensionsTests: XCTestCase {
         let coffee = createTestCoffee()
         
         let oldDate = Calendar.current.date(byAdding: .day, value: -5, to: Date())!
-        _ = createBrew(coffee: coffee, date: oldDate, rating: 3)
-        _ = createBrew(coffee: coffee, date: Date(), rating: 5)
+        _ = createBrew(coffee: coffee, date: oldDate, rating: 3.0)
+        _ = createBrew(coffee: coffee, date: Date(), rating: 5.0)
         
-        XCTAssertEqual(coffee.latestBrew?.rating, 5)
+        XCTAssertEqual(coffee.latestBrew?.rating, 5.0)
     }
     
     func testLatestBrewNilWhenNoBrews() {
@@ -64,9 +64,9 @@ final class CoffeeExtensionsTests: XCTestCase {
     
     func testBrewCountReturnsCorrectCount() {
         let coffee = createTestCoffee()
-        _ = createBrew(coffee: coffee, date: Date(), rating: 3)
-        _ = createBrew(coffee: coffee, date: Date(), rating: 4)
-        _ = createBrew(coffee: coffee, date: Date(), rating: 5)
+        _ = createBrew(coffee: coffee, date: Date(), rating: 3.0)
+        _ = createBrew(coffee: coffee, date: Date(), rating: 4.0)
+        _ = createBrew(coffee: coffee, date: Date(), rating: 5.0)
         
         XCTAssertEqual(coffee.brewCount, 3)
     }
@@ -80,16 +80,25 @@ final class CoffeeExtensionsTests: XCTestCase {
     
     func testBestRatingReturnsHighest() {
         let coffee = createTestCoffee()
-        _ = createBrew(coffee: coffee, date: Date(), rating: 2)
-        _ = createBrew(coffee: coffee, date: Date(), rating: 5)
-        _ = createBrew(coffee: coffee, date: Date(), rating: 3)
+        _ = createBrew(coffee: coffee, date: Date(), rating: 2.0)
+        _ = createBrew(coffee: coffee, date: Date(), rating: 5.0)
+        _ = createBrew(coffee: coffee, date: Date(), rating: 3.0)
         
-        XCTAssertEqual(coffee.bestRating, 5)
+        XCTAssertEqual(coffee.bestRating, 5.0)
     }
     
     func testBestRatingZeroWhenNoBrews() {
         let coffee = createTestCoffee()
         XCTAssertEqual(coffee.bestRating, 0)
+    }
+    
+    func testBestRatingReturnsFractionalRating() {
+        let coffee = createTestCoffee()
+        _ = createBrew(coffee: coffee, date: Date(), rating: 3.0)
+        _ = createBrew(coffee: coffee, date: Date(), rating: 4.5)
+        _ = createBrew(coffee: coffee, date: Date(), rating: 2.0)
+        
+        XCTAssertEqual(coffee.bestRating, 4.5)
     }
     
     // MARK: - displayName / roasterDisplayName
@@ -130,7 +139,7 @@ final class CoffeeExtensionsTests: XCTestCase {
     }
     
     @discardableResult
-    private func createBrew(coffee: Coffee, date: Date, rating: Int16) -> Brew {
+    private func createBrew(coffee: Coffee, date: Date, rating: Double) -> Brew {
         let brew = Brew(context: context)
         brew.id = UUID()
         brew.coffee = coffee

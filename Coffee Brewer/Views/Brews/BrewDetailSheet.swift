@@ -1,9 +1,10 @@
 import SwiftUI
 
 struct BrewDetailSheet: View {
-    let brew: Brew
+    @ObservedObject var brew: Brew
     @Environment(\.dismiss) private var dismiss
     @EnvironmentObject private var navigationCoordinator: NavigationCoordinator
+    @State private var showRatingSheet = false
 
     var body: some View {
         VStack(spacing: 0) {
@@ -29,13 +30,8 @@ struct BrewDetailSheet: View {
                         Spacer()
 
                         if brew.rating > 0 {
-                            HStack(spacing: 4) {
-                                ForEach(0..<5) { index in
-                                    Image(systemName: index < Int(brew.rating) ? "star.fill" : "star")
-                                        .font(.system(size: 16))
-                                        .foregroundColor(index < Int(brew.rating) ? BrewerColors.caramel : BrewerColors.textSecondary.opacity(0.3))
-                                }
-                            }
+                            HalfStarRating(rating: .constant(brew.rating), starSize: 16, spacing: 4)
+                                .allowsHitTesting(false)
                         }
                     }
 
@@ -186,9 +182,36 @@ struct BrewDetailSheet: View {
             .padding(.horizontal, 20)
             .padding(.top, 24)
 
+            // Rate This Brew button
+            Button {
+                showRatingSheet = true
+            } label: {
+                HStack(spacing: 8) {
+                    Image(systemName: "star")
+                        .font(.system(size: 15, weight: .medium))
+                    Text(brew.isAssessed ? "Update Rating" : "Rate This Brew")
+                        .font(.system(size: 15, weight: .semibold))
+                }
+                .foregroundColor(BrewerColors.caramel)
+                .frame(maxWidth: .infinity)
+                .padding(.vertical, 14)
+                .background(
+                    RoundedRectangle(cornerRadius: 12)
+                        .fill(BrewerColors.caramel.opacity(0.12))
+                )
+            }
+            .buttonStyle(.plain)
+            .padding(.horizontal, 20)
+            .padding(.top, 12)
+
             Spacer()
         }
         .background(BrewerColors.background.ignoresSafeArea())
+        .sheet(isPresented: $showRatingSheet) {
+            RatingSheet(brew: brew)
+                .presentationDetents([.large])
+                .presentationDragIndicator(.visible)
+        }
     }
 
     private var hasTasteProfile: Bool {
@@ -268,7 +291,7 @@ private struct TasteProfileRow: View {
         brew.id = UUID()
         brew.roasterName = "Blue Bottle Coffee"
         brew.date = Date()
-        brew.rating = 4
+        brew.rating = 4.0
         brew.grams = 18
         brew.waterAmount = 250
         brew.temperature = 94

@@ -21,27 +21,27 @@ struct BrewPicker: View {
                 PageTitleH2("Start Brewing", subtitle: "Choose your starting point")
                     .padding(.bottom, 4)
 
-                // V60 Default
+                // V60
                 Button {
                     navigationCoordinator.brewPath.append(BrewEditorRoute.template(.v60))
                 } label: {
                     BrewPickerCard(
                         iconName: BrewMethod.v60.iconName,
-                        title: "V60 Default",
-                        subtitle: "18g · 288ml · 95°C",
+                        title: "V60",
+                        subtitle: "18g · 306ml · 96°C",
                         accentIcon: true
                     )
                 }
                 .buttonStyle(.plain)
 
-                // Orea V4 Default
+                // Orea V4
                 Button {
                     navigationCoordinator.brewPath.append(BrewEditorRoute.template(.oreaV4))
                 } label: {
                     BrewPickerCard(
                         iconName: BrewMethod.oreaV4.iconName,
-                        title: "Orea V4 Default",
-                        subtitle: "20g · 300ml · 93°C",
+                        title: "Orea V4",
+                        subtitle: "18g · 306ml · 96°C",
                         accentIcon: true
                     )
                 }

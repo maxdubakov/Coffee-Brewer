@@ -17,6 +17,7 @@ struct BrewsLibraryView: View {
     @State private var isEditMode = false
     @State private var selectedBrews: Set<NSManagedObjectID> = []
     @State private var selectedBrewForDetail: Brew?
+    @State private var brewToRate: Brew?
     
     private var filteredBrews: [Brew] {
         let allBrews = Array(brews)
@@ -79,6 +80,9 @@ struct BrewsLibraryView: View {
                                 } else {
                                     selectedBrewForDetail = brew
                                 }
+                            },
+                            onRate: {
+                                brewToRate = brew
                             }
                         )
                         
@@ -130,6 +134,11 @@ struct BrewsLibraryView: View {
             navigationCoordinator.processPendingClone()
         }) { brew in
             BrewDetailSheet(brew: brew)
+                .presentationDetents([.large])
+                .presentationDragIndicator(.visible)
+        }
+        .sheet(item: $brewToRate) { brew in
+            RatingSheet(brew: brew)
                 .presentationDetents([.large])
                 .presentationDragIndicator(.visible)
         }

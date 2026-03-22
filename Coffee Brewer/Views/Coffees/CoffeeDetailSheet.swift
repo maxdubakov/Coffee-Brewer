@@ -140,7 +140,7 @@ struct CoffeeDetailSheet: View {
                                     Spacer()
 
                                     if brew.rating > 0 {
-                                        Text("\(brew.rating)★")
+                                        Text("\(Int(brew.rating))★")
                                             .font(.system(size: 12, weight: .medium))
                                             .foregroundColor(BrewerColors.caramel)
                                     }

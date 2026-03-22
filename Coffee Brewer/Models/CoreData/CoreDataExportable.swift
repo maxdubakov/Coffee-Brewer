@@ -150,7 +150,7 @@ extension Brew {
             brew.ratio = data["ratio"] as? Double ?? 0.0
             brew.temperature = data["temperature"] as? Double ?? 0.0
             brew.waterAmount = Int16(data["waterAmount"] as? Int ?? 0)
-            brew.rating = Int16(data["rating"] as? Int ?? 0)
+            brew.rating = data["rating"] as? Double ?? 0.0
             brew.acidity = Int16(data["acidity"] as? Int ?? 0)
             brew.bitterness = Int16(data["bitterness"] as? Int ?? 0)
             brew.body = Int16(data["body"] as? Int ?? 0)

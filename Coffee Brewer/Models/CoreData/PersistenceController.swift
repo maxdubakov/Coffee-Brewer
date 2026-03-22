@@ -175,7 +175,7 @@ struct PersistenceController {
             temperature: Double,
             grindSize: Double,
             date: Date,
-            rating: Int16,
+            rating: Double,
             notes: String?,
             acidity: Int16,
             bitterness: Int16,
@@ -222,7 +222,7 @@ struct PersistenceController {
         
         for i in stride(from: 0, to: 28, by: 3) {
             let brewDate = calendar.date(byAdding: .day, value: -i, to: today)!
-            let rating = Int16.random(in: 3...5)
+            let rating = Double.random(in: 3.0...5.0)
             let stages = i < 14 ? v60ThreeStages : v60Stages  // Changed pattern mid-bag
             let grindVariation = Double.random(in: -1.0...1.0)
             
@@ -253,7 +253,7 @@ struct PersistenceController {
         for i in stride(from: 1, to: 18, by: 2) {
             let brewDate = calendar.date(byAdding: .day, value: -i, to: today)!
             let brewTime = calendar.date(bySettingHour: 7, minute: 30, second: 0, of: brewDate)!
-            let rating = Int16.random(in: 3...5)
+            let rating = Double.random(in: 3.0...5.0)
             
             _ = createBrew(
                 coffee: kenyaAA,
@@ -283,7 +283,7 @@ struct PersistenceController {
         
         for i in stride(from: 0, to: 12, by: 2) {
             let brewDate = calendar.date(byAdding: .day, value: -i, to: today)!
-            let rating = Int16.random(in: 2...4)
+            let rating = Double.random(in: 2.0...4.0)
             let grindAdjust = Double(i) * 0.5  // Gradually coarsening
             
             _ = createBrew(
@@ -312,7 +312,7 @@ struct PersistenceController {
         
         for i in stride(from: 2, to: 40, by: 5) {
             let brewDate = calendar.date(byAdding: .day, value: -i, to: today)!
-            let rating = Int16.random(in: 3...4)
+            let rating = Double.random(in: 3.0...4.0)
             
             _ = createBrew(
                 coffee: madHeadsBlend,
@@ -340,7 +340,7 @@ struct PersistenceController {
         
         for i in [0, 1, 3, 5] {
             let brewDate = calendar.date(byAdding: .day, value: -i, to: today)!
-            let rating = Int16.random(in: 3...5)
+            let rating = Double(Int.random(in: 3...5))
             
             _ = createBrew(
                 coffee: brazilNatural,

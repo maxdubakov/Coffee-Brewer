@@ -5,7 +5,7 @@ struct FormRatingField: View {
     let field: FocusedField
     
     // MARK: - Bindings
-    @Binding var value: Int16
+    @Binding var value: Double
     @Binding var focusedField: FocusedField?
     
     var body: some View {
@@ -17,7 +17,7 @@ struct FormRatingField: View {
                         .font(.system(size: 30))
                         .onTapGesture {
                             withAnimation(.spring(response: 0.3, dampingFraction: 0.6)) {
-                                value = Int16(star)
+                                value = Double(star)
                             }
                         }
                 }
@@ -32,7 +32,7 @@ struct FormRatingField: View {
 
 #Preview {
     struct FormRatingFieldPreviewWrapper: View {
-        @State private var rating: Int16 = 3
+        @State private var rating: Double = 3.0
 
         var body: some View {
             GlobalBackground {

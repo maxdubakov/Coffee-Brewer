@@ -66,6 +66,10 @@ class NavigationCoordinator: ObservableObject {
     // MARK: - Pending Clone State
     @Published var pendingCloneBrew: Brew?
 
+    // MARK: - Rating Sheet State
+    /// Non-nil when the deep-link rating sheet should be presented.
+    @Published var brewToRate: Brew?
+
     init() {
         setupNotificationListeners()
     }
@@ -109,6 +113,17 @@ class NavigationCoordinator: ObservableObject {
         guard let brew = pendingCloneBrew else { return }
         pendingCloneBrew = nil
         startBrewFromClone(brew: brew)
+    }
+
+    /// Fetches the brew by UUID and sets `brewToRate` to present the rating sheet.
+    func openRatingSheet(brewID: UUID) {
+        let context = PersistenceController.shared.container.viewContext
+        let request = NSFetchRequest<Brew>(entityName: "Brew")
+        request.predicate = NSPredicate(format: "id == %@", brewID as CVarArg)
+        request.fetchLimit = 1
+        if let brew = (try? context.fetch(request))?.first {
+            brewToRate = brew
+        }
     }
 
     func presentEditCoffee(_ coffee: Coffee) {
@@ -314,6 +329,18 @@ class NavigationCoordinator: ObservableObject {
         ) { [weak self] _ in
             Task { @MainActor in
                 self?.handleGrinderSaved()
+            }
+        }
+
+        NotificationCenter.default.addObserver(
+            forName: .openRatingSheet,
+            object: nil,
+            queue: .main
+        ) { [weak self] notification in
+            Task { @MainActor in
+                if let brewID = notification.userInfo?["brewID"] as? UUID {
+                    self?.openRatingSheet(brewID: brewID)
+                }
             }
         }
     }

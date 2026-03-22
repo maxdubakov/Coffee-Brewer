@@ -17,8 +17,8 @@ extension Coffee {
         brews?.count ?? 0
     }
     
-    var bestRating: Int16 {
-        brewsArray.map(\.rating).max() ?? 0
+    var bestRating: Double {
+        brewsArray.map(\.rating).max() ?? 0.0
     }
     
     var displayName: String {

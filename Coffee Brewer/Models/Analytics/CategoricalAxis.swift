@@ -38,9 +38,9 @@ struct CategoricalAxis: ChartAxis {
         return "Other"
     }
 
-    private func categorizeRating(_ rating: Int16) -> String {
-        switch rating {
-        case 0...1: return "Poor"
+    private func categorizeRating(_ rating: Double) -> String {
+        switch Int(rating) {
+        case 0, 1: return "Poor"
         case 2: return "Fair"
         case 3: return "Good"
         case 4: return "Very Good"

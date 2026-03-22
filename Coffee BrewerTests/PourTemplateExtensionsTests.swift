@@ -41,7 +41,7 @@ final class PourTemplateExtensionsTests: XCTestCase {
     // MARK: - createStages(for:waterAmount:)
     
     func testCreateStagesCalculatesCorrectWaterAmounts() {
-        let template = createTemplate(name: "V60 Default", brewMethod: "V60")
+        let template = createTemplate(name: "V60", brewMethod: "V60")
         _ = createTemplateStage(template: template, type: "fast", pct: 20.0, order: 0)
         _ = createTemplateStage(template: template, type: "slow", pct: 80.0, order: 1)
         
@@ -106,8 +106,8 @@ final class PourTemplateExtensionsTests: XCTestCase {
         XCTAssertEqual(templates.count, 2)
         
         let names = Set(templates.map { $0.name ?? "" })
-        XCTAssertTrue(names.contains("V60 Default"))
-        XCTAssertTrue(names.contains("Orea V4 Default"))
+        XCTAssertTrue(names.contains("V60"))
+        XCTAssertTrue(names.contains("Orea V4"))
     }
     
     func testSeedBuiltInTemplatesIsIdempotent() {

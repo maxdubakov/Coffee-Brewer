@@ -14,6 +14,7 @@ struct History: View {
     @State private var showDeleteAlert = false
     @State private var chartRowHeight: CGFloat = 0
     @State private var selectedBrew: Brew?
+    @State private var brewToRate: Brew?
     
     // MARK: - Fetch Request
     @FetchRequest(
@@ -66,6 +67,11 @@ struct History: View {
                 navigationCoordinator.processPendingClone()
             }) { brew in
                 BrewDetailSheet(brew: brew)
+                    .presentationDetents([.large])
+                    .presentationDragIndicator(.visible)
+            }
+            .sheet(item: $brewToRate) { brew in
+                RatingSheet(brew: brew)
                     .presentationDetents([.large])
                     .presentationDragIndicator(.visible)
             }
@@ -305,6 +311,9 @@ struct History: View {
                             isSelected: false,
                             onTap: {
                                 selectedBrew = brew
+                            },
+                            onRate: {
+                                brewToRate = brew
                             }
                         )
                         .padding(.horizontal)
@@ -332,7 +341,7 @@ struct History: View {
     
     // MARK: - Computed Properties
     private var averageRating: Double {
-        let ratings = brews.map { Double($0.rating) }.filter { $0 > 0 }
+        let ratings = brews.map { $0.rating }.filter { $0 > 0 }
         guard !ratings.isEmpty else { return 0.0 }
         return ratings.reduce(0, +) / Double(ratings.count)
     }
@@ -355,7 +364,7 @@ struct History: View {
             return date >= oneWeekAgo
         }
         
-        let ratings = weeklyBrews.map { Double($0.rating) }.filter { $0 > 0 }
+        let ratings = weeklyBrews.map { $0.rating }.filter { $0 > 0 }
         guard !ratings.isEmpty else { return 0.0 }
         
         return ratings.reduce(0, +) / Double(ratings.count)
@@ -686,21 +695,21 @@ struct CompactBrewCard: View {
         let brew1 = Brew(context: context)
         brew1.id = UUID()
         brew1.roasterName = "Blue Bottle Coffee"
-        brew1.rating = 5
+        brew1.rating = 5.0
         brew1.date = today
         brew1.notes = "Wonderful fruity notes with a hint of blueberry. Very balanced with a clean finish."
 
         let brew2 = Brew(context: context)
         brew2.id = UUID()
         brew2.roasterName = "Intelligentsia"
-        brew2.rating = 3
+        brew2.rating = 3.0
         brew2.date = calendar.date(byAdding: .day, value: -1, to: today)
         brew2.notes = "A bit too bitter, might need to adjust the grind size next time."
 
         let brew3 = Brew(context: context)
         brew3.id = UUID()
         brew3.roasterName = "Stumptown"
-        brew3.rating = 4
+        brew3.rating = 4.0
         brew3.date = calendar.date(byAdding: .day, value: -2, to: today)
     }()
 

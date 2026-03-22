@@ -31,30 +31,15 @@ enum BrewMethod: String, CaseIterable, Codable {
     
     // Default parameters for each brew method
     var defaultGrams: Int16 {
-        switch self {
-        case .v60:
-            return 18
-        case .oreaV4:
-            return 20
-        }
+        return 18
     }
     
     var defaultRatio: Double {
-        switch self {
-        case .v60:
-            return 16.0
-        case .oreaV4:
-            return 15.0
-        }
+        return 17.0
     }
     
     var defaultTemperature: Double {
-        switch self {
-        case .v60:
-            return 95.0
-        case .oreaV4:
-            return 93.0
-        }
+        return 96.0
     }
     
     // Initialize from string (for CoreData compatibility)

@@ -79,6 +79,10 @@ struct Main: View {
             .tag(Tab.history)
         }
         .accentColor(BrewerColors.cream)
+        .sheet(item: $navigationCoordinator.brewToRate) { brew in
+            RatingSheet(brew: brew)
+                .environment(\.managedObjectContext, viewContext)
+        }
         .onAppear {
             let appearance = UITabBarAppearance()
             appearance.configureWithOpaqueBackground()

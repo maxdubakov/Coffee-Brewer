@@ -12,7 +12,7 @@ struct BrewFormData: Equatable, Hashable {
     var stages: [StageFormData] = []
     
     // Assessment (filled in later)
-    var rating: Int16 = 0
+    var rating: Double = 0.0
     var acidity: Int16 = 0
     var bitterness: Int16 = 0
     var body: Int16 = 0

@@ -6,6 +6,7 @@ struct BrewLibraryRow: View {
     let isEditMode: Bool
     let isSelected: Bool
     let onTap: () -> Void
+    var onRate: (() -> Void)? = nil
     
     var body: some View {
         Button(action: onTap) {
@@ -52,9 +53,10 @@ struct BrewLibraryRow: View {
                             
                             HStack(spacing: 2) {
                                 ForEach(0..<5) { index in
-                                    Image(systemName: index < Int(brew.rating) ? "star.fill" : "star")
+                                    let pos = Double(index + 1)
+                                    Image(systemName: brew.rating >= pos ? "star.fill" : (brew.rating >= pos - 0.5 ? "star.leadinghalf.filled" : "star"))
                                         .font(.system(size: 9))
-                                        .foregroundColor(index < Int(brew.rating) ? BrewerColors.caramel : BrewerColors.textSecondary.opacity(0.3))
+                                        .foregroundColor(brew.rating >= pos - 0.5 ? BrewerColors.caramel : BrewerColors.textSecondary.opacity(0.3))
                                 }
                             }
                         } else if !brew.isAssessed {
@@ -70,6 +72,7 @@ struct BrewLibraryRow: View {
                                     .font(.system(size: 11))
                                     .foregroundColor(BrewerColors.caramel.opacity(0.8))
                             }
+                            .highPriorityGesture(TapGesture().onEnded { onRate?() })
                         }
                         
                         if let roasterName = brew.roasterName {
