@@ -271,6 +271,8 @@ class NavigationCoordinator: ObservableObject {
             addPath = NavigationPath()
         case .history:
             historyPath = NavigationPath()
+        case .scan:
+            break // Scan tab has no navigation stack to pop
         }
     }
 

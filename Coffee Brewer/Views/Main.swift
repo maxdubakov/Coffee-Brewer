@@ -3,7 +3,7 @@ import SwiftUI
 struct Main: View {
     // MARK: - Nested Types
     enum Tab {
-        case brew, add, history
+        case brew, add, history, scan
     }
 
     // MARK: - Environment
@@ -77,6 +77,16 @@ struct Main: View {
                 Image("history").renderingMode(.template)
             }
             .tag(Tab.history)
+
+            // Scan tab
+            NavigationStack {
+                ScanView()
+                    .background(BrewerColors.background)
+            }
+            .tabItem {
+                Image(systemName: "text.viewfinder")
+            }
+            .tag(Tab.scan)
         }
         .accentColor(BrewerColors.cream)
         .sheet(item: $navigationCoordinator.brewToRate) { brew in
