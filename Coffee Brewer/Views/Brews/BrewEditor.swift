@@ -187,52 +187,50 @@ struct BrewEditor: View {
             }
             .padding(.horizontal, 20)
 
-            ScrollView(.horizontal, showsIndicators: false) {
-                HStack(spacing: 10) {
-                    BrewParamCell(
-                        label: "Grind",
-                        value: formatDouble(viewModel.formData.grindSize),
-                        unit: "",
-                        onCommit: { text in
-                            if let v = Double(text), v > 0 {
-                                viewModel.formData.grindSize = v
-                            }
+            HStack(spacing: 10) {
+                BrewParamCell(
+                    label: "Grind",
+                    value: formatDouble(viewModel.formData.grindSize),
+                    unit: "",
+                    onCommit: { text in
+                        if let v = Double(text), v > 0 {
+                            viewModel.formData.grindSize = v
                         }
-                    )
+                    }
+                )
 
-                    BrewParamCell(
-                        label: "Dose",
-                        value: "\(viewModel.formData.grams)",
-                        unit: "g",
-                        onCommit: { text in
-                            if let v = Int16(text), v > 0 {
-                                viewModel.formData.grams = v
-                            }
+                BrewParamCell(
+                    label: "Dose",
+                    value: "\(viewModel.formData.grams)",
+                    unit: "g",
+                    onCommit: { text in
+                        if let v = Int16(text), v > 0 {
+                            viewModel.formData.grams = v
                         }
-                    )
+                    }
+                )
 
-                    BrewParamCell(
-                        label: "Temp",
-                        value: formatDouble(viewModel.formData.temperature),
-                        unit: "°C",
-                        onCommit: { text in
-                            if let v = Double(text), v > 0 {
-                                viewModel.formData.temperature = v
-                            }
+                BrewParamCell(
+                    label: "Temp",
+                    value: formatDouble(viewModel.formData.temperature),
+                    unit: "°C",
+                    onCommit: { text in
+                        if let v = Double(text), v > 0 {
+                            viewModel.formData.temperature = v
                         }
-                    )
+                    }
+                )
 
-                    BrewMethodCell(
-                        method: viewModel.formData.brewMethod,
-                        onToggle: {
-                            viewModel.formData.brewMethod =
-                                viewModel.formData.brewMethod == .v60 ? .oreaV4 : .v60
-                        }
-                    )
-                }
-                .padding(.horizontal, 20)
-                .padding(.vertical, 2)
+                BrewMethodCell(
+                    method: viewModel.formData.brewMethod,
+                    onToggle: {
+                        viewModel.formData.brewMethod =
+                            viewModel.formData.brewMethod == .v60 ? .oreaV4 : .v60
+                    }
+                )
             }
+            .padding(.horizontal, 20)
+            .padding(.vertical, 2)
         }
     }
 
@@ -261,7 +259,7 @@ private struct BrewParamCell: View {
                 .font(.system(size: 10, weight: .medium))
                 .foregroundColor(BrewerColors.textSecondary)
 
-            if isEditing {
+            ZStack {
                 HStack(spacing: 1) {
                     TextField("", text: $editText)
                         .keyboardType(.decimalPad)
@@ -280,14 +278,12 @@ private struct BrewParamCell: View {
                             .foregroundColor(BrewerColors.textSecondary)
                     }
                 }
-                .onAppear {
-                    editText = value
-                    isFocused = true
-                }
-            } else {
+                .opacity(isEditing ? 1 : 0)
+
                 Text(value + unit)
                     .font(.system(size: 15, weight: .semibold))
                     .foregroundColor(BrewerColors.textPrimary)
+                    .opacity(isEditing ? 0 : 1)
             }
         }
         .frame(minWidth: 64)
@@ -300,6 +296,7 @@ private struct BrewParamCell: View {
         .onTapGesture {
             if !isEditing {
                 editText = value
+                isFocused = true
                 isEditing = true
             }
         }
